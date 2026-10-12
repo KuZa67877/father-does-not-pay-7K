@@ -21,6 +21,8 @@ export const RubricSchema = z.object({
   description: z.string().optional(),
   subscribersCount: z.number().int().nonnegative(),
   articlesCount: z.number().int().nonnegative().optional(),
+  /** Последний материал — для плиток рубрик на главной. */
+  lastArticle: z.object({ slug: SlugSchema, title: z.string() }).nullable().optional(),
 });
 export type Rubric = z.infer<typeof RubricSchema>;
 
@@ -113,7 +115,14 @@ export type Timecode = z.infer<typeof TimecodeSchema>;
 
 export const ArticleFormatSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('standard') }),
-  z.object({ kind: z.literal('video'), provider: VideoProviderSchema, url: z.string().min(1) }),
+  z.object({
+    kind: z.literal('video'),
+    provider: VideoProviderSchema,
+    url: z.string().min(1),
+    /** Длительность, секунды — для бейджа «Видео · 1:39». */
+    duration: z.number().nonnegative().optional(),
+    poster: z.string().optional(),
+  }),
   z.object({ kind: z.literal('photoReport'), gallery: z.array(MediaSchema).min(1) }),
   z.object({
     kind: z.literal('podcast'),
@@ -213,7 +222,8 @@ export interface ArticleQuery {
   rubric?: string;
   tag?: string;
   author?: string;
-  format?: ArticleFormatKind;
+  /** Один формат или несколько («Фото и видео»). */
+  format?: ArticleFormatKind | ArticleFormatKind[];
   readingTime?: ReadingTimeFilter;
   search?: string;
   sort?: ArticleSort;

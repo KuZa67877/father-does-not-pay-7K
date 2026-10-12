@@ -1,6 +1,5 @@
 import type { CitySummary, CurrencyRate, WeatherCondition, WeatherForecast } from '@dle/core/time';
 import { toIsoOffset } from '../shared/utils';
-import { CITY_ITEMS } from './content';
 
 const isoDate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -55,10 +54,22 @@ export function buildCurrency(): CurrencyRate[] {
   ];
 }
 
-export function buildCitySummary(now = new Date()): CitySummary {
+/** «Город сегодня»: ветер, влажность, давление, восход и закат — из текущей погоды. */
+export function buildCitySummary(weather: WeatherForecast, now = new Date()): CitySummary {
+  const c = weather.current;
   return {
-    city: 'Москва',
+    city: weather.city,
     date: isoDate(now),
-    items: CITY_ITEMS.map((item, i) => ({ id: `city-${i}`, ...item })),
+    items: [
+      {
+        id: 'wind',
+        icon: 'wind',
+        label: 'Ветер',
+        value: `${String(c.wind).replace('.', ',')} м/с, ${c.windDirection}`,
+      },
+      { id: 'humidity', icon: 'droplets', label: 'Влажность', value: `${c.humidity}%` },
+      { id: 'pressure', icon: 'gauge', label: 'Давление', value: `${c.pressure} мм` },
+      { id: 'sun', icon: 'sunrise', label: 'Восход · закат', value: `${c.sunrise} · ${c.sunset}` },
+    ],
   };
 }

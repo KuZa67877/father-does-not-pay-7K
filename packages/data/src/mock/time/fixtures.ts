@@ -13,13 +13,16 @@ import {
 import { faker, ruFullName } from '../shared/faker';
 import { avatar, baseNow, minutesAgo, photo } from '../shared/utils';
 import {
+  ARCHIVE,
   ARTICLES,
   AUTHORS,
   COMMENT_TEXTS,
   FACTS_POOL,
+  GALLERY_CAPTIONS,
   HEADINGS,
   PARAGRAPHS,
   RUBRICS,
+  RUBRIC_AUTHOR,
   SUMMARY_POOL,
   type ArticleSeed,
 } from './content';
@@ -130,15 +133,16 @@ function buildFormat(seed: ArticleSeed, slug: string, author: Author): ArticleFo
     case 'video':
       return {
         kind: 'video',
+        duration: faker.number.int({ min: 38, max: 210 }),
         provider: 'mp4',
         url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
       };
     case 'photoReport':
       return {
         kind: 'photoReport',
-        gallery: Array.from({ length: 8 }, (_, i) => ({
-          ...photo(`${slug}-g${i}`, 1600, i % 3 === 2 ? 1100 : 1067, `Кадр ${i + 1}`),
-        })),
+        gallery: GALLERY_CAPTIONS.map((caption, i) =>
+          photo(`${slug}-g${i}`, 1600, i % 3 === 2 ? 1100 : 1067, caption),
+        ),
       };
     case 'podcast':
       return {
@@ -220,7 +224,18 @@ export function buildTimeFixtures(): TimeFixtures {
   const tagsBySlug = new Map<string, Tag>();
   const comments = new Map<string, Comment[]>();
 
-  const articles: Article[] = ARTICLES.map((seed, i) => {
+  // Архивные заметки — от суток до трёх недель назад.
+  const archive: ArticleSeed[] = ARCHIVE.map(([rubric, sub, title, lead, tag], i) => ({
+    rubric,
+    ...(sub ? { sub } : {}),
+    title,
+    lead,
+    tags: [tag],
+    author: RUBRIC_AUTHOR[rubric] ?? 0,
+    ago: 60 * 24 * (1 + (i % 4) * 5) + ((i * 137) % 600),
+  }));
+
+  const articles: Article[] = [...ARTICLES, ...archive].map((seed, i) => {
     const rubric = rubricBySlug.get(seed.rubric);
     if (!rubric) throw new Error(`Неизвестная рубрика ${seed.rubric}`);
     const sub = seed.sub ? (rubricBySlug.get(seed.sub) ?? null) : null;
@@ -254,7 +269,10 @@ export function buildTimeFixtures(): TimeFixtures {
       status: 'published',
       publishedAt,
       updatedAt: publishedAt,
-      readingTimeMin: articleReadingTime(body, seed.lead) + (seed.long ? 5 : 0),
+      // Тела фикстур короче реальных статей — добавляем правдоподобный «хвост».
+      readingTimeMin:
+        articleReadingTime(body, seed.lead) +
+        (seed.long ? faker.number.int({ min: 7, max: 14 }) : faker.number.int({ min: 1, max: 3 })),
       views: faker.number.int({ min: 800, max: 64000 }),
       commentsCount: thread.reduce((n, c) => n + 1 + c.replies.length, 0),
       reactions: {

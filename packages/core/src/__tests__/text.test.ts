@@ -44,6 +44,11 @@ describe('slugify', () => {
   it('пустой ввод даёт заглушку', () => {
     expect(slugify('«»')).toBe('item');
   });
+
+  it('обрезает длинный адрес по границе слова', () => {
+    expect(slugify('Банки начали снижать ставки по вкладам', 24)).toBe('banki-nachali-snizhat');
+    expect(slugify('Слово', 3)).toBe('slo');
+  });
 });
 
 describe('parseRichText', () => {

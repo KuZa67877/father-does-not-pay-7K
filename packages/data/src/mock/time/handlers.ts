@@ -82,7 +82,10 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     return { id: r.id, slug: r.slug, name: r.name, icon: r.icon, color: r.color };
   };
 
-  const withUserState = (a: Article): Article => ({ ...a, isFavorite: db.favorites.has(a.id) });
+  const withUserState = (a: Article): Article => ({
+    ...a,
+    isFavorite: Boolean(db.session.user) && db.favorites.has(a.id),
+  });
 
   const published = () => [...db.articles.values()].filter((a) => a.status === 'published');
 
@@ -184,10 +187,10 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
         if (tag) list = list.filter((a) => a.tags.some((t) => t.slug === tag));
         const author = p.get('author');
         if (author) list = list.filter((a) => a.author.login === author);
-        const format = p.get('format');
-        if (format && FORMATS.includes(format as ArticleFormatKind)) {
-          list = list.filter((a) => a.format.kind === format);
-        }
+        const formats = p
+          .getAll('format')
+          .filter((f): f is ArticleFormatKind => FORMATS.includes(f as ArticleFormatKind));
+        if (formats.length) list = list.filter((a) => formats.includes(a.format.kind));
         const reading = p.get('readingTime');
         if (reading && READING.includes(reading as ReadingTimeFilter)) {
           list = list.filter((a) => matchesReadingTime(a, reading as ReadingTimeFilter));
@@ -429,7 +432,15 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     /* ---------- Рубрики, теги ---------- */
     http.get(
       `${base}/rubrics`,
-      handle(() => HttpResponse.json(db.fx.rubrics)),
+      handle(() => {
+        const list = published().sort(byDateDesc);
+        return HttpResponse.json(
+          db.fx.rubrics.map((r) => {
+            const last = list.find((a) => a.rubric.id === r.id || a.subrubric?.id === r.id);
+            return { ...r, lastArticle: last ? { slug: last.slug, title: last.title } : null };
+          }),
+        );
+      }),
     ),
     http.get(
       `${base}/rubrics/:slug`,
@@ -467,7 +478,9 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     http.get(
       `${base}/rubrics/:id/subscription`,
       handle(({ params }) =>
-        HttpResponse.json({ value: db.subscriptions.has(String(params['id'])) }),
+        HttpResponse.json({
+          value: Boolean(db.session.user) && db.subscriptions.has(String(params['id'])),
+        }),
       ),
     ),
     http.put(
@@ -494,7 +507,8 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     ),
     http.get(
       `${base}/me/subscriptions`,
-      handle(() => HttpResponse.json([...db.subscriptions])),
+      // Гость ни на что не подписан.
+      handle(() => HttpResponse.json(db.session.user ? [...db.subscriptions] : [])),
     ),
     http.get(
       `${base}/tags/:slug`,
@@ -553,7 +567,7 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     ),
     http.get(
       `${base}/widgets/city`,
-      handle(() => HttpResponse.json(buildCitySummary())),
+      handle(() => HttpResponse.json(buildCitySummary(buildWeather()))),
     ),
   ];
 }

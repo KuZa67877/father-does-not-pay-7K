@@ -67,7 +67,12 @@ export const slugify = (input: string, maxLength = 80): string => {
     .join('')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-  return out.slice(0, maxLength).replace(/-+$/, '') || 'item';
+  if (out.length <= maxLength) return out || 'item';
+  // Режем по границе слова, чтобы в адресе не оставалось обрубков.
+  const cut = out.slice(0, maxLength + 1);
+  const boundary = cut.lastIndexOf('-');
+  const trimmed = boundary > maxLength / 2 ? cut.slice(0, boundary) : out.slice(0, maxLength);
+  return trimmed.replace(/-+$/, '') || 'item';
 };
 
 /** Компактные числа: 1 200 → «1,2 тыс.», 3 400 000 → «3,4 млн». */

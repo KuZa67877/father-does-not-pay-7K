@@ -19,7 +19,7 @@ export const formatLongDate = (d: Date | string, locale = 'ru-RU'): string => {
     month: 'long',
     year: 'numeric',
   });
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  return (s.charAt(0).toUpperCase() + s.slice(1)).replace(/\s?г\.$/, '');
 };
 
 /** «12:40». */
