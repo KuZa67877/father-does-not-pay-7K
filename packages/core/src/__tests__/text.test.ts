@@ -9,6 +9,8 @@ import {
   plural,
   readingTimeMin,
   slugify,
+  toDative,
+  likedByLabel,
 } from '../utils/text';
 
 describe('plural', () => {
@@ -48,6 +50,23 @@ describe('slugify', () => {
   it('обрезает длинный адрес по границе слова', () => {
     expect(slugify('Банки начали снижать ставки по вкладам', 24)).toBe('banki-nachali-snizhat');
     expect(slugify('Слово', 3)).toBe('slo');
+  });
+});
+
+describe('toDative / likedByLabel', () => {
+  it('склоняет частые имена', () => {
+    expect(toDative('Дмитрий')).toBe('Дмитрию');
+    expect(toDative('Анна')).toBe('Анне');
+    expect(toDative('Мария')).toBe('Марии');
+    expect(toDative('Павел')).toBe('Павлу');
+    expect(toDative('Глеб')).toBe('Глебу');
+    expect(toDative('Игорь')).toBe('Игорю');
+  });
+  it('собирает подпись «Нравится…»', () => {
+    expect(likedByLabel(['Дмитрий Орлов'], 273)).toBe('Нравится Дмитрию и ещё 272');
+    expect(likedByLabel(['Анна Соколова', 'Марина Лебедева'], 2)).toBe('Нравится Анне и Марине');
+    expect(likedByLabel(['Вера Ким'], 1)).toBe('Нравится Вере');
+    expect(likedByLabel([], 0)).toBe('');
   });
 });
 

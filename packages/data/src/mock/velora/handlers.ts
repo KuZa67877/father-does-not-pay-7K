@@ -362,6 +362,23 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         return HttpResponse.json(comment, { status: 201 });
       }),
     ),
+    http.put(
+      `${base}/comments/:id/like`,
+      handle(async ({ params, request }) => {
+        requireUser(db.session);
+        const { value } = await readJson<{ value: boolean }>(request);
+        let found: PostComment | undefined;
+        for (const thread of db.comments.values()) {
+          found = findComment(thread, String(params['id']));
+          if (found) break;
+        }
+        if (!found) throw new ApiError('not_found', 'Комментарий не найден', 404);
+        if (value !== found.isLiked)
+          found.likesCount = Math.max(0, found.likesCount + (value ? 1 : -1));
+        found.isLiked = value;
+        return HttpResponse.json({ likesCount: found.likesCount, isLiked: found.isLiked });
+      }),
+    ),
 
     /* ---------- Истории ---------- */
     http.get(

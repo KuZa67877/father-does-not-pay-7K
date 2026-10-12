@@ -34,6 +34,7 @@ export interface PostRepository {
   vote(postId: Id, optionIds: Id[]): Promise<Post>;
   comments(postId: Id, sort: CommentSort, opts?: CallOptions): Promise<PostComment[]>;
   addComment(postId: Id, input: { text: string; parentId: Id | null }): Promise<PostComment>;
+  likeComment(commentId: Id, value: boolean): Promise<Pick<PostComment, 'likesCount' | 'isLiked'>>;
 }
 
 export interface FeedRepository {

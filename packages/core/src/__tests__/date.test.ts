@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { dayGroupLabel, formatDuration, formatRelative, greeting } from '../utils/date';
+import {
+  dayGroupLabel,
+  formatDuration,
+  formatRelative,
+  formatShortAgo,
+  greeting,
+} from '../utils/date';
 
 const now = new Date('2026-10-12T15:00:00');
 
@@ -33,5 +39,17 @@ describe('greeting / dayGroupLabel', () => {
   it('группы дней', () => {
     expect(dayGroupLabel('2026-10-12T01:00:00', now)).toBe('Сегодня');
     expect(dayGroupLabel('2026-10-11T23:00:00', now)).toBe('Вчера');
+  });
+});
+
+describe('formatShortAgo', () => {
+  it.each([
+    ['2026-10-12T14:59:30', 'сейчас'],
+    ['2026-10-12T14:48:00', '12 мин'],
+    ['2026-10-12T10:00:00', '5 ч'],
+    ['2026-10-08T10:00:00', '4 дн'],
+    ['2026-09-20T10:00:00', '20 сентября'],
+  ])('%s → %s', (iso, expected) => {
+    expect(formatShortAgo(iso, now)).toBe(expected);
   });
 });

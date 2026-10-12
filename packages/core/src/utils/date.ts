@@ -61,6 +61,17 @@ export const formatRelative = (d: Date | string, now: Date = new Date()): string
   return formatDayMonth(date, now);
 };
 
+/** Коротко для шапки поста: «сейчас», «5 мин», «3 ч», «4 дн», дальше — дата. */
+export const formatShortAgo = (d: Date | string, now: Date = new Date()): string => {
+  const date = toDate(d);
+  const diff = now.getTime() - date.getTime();
+  if (diff < MIN) return 'сейчас';
+  if (diff < HOUR) return `${Math.floor(diff / MIN)} мин`;
+  if (diff < DAY) return `${Math.floor(diff / HOUR)} ч`;
+  if (diff < 7 * DAY) return `${Math.floor(diff / DAY)} дн`;
+  return formatDayMonth(date, now);
+};
+
 /** «3 мин» — время чтения. */
 export const formatReadingTime = (min: number): string => `${min} мин`;
 

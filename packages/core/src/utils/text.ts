@@ -138,3 +138,36 @@ export const highlightParts = (text: string, query: string): { text: string; mat
     .filter((p) => p.length > 0)
     .map((p) => ({ text: p, match: p.toLowerCase() === q.toLowerCase() }));
 };
+
+/* ---------- Имена ---------- */
+
+const DATIVE_EXCEPTIONS: Record<string, string> = {
+  Павел: 'Павлу',
+  Лев: 'Льву',
+  Пётр: 'Петру',
+  Петр: 'Петру',
+  Любовь: 'Любови',
+};
+
+/**
+ * Имя в дательном падеже — для «Нравится Дмитрию». Покрывает частые русские имена;
+ * незнакомое окончание возвращается как есть.
+ */
+export const toDative = (name: string): string => {
+  const exception = DATIVE_EXCEPTIONS[name];
+  if (exception) return exception;
+  if (/ия$/.test(name)) return `${name.slice(0, -1)}и`; // Мария → Марии
+  if (/[ая]$/.test(name)) return `${name.slice(0, -1)}е`; // Анна → Анне, Катя → Кате
+  if (/[йь]$/.test(name)) return `${name.slice(0, -1)}ю`; // Дмитрий → Дмитрию, Игорь → Игорю
+  if (/[бвгджзклмнпрстфхцчшщ]$/.test(name)) return `${name}у`; // Глеб → Глебу
+  return name;
+};
+
+/** «Нравится Дмитрию и ещё 272», «Нравится Анне и Марине». */
+export const likedByLabel = (names: readonly string[], total: number): string => {
+  const first = names.slice(0, 2).map((n) => toDative(n.split(' ')[0] ?? n));
+  if (total <= 0 || first.length === 0) return total > 0 ? `${total} отметок «нравится»` : '';
+  if (total === 1) return `Нравится ${first[0]}`;
+  if (total === 2 && first.length === 2) return `Нравится ${first[0]} и ${first[1]}`;
+  return `Нравится ${first[0]} и ещё ${(total - 1).toLocaleString('ru-RU')}`;
+};

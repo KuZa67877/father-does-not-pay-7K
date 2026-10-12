@@ -8,7 +8,8 @@
     ".": "./src/index.ts",
     "./time": "./src/time.ts",
     "./velora": "./src/velora.ts",
-    "./mock/browser": "./src/mock/browser.ts"
+    "./mock/browser": "./src/mock/browser.ts",
+    "./mock/testing": "./src/mock/testing.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"

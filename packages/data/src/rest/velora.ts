@@ -57,6 +57,8 @@ export function createRestVeloraRepositories(
         }),
       addComment: (id, input) =>
         http.post(`/posts/${enc(id)}/comments`, { body: input, schema: PostCommentSchema }),
+      likeComment: (id, value) =>
+        http.put(`/comments/${enc(id)}/like`, { body: { value }, schema: LikeState }),
     },
     stories: {
       groups: (opts) =>

@@ -133,4 +133,10 @@ describe.each(Object.entries(adapters))('VeloraRepositories: %s', (_name, make) 
     const tree = await repo.posts.comments('p-2', 'new');
     expect(tree.find((c) => c.id === root.id)?.replies).toHaveLength(1);
   });
+
+  it('отметка «нравится» на комментарии', async () => {
+    const c = await repo.posts.addComment('p-2', { text: 'Отличный кадр', parentId: null });
+    expect(await repo.posts.likeComment(c.id, true)).toEqual({ likesCount: 1, isLiked: true });
+    expect(await repo.posts.likeComment(c.id, false)).toEqual({ likesCount: 0, isLiked: false });
+  });
 });
