@@ -1,0 +1,107 @@
+/*
+ * Токены «Хроники». Значения сняты с референса — см. docs/design-tokens.md.
+ * Все цвета в компонентах — только через эти переменные.
+ */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f5f3ef;
+  --surface: #ffffff;
+  --surface-soft: #faf9f6;
+  --surface-sunk: #efece6;
+  --card: #eae7e1;
+  --ink: #141414;
+  --text: var(--ink);
+  --muted: #66645e;
+  --line: rgba(20, 20, 20, 0.1);
+  --line-2: rgba(20, 20, 20, 0.18);
+
+  --accent: #ff4a1f;
+  --accent-text: #c2320c;
+  --accent-soft: rgba(255, 74, 31, 0.12);
+  --on-accent: #141414;
+  --focus: #c2320c;
+
+  --positive: #1d6b3f;
+  --negative: #b3261e;
+  --warn: #8a5a00;
+
+  --shade: linear-gradient(180deg, rgba(10, 10, 12, 0) 40%, rgba(10, 10, 12, 0.55));
+  --shadow-tiny: 0 2px 6px -2px rgba(20, 20, 20, 0.12);
+  --shadow-menu: 0 18px 44px -12px rgba(20, 20, 20, 0.28), 0 0 0 1px var(--line);
+  --shadow-modal: 0 40px 90px -24px rgba(0, 0, 0, 0.45);
+
+  /* Шрифты */
+  --font-head: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Onest Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Шкала текста */
+  --fs-meta: 13px;
+  --fs-sm: 14px;
+  --fs-ui: 15px;
+  --fs-body: 16px;
+  --fs-lead: 18px;
+
+  /* Отступы */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* Форма */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+  --hair: 1px;
+  --control-h: 46px;
+  --ease: cubic-bezier(0.6, 0, 0.2, 1);
+
+  /* Сетка */
+  --container: 1360px;
+  --gutter: 16px;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0f0f11;
+  --surface: #17171a;
+  --surface-soft: #1b1b1f;
+  --surface-sunk: #222227;
+  --card: #1e1e22;
+  --ink: #edebe6;
+  --muted: #9c9992;
+  --line: rgba(237, 235, 230, 0.1);
+  --line-2: rgba(237, 235, 230, 0.2);
+
+  --accent-text: #ff7a55;
+  --accent-soft: rgba(255, 74, 31, 0.16);
+  --focus: #ff7a55;
+
+  --positive: #5cc98d;
+  --negative: #ff8a80;
+  --warn: #e6b04a;
+
+  --shadow-tiny: 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+  --shadow-menu: 0 18px 44px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--line);
+}
+
+@media (min-width: 760px) {
+  :root {
+    --gutter: 32px;
+  }
+}
+@media (min-width: 1100px) {
+  :root {
+    --gutter: 48px;
+  }
+}

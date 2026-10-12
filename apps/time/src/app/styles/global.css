@@ -1,0 +1,19 @@
+@import '@dle/ui/base.css';
+@import './tokens.css';
+
+body {
+  font-feature-settings: 'kern', 'liga';
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Цифры в мета-строках не прыгают */
+time,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,71 @@
+.page {
+  max-width: calc(var(--col-main) + 32px);
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.greeting {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+}
+.greeting em {
+  color: var(--acc-text);
+}
+.card {
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--card);
+}
+.card + .card {
+  margin-top: 16px;
+}
+.author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.name {
+  font-weight: 600;
+  color: var(--ink);
+}
+.meta {
+  font-size: var(--fs-meta);
+  color: var(--muted);
+}
+.title {
+  margin-bottom: 6px;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+.text {
+  font-size: var(--fs-post);
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.note {
+  margin: 0 0 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}

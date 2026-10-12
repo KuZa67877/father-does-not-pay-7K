@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Ольха — спокойная социальная сеть</title>
+    <meta name="description" content="Спокойная соцсеть для тех, кто пишет и снимает медленно: люди, каналы и разговоры без бесконечной ленты." />
+    <meta name="theme-color" content="#F4F3EF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0E0E0D" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Тема до первой отрисовки, без вспышки. Синхронно с packages/ui/src/theme/theme-script.ts -->
+    <script>
+      (function () {
+        try {
+          var k = 'olkha:theme';
+          var t = localStorage.getItem(k);
+          if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.dataset.theme = t;
+          document.documentElement.style.colorScheme = t;
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/app/main.tsx"></script>
+  </body>
+</html>

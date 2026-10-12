@@ -1,0 +1,121 @@
+/*
+ * Токены «Ольхи». Значения сняты с референса Velora — см. docs/design-tokens.md.
+ * Имена --acc/--line2/--ink2 сохранены как в разборе, плюс семантические алиасы для @dle/ui.
+ */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f4f3ef;
+  --card: #ffffff;
+  --line: #e7e5df;
+  --line2: #efede8;
+  --ink: #141412;
+  --ink2: #3a3833;
+  --text: #22211e;
+  --muted: #6e6b64;
+  --muted2: #807c73;
+  --faint: #b9b5ab;
+  --hover: #eae8e2;
+  --hover2: #f1efea;
+  --ring: #dad7cf;
+
+  --acc: #4b3fe0;
+  --acc-hover: #3c31c9;
+  --acc-text: #4b3fe0;
+  --acc-soft: #eceafd;
+  --like-soft: #fff0eb;
+  --danger: #d9441f;
+  --green: #1f6b55;
+  --story-ring: conic-gradient(#4b3fe0, #ff7a59, #ffb547, #4b3fe0);
+
+  /* Алиасы для общих компонентов */
+  --surface: var(--card);
+  --surface-soft: var(--hover2);
+  --surface-sunk: var(--hover);
+  --line-2: var(--ring);
+  --accent: var(--acc);
+  --accent-hover: var(--acc-hover);
+  --accent-text: var(--acc-text);
+  --accent-soft: var(--acc-soft);
+  --on-accent: #ffffff;
+  --focus: var(--acc);
+  --positive: var(--green);
+  --negative: #c23a1a;
+
+  --shadow-tiny: 0 2px 6px -2px rgba(20, 20, 18, 0.12);
+  --shadow-pop: 0 24px 60px rgba(20, 20, 18, 0.18);
+  --shadow-modal: 0 40px 100px rgba(0, 0, 0, 0.25);
+
+  /* Шрифты */
+  --font-sans: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-head: 'Onest Variable', 'Geist Variable', sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, Consolas, monospace;
+
+  --fs-meta: 13px;
+  --fs-sm: 14px;
+  --fs-ui: 15px;
+  --fs-body: 15px;
+  --fs-post: 15.5px;
+  --fs-lead: 18px;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-card: 24px;
+  --r-pill: 999px;
+  --control-h: 46px;
+  --tabbar-h: 64px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Сетка: меню / лента / сайдбар */
+  --app-max: 1400px;
+  --col-left: 248px;
+  --col-main: 640px;
+  --col-right: 340px;
+  --col-gap: 32px;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0e0e0d;
+  --card: #171715;
+  --line: #2a2925;
+  --line2: #22211e;
+  --ink: #f2f0ea;
+  --ink2: #d3d0c8;
+  --text: #e2dfd7;
+  --muted: #a29e94;
+  --muted2: #8c887f;
+  --faint: #55524b;
+  --hover: #1f1e1b;
+  --hover2: #1f1e1b;
+  --ring: #34332f;
+
+  --acc: #6f62f8;
+  --acc-hover: #5b4fe6;
+  --acc-text: #9b92ff;
+  --acc-soft: #221f45;
+  --like-soft: #2e1a15;
+  --danger: #ff7a59;
+  --green: #7fd1b5;
+  --negative: #ff8a6b;
+
+  /* Белый текст на кнопках — на более тёмном акценте (контраст AA, см. design-tokens.md) */
+  --accent: var(--acc-hover);
+  --accent-hover: #4e43d6;
+
+  --shadow-tiny: 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
