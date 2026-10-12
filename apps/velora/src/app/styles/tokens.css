@@ -75,6 +75,8 @@
   --r-card: 24px;
   --r-pill: 999px;
   --control-h: 46px;
+  --btn-radius: 16px;
+  --modal-w: 520px;
   --tabbar-h: 64px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 

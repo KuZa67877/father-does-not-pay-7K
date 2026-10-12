@@ -1,0 +1,48 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.more {
+  display: flex;
+  justify-content: center;
+}
+.moreBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 200px;
+  height: 50px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+}
+.moreBtn:hover:not(:disabled) {
+  border-color: var(--ring);
+}
+.end {
+  padding: 8px 0 16px;
+  color: var(--muted2);
+  font-size: 13.5px;
+  text-align: center;
+}
+.skeleton {
+  display: grid;
+  gap: 12px;
+  padding: 20px 22px;
+}
+.skHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.skLines {
+  display: grid;
+  flex: 1;
+  gap: 6px;
+}

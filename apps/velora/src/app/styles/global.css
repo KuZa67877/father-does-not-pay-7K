@@ -2,11 +2,79 @@
 @import './tokens.css';
 
 body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
   font-size: var(--fs-body);
   line-height: 1.45;
+}
+
+/* Списки в интерфейсе — без маркеров; кнопки — без браузерной рамки. */
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+button {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+button:disabled {
+  cursor: default;
+}
+dl,
+dd {
+  margin: 0;
 }
 
 time,
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Карточка «Ольхи»: белая, тонкая обводка, без теней. */
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--card);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--acc) 22%, transparent);
+}
+
+input,
+textarea {
+  caret-color: var(--acc);
+}
+
+* {
+  scrollbar-color: var(--ring) transparent;
+}
+
+/* Акцентная кнопка-ссылка для пустых состояний. */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+.cta:hover {
+  background: var(--accent-hover);
+}
+
+/* Фон под окнами — размытый, как в оригинале. */
+dialog::backdrop {
+  background: rgba(20, 20, 18, 0.32);
+  backdrop-filter: blur(6px);
 }

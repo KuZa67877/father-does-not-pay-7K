@@ -1,0 +1,48 @@
+.h1 {
+  color: var(--ink);
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 600;
+}
+.form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 60px;
+  padding: 0 20px;
+  color: var(--muted);
+}
+.form:focus-within {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 4px var(--acc-soft);
+}
+.form input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 17px;
+  outline: none;
+}
+.tabs {
+  align-self: flex-start;
+}
+.people {
+  display: grid;
+  gap: 12px;
+  padding: 18px 20px;
+}
+.count {
+  color: var(--muted);
+  font-size: 13px;
+}
+.list {
+  display: grid;
+  gap: 16px;
+}
+.list > li {
+  min-width: 0;
+}

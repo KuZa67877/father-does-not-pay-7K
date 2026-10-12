@@ -1,0 +1,94 @@
+.card {
+  position: relative;
+  overflow: hidden;
+}
+.cover {
+  height: 80px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--acc-soft), var(--hover));
+}
+.cover > span {
+  height: 100%;
+}
+.cover img {
+  height: 100%;
+  object-fit: cover;
+}
+.av {
+  position: absolute;
+  top: 44px;
+  left: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--card);
+}
+.body {
+  display: grid;
+  gap: 4px;
+  padding: 44px 20px 20px;
+}
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+  font-family: var(--font-head);
+  font-size: 18px;
+  font-weight: 600;
+}
+.name:hover {
+  text-decoration: underline;
+}
+.sub {
+  color: var(--muted);
+  font-size: 13px;
+}
+.bio {
+  margin-top: 8px;
+  color: var(--ink2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 12px 0 4px;
+}
+.stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  padding: 10px 4px;
+  border-radius: 14px;
+  background: var(--hover2);
+}
+.stats dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 16px;
+}
+.stats dt {
+  color: var(--muted);
+  font-size: 11px;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.actions > :first-child {
+  flex: 1;
+}
+.msg {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--ink);
+}
+.msg:hover {
+  border-color: var(--ring);
+}

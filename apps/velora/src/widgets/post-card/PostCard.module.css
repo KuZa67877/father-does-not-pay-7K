@@ -1,0 +1,120 @@
+.post {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px 12px;
+}
+.pinned {
+  border-color: color-mix(in oklab, var(--acc) 35%, var(--line));
+}
+.pin {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -4px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.pin svg {
+  color: var(--acc-text);
+}
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.av {
+  flex: none;
+  border-radius: 50%;
+}
+.who {
+  flex: 1;
+  min-width: 0;
+}
+.nameLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1px 6px;
+  line-height: 1.3;
+}
+.name {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+}
+.name:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.handle {
+  color: var(--muted2);
+  font-size: 13.5px;
+}
+.time {
+  color: inherit;
+}
+.time:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+.sub {
+  overflow: hidden;
+  margin-top: 1px;
+  color: var(--muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.repostNote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.title {
+  font-family: var(--font-head);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+.title a {
+  color: var(--ink);
+}
+.title a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+.text {
+  display: grid;
+  gap: 10px;
+  margin-top: -4px;
+}
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  justify-self: start;
+  color: var(--acc-text);
+  font-size: 15px;
+  font-weight: 500;
+}
+.more:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 480px) {
+  .post {
+    gap: 12px;
+    padding: 16px 16px 8px;
+    border-radius: 20px;
+  }
+  .title {
+    font-size: 19px;
+  }
+}

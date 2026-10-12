@@ -1,0 +1,40 @@
+.page {
+  display: grid;
+  gap: 14px;
+  padding: 32px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.65;
+}
+.page h1 {
+  color: var(--ink);
+  font-family: var(--font-head);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+.page h2 {
+  margin-top: 10px;
+  color: var(--ink);
+  font-family: var(--font-head);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.lead {
+  font-size: 18px;
+}
+.note {
+  margin-top: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--acc-soft);
+  color: var(--ink2);
+  font-size: 14px;
+}
+@media (max-width: 600px) {
+  .page {
+    padding: 22px 18px;
+  }
+}

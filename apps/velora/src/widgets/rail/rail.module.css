@@ -1,0 +1,131 @@
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 12px 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--muted2);
+  transition:
+    border-color 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+.search:focus-within {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 4px var(--acc-soft);
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14.5px;
+  outline: none;
+}
+.search input::placeholder {
+  color: var(--muted2);
+}
+.widget {
+  display: grid;
+  gap: 12px;
+  padding: 18px 12px 12px;
+}
+.widget > :first-child {
+  padding: 0 10px;
+}
+.rows {
+  display: grid;
+  gap: 2px;
+}
+.row {
+  padding: 9px 12px;
+  border-radius: 14px;
+}
+.row:hover {
+  background: var(--hover2);
+}
+.catRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 10px;
+  border-radius: 14px;
+  color: var(--ink);
+}
+.catRow:hover {
+  background: var(--hover2);
+}
+.catName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+.count,
+.rank,
+.monoCap {
+  color: var(--muted2);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.monoCap {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.end {
+  color: var(--faint);
+}
+.trend {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  color: var(--ink);
+}
+.trend:hover {
+  background: var(--hover2);
+}
+.trendBody {
+  display: grid;
+}
+.trendBody b {
+  font-size: 14px;
+  font-weight: 500;
+}
+.trendBody small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.growth {
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.foot {
+  display: grid;
+  gap: 10px;
+  padding: 4px 12px 12px;
+  color: var(--muted2);
+  font-size: 12.5px;
+}
+.footLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+.footLinks a {
+  color: var(--muted);
+}
+.footLinks a:hover {
+  color: var(--ink);
+}
+.footCopy {
+  line-height: 1.5;
+}

@@ -1,0 +1,346 @@
+/* ---------- Шапка ленты ---------- */
+.feedHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 4px 4px 0;
+}
+.greeting {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 40px;
+  letter-spacing: -0.5px;
+}
+.greeting em {
+  color: var(--acc-text);
+}
+.headTools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.toggle {
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+.toggleOn {
+  background: #ffb547;
+  color: #3a2a00;
+}
+[data-theme='dark'] .toggleOn {
+  background: var(--acc);
+  color: #fff;
+}
+@media (max-width: 900px) {
+  .toggle {
+    display: none;
+  }
+  .greeting {
+    font-size: 28px;
+    line-height: 34px;
+  }
+}
+@media (max-width: 760px) {
+  .headTools {
+    width: 100%;
+  }
+  .headTools > * {
+    flex: 1;
+  }
+  .headTools > * > * {
+    flex: 1;
+  }
+}
+
+/* ---------- Истории ---------- */
+.storiesCard {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+.stories {
+  display: flex;
+  gap: 14px;
+  padding: 18px 18px 14px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 18px;
+  scrollbar-width: none;
+}
+.stories::-webkit-scrollbar {
+  display: none;
+}
+.story {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 68px;
+  color: var(--ink2);
+  font-size: 12px;
+  scroll-snap-align: start;
+}
+.ring {
+  position: relative;
+  display: block;
+  padding: 2.5px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: transform 0.2s var(--ease);
+}
+.ring > span:first-child {
+  box-shadow: 0 0 0 2.5px var(--card);
+}
+.story:hover .ring {
+  transform: scale(1.04);
+}
+.ringNew {
+  background: var(--story-ring);
+}
+.ringSeen {
+  background: var(--line);
+}
+.ringNone {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--line);
+}
+.plusBadge {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--card);
+  border-radius: 50%;
+  background: var(--acc);
+  color: #fff;
+}
+.storyName {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.seen {
+  color: var(--muted2);
+}
+.arrow {
+  position: absolute;
+  top: 40px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow-tiny);
+}
+.arrowL {
+  left: 10px;
+}
+.arrowR {
+  right: 10px;
+}
+@media (hover: none) {
+  .arrow {
+    display: none;
+  }
+}
+
+/* ---------- «Что у вас на уме?» ---------- */
+.composer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+}
+.composerInput {
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 15px;
+  text-align: left;
+  transition: background 0.15s var(--ease);
+}
+.composerInput:hover {
+  background: var(--hover);
+}
+.short {
+  display: none;
+}
+.composerActions {
+  display: flex;
+  gap: 2px;
+}
+.chipBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  color: var(--ink2);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.chipBtn:hover {
+  background: var(--hover2);
+}
+.icPhoto {
+  color: var(--acc-text);
+}
+.icPoll {
+  color: #ff7a59;
+}
+.icStory {
+  color: #e8a317;
+}
+@media (max-width: 600px) {
+  .composer {
+    padding: 12px;
+  }
+  .long,
+  .chipLabel {
+    display: none;
+  }
+  .short {
+    display: inline;
+  }
+  .chipBtn {
+    padding: 0 11px;
+  }
+}
+
+/* ---------- Чипсы каналов и «Авторы недели» — только без правой колонки ---------- */
+.chips,
+.authors {
+  display: none !important;
+}
+@media (max-width: 1200px) {
+  .chips {
+    display: flex !important;
+    gap: 8px;
+    margin: 0 -2px;
+    padding: 2px 2px 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+  .authors {
+    display: grid !important;
+  }
+}
+.chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--card);
+  color: var(--ink2);
+  font-size: 13px;
+  font-weight: 500;
+}
+.chip svg {
+  color: var(--c);
+}
+.chip:hover {
+  border-color: var(--ring);
+}
+.chipOn {
+  border-color: var(--acc-soft);
+  background: var(--acc-soft);
+  color: var(--acc-text);
+  font-weight: 600;
+}
+.chipOn svg {
+  color: currentColor;
+}
+.authors {
+  gap: 10px;
+  padding: 14px 0 12px;
+}
+.authors > :first-child {
+  padding: 0 18px;
+}
+.auRow {
+  display: flex;
+  gap: 4px;
+  padding: 0 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.auRow::-webkit-scrollbar {
+  display: none;
+}
+.auItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 84px;
+  padding: 8px 4px;
+  border-radius: 16px;
+  color: var(--ink);
+}
+.auItem:hover {
+  background: var(--hover2);
+}
+.auAv {
+  position: relative;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2px var(--card),
+    0 0 0 3px var(--line);
+}
+.auRank {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--card);
+  border-radius: 50%;
+  background: var(--acc);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.auName {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.growth {
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.auSub {
+  color: var(--muted2);
+  font-size: 11px;
+  white-space: nowrap;
+}

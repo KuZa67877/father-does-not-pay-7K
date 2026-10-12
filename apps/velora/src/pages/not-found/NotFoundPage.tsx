@@ -1,15 +1,23 @@
-import { EmptyState } from '@dle/ui';
+import { SearchX } from 'lucide-react';
 import { Link } from 'react-router';
+import { routes } from '@/shared/lib/routes';
+import { usePageMeta } from '@/shared/lib/meta';
+import { SoonCard } from '@/shared/ui';
 
-/** Полная 404 с поиском и свежими материалами — этап 6. */
+/** 404: понятный текст и дорога обратно. */
 export function NotFoundPage() {
+  usePageMeta({ title: 'Страница не найдена' });
   return (
-    <div className="container" style={{ paddingBlock: 96 }}>
-      <EmptyState
-        title="Такой страницы нет"
-        text="Возможно, материал перенесли или в адресе опечатка."
-        action={<Link to="/">На главную</Link>}
-      />
-    </div>
+    <SoonCard
+      icon={<SearchX size={28} />}
+      title="Такой страницы нет"
+      action={
+        <Link to={routes.home()} className="cta">
+          В ленту
+        </Link>
+      }
+    >
+      Возможно, пост удалили или в адресе опечатка. Попробуйте найти нужное через поиск.
+    </SoonCard>
   );
 }
