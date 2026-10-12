@@ -1,0 +1,19 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+*.tsbuildinfo
+.vite/
+.eslintcache
+# Playwright / сравнение со скриншотами
+playwright-report/
+test-results/
+docs/screenshots/**/_tmp/
+# Скриншоты оригинала — только для локальной сверки, не публикуем
+docs/reference/
+# Служебное
+_to_delete/

@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+dist
+coverage
+docs/reference
+PROMPT.md
+CLAUDE.md
+.claude
+_to_delete
+**/mockServiceWorker.js
