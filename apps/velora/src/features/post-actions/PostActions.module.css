@@ -1,0 +1,100 @@
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 -10px;
+}
+.act {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13.5px;
+  transition:
+    background 0.15s var(--ease),
+    color 0.15s var(--ease);
+}
+.act:hover {
+  background: var(--hover2);
+  color: var(--ink);
+}
+.act svg {
+  transition: transform 0.2s var(--ease);
+}
+.act:active svg {
+  transform: scale(0.88);
+}
+.n {
+  font-variant-numeric: tabular-nums;
+}
+.liked,
+.liked:hover {
+  color: var(--danger);
+}
+.liked:hover {
+  background: var(--like-soft);
+}
+.saved,
+.saved:hover {
+  color: var(--acc-text);
+}
+.icon {
+  padding: 8px 9px;
+}
+.spacer {
+  flex: 1;
+}
+.menuWrap {
+  position: relative;
+}
+.menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 20;
+  display: grid;
+  min-width: 230px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow-pop);
+  animation: pop 0.14s var(--ease);
+}
+.menuHead {
+  padding: 8px 12px 6px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: 14px;
+  text-align: left;
+}
+.item:hover,
+.item:focus-visible {
+  background: var(--hover2);
+}
+.danger {
+  color: var(--danger);
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+}

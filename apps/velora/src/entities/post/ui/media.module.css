@@ -1,0 +1,214 @@
+/* ---------- Фото-сетка ---------- */
+.grid {
+  display: grid;
+  gap: 6px;
+  overflow: hidden;
+  border-radius: 18px;
+}
+.cell {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  min-height: 0;
+  background: var(--line2);
+  cursor: zoom-in;
+}
+.cell:focus-visible {
+  outline-offset: -3px;
+}
+.frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s var(--ease);
+}
+.cell:hover img {
+  transform: scale(1.015);
+}
+.g1 .frame {
+  max-height: 560px;
+}
+.g2 {
+  grid-template-columns: 1fr 1fr;
+  aspect-ratio: 8 / 5;
+}
+.g3 {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: 3 / 2;
+}
+.g3 .cell:first-child {
+  grid-row: 1 / 3;
+}
+.g4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: 1 / 1;
+}
+.g2 .frame,
+.g3 .frame,
+.g4 .frame {
+  aspect-ratio: auto !important;
+}
+
+/* ---------- Видео ---------- */
+.video {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #111;
+  aspect-ratio: 16 / 9;
+}
+.video video,
+.video iframe,
+.poster,
+.posterEmpty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+.posterEmpty {
+  background: linear-gradient(135deg, #2a2840, #141412);
+}
+.play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  padding-left: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  color: #141412;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s var(--ease);
+}
+.video:hover .play {
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+/* ---------- Опрос ---------- */
+.poll {
+  display: grid;
+  gap: 8px;
+}
+.pollList {
+  display: grid;
+  gap: 8px;
+}
+.answer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  transition:
+    border-color 0.15s var(--ease),
+    background 0.15s var(--ease);
+}
+button.answer:hover {
+  border-color: var(--acc);
+  background: var(--acc-soft);
+}
+.answerResult {
+  border-color: transparent;
+  background: var(--hover2);
+}
+.bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--hover);
+  transition: width 0.6s var(--ease);
+}
+.barLead {
+  background: var(--acc-soft);
+}
+.answerText,
+.pct {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.answerMine .answerText {
+  color: var(--acc-text);
+}
+.pct {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.pollMeta {
+  padding: 2px 4px 0;
+  color: var(--muted2);
+  font-size: 12.5px;
+}
+
+/* ---------- Файлы и место ---------- */
+.files {
+  display: grid;
+  gap: 8px;
+}
+.file {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--ink);
+  transition: border-color 0.15s var(--ease);
+}
+.file:hover {
+  border-color: var(--ring);
+}
+.fileIcon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--acc-soft);
+  color: var(--acc-text);
+}
+.fileName {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fileMeta {
+  color: var(--muted2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.location {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

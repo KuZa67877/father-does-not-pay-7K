@@ -1,0 +1,77 @@
+.wrap {
+  display: inline-flex;
+  gap: 8px;
+}
+.block {
+  display: flex;
+}
+.block .btn {
+  flex: 1;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background 0.15s var(--ease),
+    border-color 0.15s var(--ease);
+}
+.sm {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.off {
+  background: var(--accent);
+  color: #fff;
+}
+.off:hover {
+  background: var(--accent-hover);
+}
+.on {
+  border-color: var(--line);
+  background: var(--card);
+  color: var(--ink);
+}
+.on:hover {
+  border-color: var(--ring);
+}
+.bell {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--muted);
+}
+.bell:hover {
+  border-color: var(--ring);
+  color: var(--ink);
+}
+.bellOn {
+  border-color: var(--acc-soft);
+  background: var(--acc-soft);
+  color: var(--acc-text);
+}
+/* На телефоне маленькая кнопка — только значок. */
+@media (max-width: 480px) {
+  .sm {
+    width: 38px;
+    padding: 0;
+  }
+  .sm .label {
+    display: none;
+  }
+}

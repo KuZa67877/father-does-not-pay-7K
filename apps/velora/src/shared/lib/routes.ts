@@ -1,0 +1,21 @@
+/** Все адреса «Ольхи» — в одном месте. */
+export const routes = {
+  home: () => '/',
+  following: () => '/feed',
+  circles: () => '/feed/circles',
+  explore: () => '/explore',
+  channels: () => '/channels',
+  people: () => '/people',
+  notifications: () => '/notifications',
+  messages: () => '/messages',
+  stats: () => '/mystats',
+  saved: () => '/saved',
+  search: (q?: string) => (q ? `/search?q=${encodeURIComponent(q)}` : '/search'),
+  tag: (tag: string) => `/tags/${encodeURIComponent(tag)}`,
+  category: (slug: string) => `/c/${slug}`,
+  post: (id: string) => `/p/${id}`,
+  user: (login: string) => `/u/${login}`,
+  followers: (login: string) => `/u/${login}/followers`,
+  following_: (login: string) => `/u/${login}/following`,
+  rules: () => '/rules',
+} as const;

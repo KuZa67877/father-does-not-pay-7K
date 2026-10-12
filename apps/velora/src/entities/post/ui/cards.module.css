@@ -1,0 +1,197 @@
+.muted {
+  color: var(--muted);
+}
+
+/* ---------- Репост ---------- */
+.embed {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  color: var(--ink);
+  transition: border-color 0.15s var(--ease);
+}
+.embed:hover {
+  border-color: var(--ring);
+}
+.embedHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.embedHead b {
+  font-weight: 600;
+}
+.embedBody {
+  display: flex;
+  gap: 14px;
+}
+.embedText {
+  display: grid;
+  flex: 1;
+  gap: 4px;
+  min-width: 0;
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.embedTitle {
+  color: var(--ink);
+  font-family: var(--font-head);
+  font-size: 16px;
+  font-weight: 600;
+}
+.clamp {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+.embedThumb {
+  flex: none;
+  width: 84px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* ---------- Строка поста ---------- */
+.row {
+  position: relative;
+  display: flex;
+  gap: 20px;
+  padding: 20px 22px;
+}
+.rowBody {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+}
+.rowMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted2);
+  font-size: 12.5px;
+}
+.pinned {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--acc-text);
+  font-weight: 500;
+}
+.rowCat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 99px;
+  background: var(--hover2);
+  color: var(--ink2);
+}
+.rowCat svg {
+  color: var(--c);
+}
+.rowTitle {
+  font-family: var(--font-head);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+.rowLink {
+  color: var(--ink);
+}
+.rowLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.rowLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rowText {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.rowStats {
+  display: flex;
+  gap: 16px;
+  margin-top: 2px;
+  color: var(--muted2);
+  font-size: 12.5px;
+}
+.rowStats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.rowThumb {
+  flex: none;
+  width: 116px;
+  align-self: center;
+  overflow: hidden;
+  border-radius: 14px;
+}
+@media (max-width: 480px) {
+  .row {
+    gap: 14px;
+    padding: 16px;
+  }
+  .rowThumb {
+    width: 84px;
+  }
+}
+
+/* ---------- «Читайте также» ---------- */
+.mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  color: var(--ink);
+}
+.mini:hover {
+  background: var(--hover2);
+}
+.miniIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: color-mix(in oklab, var(--c) 15%, transparent);
+  color: var(--c);
+}
+.miniBody {
+  display: grid;
+  min-width: 0;
+}
+.miniBody b {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.miniBody small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

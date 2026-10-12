@@ -1,0 +1,57 @@
+.modal {
+  --modal-w: 420px;
+  border-radius: 28px;
+}
+.form {
+  display: grid;
+  gap: 14px;
+}
+.lead {
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.formError {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--like-soft);
+  color: var(--danger);
+  font-size: 14px;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--acc);
+}
+.submit {
+  margin-top: 2px;
+}
+.links {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.linkBtn {
+  color: var(--acc-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+.linkBtn:hover {
+  text-decoration: underline;
+}
+.fine {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.fine a {
+  color: var(--acc-text);
+}
