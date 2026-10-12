@@ -1,0 +1,1 @@
+export { FollowRubric } from './FollowRubric';

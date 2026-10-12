@@ -1,0 +1,1 @@
+export { ShareArticle } from './ShareArticle';

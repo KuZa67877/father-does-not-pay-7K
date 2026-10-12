@@ -1,0 +1,351 @@
+/* ---------- Общее ---------- */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.ph {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--surface-sunk);
+  isolation: isolate;
+}
+.ph img {
+  transition: transform 0.6s var(--ease);
+}
+a:hover > .ph img,
+.ph:hover img {
+  transform: scale(1.03);
+}
+.phOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.shade {
+  background: var(--shade);
+}
+.tl {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+}
+.tr {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+}
+.playDot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #fff;
+  color: #141414;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.25s var(--ease);
+}
+.playDot.lg {
+  width: 84px;
+  height: 84px;
+}
+a:hover .playDot {
+  transform: translate(-50%, -50%) scale(1.06);
+}
+.titleLink {
+  color: var(--ink);
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.3s var(--ease);
+}
+.titleLink:hover {
+  background-size: 100% 1px;
+}
+/* Вся карточка кликабельна через растянутую ссылку заголовка */
+.stretch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+.metaLink {
+  position: relative;
+  z-index: 4;
+}
+
+.hCard {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+.lead {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------- Большая карточка (лид рубрики) ---------- */
+.big .ph {
+  border-radius: 20px;
+}
+.big {
+  gap: 18px;
+}
+.big .hCard {
+  font-size: clamp(28px, 2.6vw + 10px, 48px);
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+}
+.big .lead {
+  font-size: 17px;
+  -webkit-line-clamp: 2;
+}
+
+/* ---------- Медиа-карточка 4:5 ---------- */
+.media .ph {
+  border-radius: 16px;
+}
+
+/* ---------- Колонка «Разделы» ---------- */
+.colLead {
+  padding-bottom: 16px;
+}
+.colLead .hCard {
+  font-size: 22px;
+}
+.colRow {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: var(--hair) solid var(--line);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.colRow:hover span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.colRow time {
+  flex: none;
+  padding-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ---------- «Сейчас читают» ---------- */
+.topItem {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: var(--hair) solid var(--line);
+}
+.topItem:last-child {
+  border-bottom: 0;
+}
+.topN {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--muted);
+}
+.topTitle {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.topItem:hover .topTitle {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.small {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ---------- Мнение ---------- */
+.op {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  height: 100%;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  transition: border-color 0.2s;
+}
+.op:hover {
+  border-color: var(--line-2);
+}
+.opMark {
+  color: var(--accent);
+}
+.opQuote {
+  margin-top: 16px;
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: 25px;
+  line-height: 1.35;
+  color: var(--ink);
+  quotes: '«' '»';
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.opQuote::before {
+  content: open-quote;
+}
+.opQuote::after {
+  content: close-quote;
+}
+.initials {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---------- Подкаст ---------- */
+.pod {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.pod .ph {
+  border-radius: 12px;
+}
+.podShow {
+  font-size: 13px;
+  color: var(--muted);
+}
+.podTitle {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.podFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+.podFoot > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.playInk {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* ---------- Строка списка ---------- */
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  padding: 20px 0;
+  border-top: var(--hair) solid var(--line);
+}
+.row .ph {
+  border-radius: 12px;
+}
+.row .hCard {
+  font-size: 22px;
+}
+.rowBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .row {
+    grid-template-columns: 112px 1fr;
+    gap: 14px;
+  }
+  .row .hCard {
+    font-size: 17px;
+  }
+  .row .lead {
+    display: none;
+  }
+}
+
+/* ---------- Скелетоны ---------- */
+.skelLine {
+  display: block;
+  height: 14px;
+  margin-top: 8px;
+}
+
+.opPerson {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.opName {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
