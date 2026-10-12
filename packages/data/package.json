@@ -1,0 +1,25 @@
+{
+  "name": "@dle/data",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./time": "./src/time.ts",
+    "./velora": "./src/velora.ts",
+    "./mock/browser": "./src/mock/browser.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@dle/core": "workspace:*",
+    "@faker-js/faker": "^9.9.0",
+    "msw": "^2.10.4",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@dle/config": "workspace:*"
+  }
+}
