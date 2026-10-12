@@ -31,9 +31,12 @@ export function useIntersection<T extends Element>(
   useEffect(() => {
     const el = ref.current;
     if (!el || !enabled || typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver((entries) => {
-      if (entries.some((e) => e.isIntersecting)) cb.current();
-    }, { rootMargin });
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) cb.current();
+      },
+      { rootMargin },
+    );
     io.observe(el);
     return () => io.disconnect();
   }, [enabled, rootMargin]);

@@ -49,7 +49,12 @@ export function ErrorState({
       <p className={s.title}>{title}</p>
       {message && <p className={s.text}>{message}</p>}
       {onRetry && (
-        <Button variant="outline" size="sm" icon={<RotateCcw size={14} aria-hidden />} onClick={onRetry}>
+        <Button
+          variant="outline"
+          size="sm"
+          icon={<RotateCcw size={14} aria-hidden />}
+          onClick={onRetry}
+        >
           Повторить
         </Button>
       )}

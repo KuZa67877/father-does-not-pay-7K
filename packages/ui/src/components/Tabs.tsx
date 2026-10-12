@@ -19,7 +19,15 @@ export interface TabsProps<V extends string> {
 }
 
 /** Табы по паттерну WAI-ARIA: стрелки, Home/End, roving tabindex. */
-export function Tabs<V extends string>({ items, value, onChange, label, className, tabClassName, panelId }: TabsProps<V>) {
+export function Tabs<V extends string>({
+  items,
+  value,
+  onChange,
+  label,
+  className,
+  tabClassName,
+  panelId,
+}: TabsProps<V>) {
   const listRef = useRef<HTMLDivElement>(null);
   const baseId = useId();
 
@@ -28,7 +36,9 @@ export function Tabs<V extends string>({ items, value, onChange, label, classNam
     const next = items[((index % n) + n) % n];
     if (!next) return;
     onChange(next.value);
-    const btn = listRef.current?.querySelector<HTMLButtonElement>(`[data-value="${CSS.escape(next.value)}"]`);
+    const btn = listRef.current?.querySelector<HTMLButtonElement>(
+      `[data-value="${CSS.escape(next.value)}"]`,
+    );
     btn?.focus();
   };
 

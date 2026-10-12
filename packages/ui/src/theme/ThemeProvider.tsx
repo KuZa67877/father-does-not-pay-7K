@@ -2,7 +2,13 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import { ThemeContext, type ThemeContextValue } from './context';
 import { applyTheme, isTheme, readStoredTheme, systemTheme, type Theme } from './theme';
 
-export function ThemeProvider({ storageKey, children }: { storageKey: string; children: ReactNode }) {
+export function ThemeProvider({
+  storageKey,
+  children,
+}: {
+  storageKey: string;
+  children: ReactNode;
+}) {
   const [stored, setStored] = useState<Theme | null>(() => readStoredTheme(storageKey));
   const [system, setSystem] = useState<Theme>(() => systemTheme());
   const theme = stored ?? system;
@@ -40,7 +46,12 @@ export function ThemeProvider({ storageKey, children }: { storageKey: string; ch
   );
 
   const value = useMemo<ThemeContextValue>(
-    () => ({ theme, isExplicit: stored !== null, setTheme, toggle: () => setTheme(theme === 'dark' ? 'light' : 'dark') }),
+    () => ({
+      theme,
+      isExplicit: stored !== null,
+      setTheme,
+      toggle: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
+    }),
     [theme, stored, setTheme],
   );
 

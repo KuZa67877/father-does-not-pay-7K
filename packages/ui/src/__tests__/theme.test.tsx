@@ -31,7 +31,10 @@ describe('тема', () => {
       </ThemeProvider>,
     );
     expect(document.documentElement.dataset['theme']).toBe('dark');
-    expect(screen.getByRole('button', { name: 'Тёмная тема' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Тёмная тема' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
 
   it('переключение сохраняется в localStorage', async () => {

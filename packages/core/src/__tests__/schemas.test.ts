@@ -39,8 +39,15 @@ describe('CommentSchema — рекурсивное дерево', () => {
   it('валидирует вложенные ответы', () => {
     const author = { id: 'u1', name: 'Анна', login: 'anna', avatar: null, isVerified: false };
     const leaf = {
-      id: 'c2', articleId: 'a1', parentId: 'c1', author, text: 'Согласна',
-      createdAt: '2026-10-12T10:00:00+03:00', likesCount: 0, isLiked: false, replies: [],
+      id: 'c2',
+      articleId: 'a1',
+      parentId: 'c1',
+      author,
+      text: 'Согласна',
+      createdAt: '2026-10-12T10:00:00+03:00',
+      likesCount: 0,
+      isLiked: false,
+      replies: [],
     };
     const r = CommentSchema.safeParse({ ...leaf, id: 'c1', parentId: null, replies: [leaf] });
     expect(r.success).toBe(true);
@@ -49,8 +56,14 @@ describe('CommentSchema — рекурсивное дерево', () => {
 
 describe('PostInput', () => {
   const base = {
-    title: null, text: '', photoIds: [], video: null, fileIds: [], poll: null,
-    location: null, categoryIds: ['c1'],
+    title: null,
+    text: '',
+    photoIds: [],
+    video: null,
+    fileIds: [],
+    poll: null,
+    location: null,
+    categoryIds: ['c1'],
   };
   it('запрещает пустой пост', () => {
     expect(PostInputSchema.safeParse(base).success).toBe(false);

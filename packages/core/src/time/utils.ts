@@ -36,7 +36,9 @@ export interface TocItem {
 
 /** Оглавление из заголовков тела статьи. */
 export const buildToc = (blocks: readonly ArticleBlock[]): TocItem[] =>
-  blocks.flatMap((b) => (b.type === 'heading' ? [{ anchor: b.anchor, text: b.text, level: b.level }] : []));
+  blocks.flatMap((b) =>
+    b.type === 'heading' ? [{ anchor: b.anchor, text: b.text, level: b.level }] : [],
+  );
 
 /** Проставляет уникальные якоря заголовкам (при создании статьи в редакторе). */
 export const ensureHeadingAnchors = (blocks: readonly ArticleBlock[]): ArticleBlock[] => {

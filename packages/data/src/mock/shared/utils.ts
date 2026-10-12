@@ -1,5 +1,11 @@
 import { ApiError, type ApiErrorCode, type Media, type Paginated } from '@dle/core';
-import { delay, HttpResponse } from 'msw';
+import {
+  delay,
+  HttpResponse,
+  type DefaultBodyType,
+  type HttpResponseResolver,
+  type PathParams,
+} from 'msw';
 
 /* ---------- Медиа-заглушки ---------- */
 
@@ -28,7 +34,8 @@ export const avatar = (n: number, alt = ''): Media => ({
 const MIN = 60_000;
 /** «now» округлено до минуты, чтобы фикстуры не дрожали между вызовами. */
 export const baseNow = (): number => Math.floor(Date.now() / MIN) * MIN;
-export const minutesAgo = (m: number, now = baseNow()): string => toIsoOffset(new Date(now - m * MIN));
+export const minutesAgo = (m: number, now = baseNow()): string =>
+  toIsoOffset(new Date(now - m * MIN));
 
 /** ISO с локальным смещением, напр. 2026-10-12T15:39:00+03:00. */
 export const toIsoOffset = (d: Date): string => {
@@ -65,13 +72,17 @@ export const errorResponse = (code: ApiErrorCode, message: string, details?: unk
 
 export const notFound = (what = 'Ресурс') => errorResponse('not_found', `${what} не найден`);
 
+type ResolverInfo<P extends PathParams> = Parameters<HttpResponseResolver<P, DefaultBodyType>>[0];
+
 /** Оборачивает обработчик: ApiError → JSON-ответ с кодом, плюс реалистичная задержка. */
 export const handle =
-  <A extends unknown[]>(fn: (...args: A) => Promise<Response> | Response) =>
-  async (...args: A): Promise<Response> => {
+  <P extends PathParams = PathParams>(
+    fn: (info: ResolverInfo<P>) => Promise<Response> | Response,
+  ): HttpResponseResolver<P, DefaultBodyType> =>
+  async (info) => {
     await delay(mockLatency());
     try {
-      return await fn(...args);
+      return await fn(info);
     } catch (e) {
       if (e instanceof ApiError) return errorResponse(e.code, e.message, e.details);
       console.error('[mock] необработанная ошибка', e);
@@ -101,7 +112,11 @@ export const paginatePage = <T>(items: T[], page: number, pageSize: number): Pag
 });
 
 /** Курсор — смещение в base64, непрозрачный для клиента. */
-export const paginateCursor = <T>(items: T[], cursor: string | null, limit: number): Paginated<T> => {
+export const paginateCursor = <T>(
+  items: T[],
+  cursor: string | null,
+  limit: number,
+): Paginated<T> => {
   const offset = cursor ? Number.parseInt(atob(cursor), 10) || 0 : 0;
   const slice = items.slice(offset, offset + limit);
   const next = offset + limit < items.length ? btoa(String(offset + limit)) : null;

@@ -12,7 +12,9 @@ export const readStoredTheme = (key: string): Theme | null => {
 };
 
 export const systemTheme = (): Theme =>
-  typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 
 export const applyTheme = (theme: Theme) => {
   const root = document.documentElement;

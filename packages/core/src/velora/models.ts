@@ -42,7 +42,9 @@ export const PollSchema = z.object({
   id: IdSchema,
   question: z.string().min(1),
   options: z
-    .array(z.object({ id: IdSchema, text: z.string().min(1), votes: z.number().int().nonnegative() }))
+    .array(
+      z.object({ id: IdSchema, text: z.string().min(1), votes: z.number().int().nonnegative() }),
+    )
     .min(2)
     .max(10),
   totalVotes: z.number().int().nonnegative(),
@@ -242,7 +244,11 @@ export type StoryGroup = z.infer<typeof StoryGroupSchema>;
 
 export const StoryInputSchema = z.object({
   content: z.discriminatedUnion('kind', [
-    z.object({ kind: z.literal('photo'), mediaId: IdSchema, caption: z.string().max(200).optional() }),
+    z.object({
+      kind: z.literal('photo'),
+      mediaId: IdSchema,
+      caption: z.string().max(200).optional(),
+    }),
     z.object({
       kind: z.literal('text'),
       text: z.string().trim().min(1, 'Напишите что-нибудь').max(280),

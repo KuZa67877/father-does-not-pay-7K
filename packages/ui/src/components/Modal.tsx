@@ -22,7 +22,16 @@ export interface ModalProps {
  * Модальное окно на нативном <dialog>: фокус-ловушка, Esc и inert-фон — от браузера,
  * aria-labelledby связывает заголовок. Фокус возвращается на открывший элемент.
  */
-export function Modal({ open, onClose, title, hideTitle, children, className, sheet, dismissible = true }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  hideTitle,
+  children,
+  className,
+  sheet,
+  dismissible = true,
+}: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const openerRef = useRef<Element | null>(null);

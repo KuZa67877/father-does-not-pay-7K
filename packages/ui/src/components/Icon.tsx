@@ -1,73 +1,5 @@
-import {
-  Building2,
-  CalendarDays,
-  Camera,
-  Car,
-  ChartCandlestick,
-  ChartLine,
-  Circle,
-  Clapperboard,
-  CookingPot,
-  Cpu,
-  Drama,
-  Feather,
-  FlaskConical,
-  Globe,
-  Goal,
-  GraduationCap,
-  HeartPulse,
-  Landmark,
-  Map as MapIcon,
-  Music,
-  PenTool,
-  Plane,
-  Snowflake,
-  Sun,
-  TrainFront,
-  Users,
-  Volleyball,
-  Wallet,
-  WandSparkles,
-  Wind,
-  type LucideIcon,
-  type LucideProps,
-} from 'lucide-react';
-
-/**
- * Иконки, имена которых приходят из данных (рубрики, каналы, сводка города).
- * Явный реестр вместо динамического импорта всего набора — бандл не раздувается.
- */
-const REGISTRY: Record<string, LucideIcon> = {
-  landmark: Landmark,
-  'chart-line': ChartLine,
-  wallet: Wallet,
-  'candlestick-chart': ChartCandlestick,
-  users: Users,
-  'building-2': Building2,
-  'graduation-cap': GraduationCap,
-  cpu: Cpu,
-  'flask-conical': FlaskConical,
-  drama: Drama,
-  clapperboard: Clapperboard,
-  music: Music,
-  volleyball: Volleyball,
-  goal: Goal,
-  snowflake: Snowflake,
-  globe: Globe,
-  'heart-pulse': HeartPulse,
-  plane: Plane,
-  car: Car,
-  'train-front': TrainFront,
-  wind: Wind,
-  'calendar-days': CalendarDays,
-  'wand-sparkles': WandSparkles,
-  sun: Sun,
-  'pen-tool': PenTool,
-  'cooking-pot': CookingPot,
-  map: MapIcon,
-  camera: Camera,
-  feather: Feather,
-};
+import { Circle, type LucideProps } from 'lucide-react';
+import { ICON_REGISTRY } from './icon-registry';
 
 export interface NamedIconProps extends LucideProps {
   /** kebab-case имя из данных, напр. "heart-pulse". */
@@ -76,8 +8,6 @@ export interface NamedIconProps extends LucideProps {
 
 /** Иконка по имени из данных; неизвестное имя — нейтральный кружок. */
 export function NamedIcon({ name, ...props }: NamedIconProps) {
-  const Cmp = REGISTRY[name] ?? Circle;
+  const Cmp = ICON_REGISTRY[name] ?? Circle;
   return <Cmp aria-hidden strokeWidth={1.75} {...props} />;
 }
-
-export const hasNamedIcon = (name: string) => name in REGISTRY;

@@ -52,7 +52,10 @@ export interface StoryRepository {
 }
 
 export interface NotificationRepository {
-  list(query: { cursor?: string | null; limit?: number }, opts?: CallOptions): Promise<Paginated<Notification>>;
+  list(
+    query: { cursor?: string | null; limit?: number },
+    opts?: CallOptions,
+  ): Promise<Paginated<Notification>>;
   unreadCount(opts?: CallOptions): Promise<number>;
   markRead(ids: Id[] | 'all'): Promise<void>;
 }
@@ -62,10 +65,21 @@ export interface UserRepository {
   updateProfile(input: ProfileInput): Promise<Profile>;
   follow(login: string, value: boolean): Promise<Pick<Profile, 'isFollowing' | 'followersCount'>>;
   setNotify(login: string, value: boolean): Promise<void>;
-  followers(login: string, query: { cursor?: string | null; search?: string }, opts?: CallOptions): Promise<Paginated<Profile>>;
-  following(login: string, query: { cursor?: string | null; search?: string }, opts?: CallOptions): Promise<Paginated<Profile>>;
+  followers(
+    login: string,
+    query: { cursor?: string | null; search?: string },
+    opts?: CallOptions,
+  ): Promise<Paginated<Profile>>;
+  following(
+    login: string,
+    query: { cursor?: string | null; search?: string },
+    opts?: CallOptions,
+  ): Promise<Paginated<Profile>>;
   /** «Люди» и «Кого читать». */
-  search(query: { search?: string; cursor?: string | null; limit?: number }, opts?: CallOptions): Promise<Paginated<Profile>>;
+  search(
+    query: { search?: string; cursor?: string | null; limit?: number },
+    opts?: CallOptions,
+  ): Promise<Paginated<Profile>>;
   suggestions(limit?: number, opts?: CallOptions): Promise<Profile[]>;
   topAuthors(limit?: number, opts?: CallOptions): Promise<TopAuthor[]>;
 }

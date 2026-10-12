@@ -20,7 +20,10 @@ const adapters: Record<string, () => TimeRepositories> = {
   'rest + mock': () => {
     server.resetHandlers(...createTimeHandlers(BASE, createTimeMockDb()));
     const tokens = createMemoryTokenStore();
-    return createRestTimeRepositories(createHttpClient({ baseUrl: BASE, tokenStore: tokens, retries: 0 }), tokens);
+    return createRestTimeRepositories(
+      createHttpClient({ baseUrl: BASE, tokenStore: tokens, retries: 0 }),
+      tokens,
+    );
   },
 };
 
@@ -52,14 +55,19 @@ describe.each(Object.entries(adapters))('TimeRepositories: %s', (_name, make) =>
     const [first] = (await repo.articles.list({ pageSize: 1 })).items;
     const article = await repo.articles.getBySlug(first?.slug ?? '');
     expect(article.body.length).toBeGreaterThan(0);
-    await expect(repo.articles.getBySlug('net-takogo')).rejects.toMatchObject({ code: 'not_found' });
+    await expect(repo.articles.getBySlug('net-takogo')).rejects.toMatchObject({
+      code: 'not_found',
+    });
   });
 
   it('create → update → remove', async () => {
     const created = await repo.articles.create({
       title: 'Тестовая статья редакции',
       lead: 'Анонс',
-      body: [{ type: 'heading', level: 2, text: 'Раздел', anchor: '' }, { type: 'paragraph', text: 'Текст' }],
+      body: [
+        { type: 'heading', level: 2, text: 'Раздел', anchor: '' },
+        { type: 'paragraph', text: 'Текст' },
+      ],
       coverId: null,
       rubricId: 'r-society',
       subrubricId: null,
@@ -73,10 +81,19 @@ describe.each(Object.entries(adapters))('TimeRepositories: %s', (_name, make) =>
     expect(created.body[0]).toMatchObject({ anchor: 'razdel' });
     const mine = await repo.articles.list({ mine: true, status: 'all' });
     expect(mine.items.map((a) => a.id)).toContain(created.id);
-    const updated = await repo.articles.update(created.id, { status: 'published', title: 'Новый заголовок статьи' });
-    expect(updated).toMatchObject({ status: 'published', title: 'Новый заголовок статьи', slug: created.slug });
+    const updated = await repo.articles.update(created.id, {
+      status: 'published',
+      title: 'Новый заголовок статьи',
+    });
+    expect(updated).toMatchObject({
+      status: 'published',
+      title: 'Новый заголовок статьи',
+      slug: created.slug,
+    });
     await repo.articles.remove(created.id);
-    await expect(repo.articles.getBySlug(created.slug)).rejects.toMatchObject({ code: 'not_found' });
+    await expect(repo.articles.getBySlug(created.slug)).rejects.toMatchObject({
+      code: 'not_found',
+    });
   });
 
   it('загрузка медиа и обложка', async () => {
@@ -107,7 +124,10 @@ describe.each(Object.entries(adapters))('TimeRepositories: %s', (_name, make) =>
 
   it('комментарии: дерево и ответ', async () => {
     const [a] = (await repo.articles.list({ pageSize: 1 })).items;
-    const root = await repo.comments.create(a?.id ?? '', { text: 'Хороший материал', parentId: null });
+    const root = await repo.comments.create(a?.id ?? '', {
+      text: 'Хороший материал',
+      parentId: null,
+    });
     const reply = await repo.comments.create(a?.id ?? '', { text: 'Согласен', parentId: root.id });
     const tree = await repo.comments.list(a?.id ?? '');
     expect(tree.find((c) => c.id === root.id)?.replies.map((r) => r.id)).toContain(reply.id);
@@ -120,11 +140,17 @@ describe.each(Object.entries(adapters))('TimeRepositories: %s', (_name, make) =>
     await expect(repo.newsletter.subscribe('reader@example.com')).resolves.toMatchObject({
       status: 'already_subscribed',
     });
-    await expect(repo.newsletter.subscribe('не-email')).rejects.toMatchObject({ code: 'validation' });
+    await expect(repo.newsletter.subscribe('не-email')).rejects.toMatchObject({
+      code: 'validation',
+    });
   });
 
   it('сводка: погода на 5 дней, курсы, город', async () => {
-    const [weather, rates, city] = await Promise.all([repo.weather.forecast(), repo.currency.rates(), repo.city.today()]);
+    const [weather, rates, city] = await Promise.all([
+      repo.weather.forecast(),
+      repo.currency.rates(),
+      repo.city.today(),
+    ]);
     expect(weather.days).toHaveLength(5);
     expect(rates.map((r) => r.code)).toEqual(['USD', 'EUR', 'CNY']);
     expect(city.items.length).toBeGreaterThan(0);
@@ -134,7 +160,9 @@ describe.each(Object.entries(adapters))('TimeRepositories: %s', (_name, make) =>
     expect(await repo.auth.me()).not.toBeNull();
     await repo.auth.logout();
     expect(await repo.auth.me()).toBeNull();
-    await expect(repo.comments.create('a-1', { text: 'Гость пишет', parentId: null })).rejects.toMatchObject({
+    await expect(
+      repo.comments.create('a-1', { text: 'Гость пишет', parentId: null }),
+    ).rejects.toMatchObject({
       code: 'unauthorized',
     });
     const session = await repo.auth.login({ login: 'demo', password: 'secret1' });

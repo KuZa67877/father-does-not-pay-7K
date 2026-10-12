@@ -18,7 +18,12 @@ import {
   type Tag,
 } from '@dle/core/time';
 import { http, HttpResponse } from 'msw';
-import { createAuthHandlers, createMediaHandlers, requireUser, type MockSession } from '../shared/handlers';
+import {
+  createAuthHandlers,
+  createMediaHandlers,
+  requireUser,
+  type MockSession,
+} from '../shared/handlers';
 import {
   createIdGenerator,
   intParam,
@@ -61,7 +66,13 @@ export function createTimeMockDb(): TimeMockDb {
 
 const toPreview = ({ body: _body, ...rest }: Article): ArticlePreview => rest;
 const byDateDesc = (a: Article, b: Article) => b.publishedAt.localeCompare(a.publishedAt);
-const FORMATS: readonly ArticleFormatKind[] = ['standard', 'video', 'photoReport', 'podcast', 'opinion'];
+const FORMATS: readonly ArticleFormatKind[] = [
+  'standard',
+  'video',
+  'photoReport',
+  'podcast',
+  'opinion',
+];
 const READING: readonly ReadingTimeFilter[] = ['all', 'short', 'long'];
 
 export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMockDb()) {
@@ -88,7 +99,7 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     const user = requireUser(db.session);
     const body = ensureHeadingAnchors(input.body);
     const now = toIsoOffset(new Date());
-    const cover = input.coverId ? db.media.get(input.coverId) ?? prev?.cover ?? null : null;
+    const cover = input.coverId ? (db.media.get(input.coverId) ?? prev?.cover ?? null) : null;
     const base: Article = prev ?? {
       id: nextArticleId(),
       slug: '',
@@ -99,7 +110,13 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
       rubric: rubricPreview(input.rubricId),
       subrubric: null,
       tags: [],
-      author: { id: user.id, name: user.name, login: user.login, avatar: user.avatar, isVerified: user.isVerified },
+      author: {
+        id: user.id,
+        name: user.name,
+        login: user.login,
+        avatar: user.avatar,
+        isVerified: user.isVerified,
+      },
       status: 'draft',
       publishedAt: now,
       updatedAt: now,
@@ -161,7 +178,8 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
         if (status !== 'all') list = list.filter((a) => a.status === status);
 
         const rubric = p.get('rubric');
-        if (rubric) list = list.filter((a) => a.rubric.slug === rubric || a.subrubric?.slug === rubric);
+        if (rubric)
+          list = list.filter((a) => a.rubric.slug === rubric || a.subrubric?.slug === rubric);
         const tag = p.get('tag');
         if (tag) list = list.filter((a) => a.tags.some((t) => t.slug === tag));
         const author = p.get('author');
@@ -179,7 +197,9 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
         if (p.get('favorites') === 'true') list = list.filter((a) => db.favorites.has(a.id));
         if (p.get('subscribed') === 'true') {
           list = list.filter(
-            (a) => db.subscriptions.has(a.rubric.id) || (a.subrubric && db.subscriptions.has(a.subrubric.id)),
+            (a) =>
+              db.subscriptions.has(a.rubric.id) ||
+              (a.subrubric && db.subscriptions.has(a.subrubric.id)),
           );
         }
         const since = p.get('since');
@@ -187,7 +207,9 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
         const search = p.get('search')?.trim().toLowerCase();
         if (search) {
           list = list.filter((a) =>
-            [a.title, a.lead, ...a.tags.map((t) => t.name)].some((s) => s.toLowerCase().includes(search)),
+            [a.title, a.lead, ...a.tags.map((t) => t.name)].some((s) =>
+              s.toLowerCase().includes(search),
+            ),
           );
         }
 
@@ -235,7 +257,8 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
           .filter((x) => x.id !== a.id)
           .map((x) => ({
             x,
-            score: (x.rubric.id === a.rubric.id ? 2 : 0) + x.tags.filter((t) => tagIds.has(t.id)).length,
+            score:
+              (x.rubric.id === a.rubric.id ? 2 : 0) + x.tags.filter((t) => tagIds.has(t.id)).length,
           }))
           .sort((l, r) => r.score - l.score || byDateDesc(l.x, r.x))
           .slice(0, limit)
@@ -247,7 +270,8 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
       `${base}/articles`,
       handle(async ({ request }) => {
         const parsed = ArticleInputSchema.safeParse(await readJson(request));
-        if (!parsed.success) throw new ApiError('validation', 'Проверьте поля статьи', 422, parsed.error.issues);
+        if (!parsed.success)
+          throw new ApiError('validation', 'Проверьте поля статьи', 422, parsed.error.issues);
         const article = applyInput(parsed.data);
         db.articles.set(article.id, article);
         db.comments.set(article.id, []);
@@ -276,8 +300,12 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
           isFeatured: prev.isFeatured,
           source: prev.source,
         };
-        const parsed = ArticleInputSchema.safeParse({ ...current, ...(await readJson<object>(request)) });
-        if (!parsed.success) throw new ApiError('validation', 'Проверьте поля статьи', 422, parsed.error.issues);
+        const parsed = ArticleInputSchema.safeParse({
+          ...current,
+          ...(await readJson<object>(request)),
+        });
+        if (!parsed.success)
+          throw new ApiError('validation', 'Проверьте поля статьи', 422, parsed.error.issues);
         const next = applyInput(parsed.data, prev);
         db.articles.set(next.id, next);
         return HttpResponse.json(next);
@@ -337,12 +365,19 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
         const a = db.articles.get(articleId);
         if (!a) return notFound('Материал');
         const parsed = CommentInputSchema.safeParse(await readJson(request));
-        if (!parsed.success) throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422);
+        if (!parsed.success)
+          throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422);
         const comment: Comment = {
           id: nextCommentId(),
           articleId,
           parentId: parsed.data.parentId,
-          author: { id: user.id, name: user.name, login: user.login, avatar: user.avatar, isVerified: user.isVerified },
+          author: {
+            id: user.id,
+            name: user.name,
+            login: user.login,
+            avatar: user.avatar,
+            isVerified: user.isVerified,
+          },
           text: parsed.data.text,
           createdAt: toIsoOffset(new Date()),
           likesCount: 0,
@@ -392,7 +427,10 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     ),
 
     /* ---------- Рубрики, теги ---------- */
-    http.get(`${base}/rubrics`, handle(() => HttpResponse.json(db.fx.rubrics))),
+    http.get(
+      `${base}/rubrics`,
+      handle(() => HttpResponse.json(db.fx.rubrics)),
+    ),
     http.get(
       `${base}/rubrics/:slug`,
       handle(({ params }) => {
@@ -428,7 +466,9 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     ),
     http.get(
       `${base}/rubrics/:id/subscription`,
-      handle(({ params }) => HttpResponse.json({ value: db.subscriptions.has(String(params['id'])) })),
+      handle(({ params }) =>
+        HttpResponse.json({ value: db.subscriptions.has(String(params['id'])) }),
+      ),
     ),
     http.put(
       `${base}/rubrics/:id/subscription`,
@@ -445,10 +485,17 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
           db.subscriptions.delete(r.id);
           r.subscribersCount = Math.max(0, r.subscribersCount - 1);
         }
-        return HttpResponse.json({ rubricId: r.id, isSubscribed: value, subscribersCount: r.subscribersCount });
+        return HttpResponse.json({
+          rubricId: r.id,
+          isSubscribed: value,
+          subscribersCount: r.subscribersCount,
+        });
       }),
     ),
-    http.get(`${base}/me/subscriptions`, handle(() => HttpResponse.json([...db.subscriptions]))),
+    http.get(
+      `${base}/me/subscriptions`,
+      handle(() => HttpResponse.json([...db.subscriptions])),
+    ),
     http.get(
       `${base}/tags/:slug`,
       handle(({ params }) => {
@@ -464,7 +511,10 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
         for (const a of published()) {
           for (const t of a.tags) freq.set(t.id, { tag: t, n: (freq.get(t.id)?.n ?? 0) + 1 });
         }
-        const top = [...freq.values()].sort((a, b) => b.n - a.n).slice(0, limit).map((x) => x.tag);
+        const top = [...freq.values()]
+          .sort((a, b) => b.n - a.n)
+          .slice(0, limit)
+          .map((x) => x.tag);
         return HttpResponse.json(top);
       }),
     ),
@@ -486,14 +536,24 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
       `${base}/submissions`,
       handle(async ({ request }) => {
         const parsed = ReaderSubmissionInputSchema.safeParse(await readJson(request));
-        if (!parsed.success) throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422);
+        if (!parsed.success)
+          throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422);
         return HttpResponse.json({ id: `sub-${Date.now().toString(36)}` }, { status: 201 });
       }),
     ),
 
     /* ---------- Виджеты сводки ---------- */
-    http.get(`${base}/widgets/weather`, handle(() => HttpResponse.json(buildWeather()))),
-    http.get(`${base}/widgets/currency`, handle(() => HttpResponse.json(buildCurrency()))),
-    http.get(`${base}/widgets/city`, handle(() => HttpResponse.json(buildCitySummary()))),
+    http.get(
+      `${base}/widgets/weather`,
+      handle(() => HttpResponse.json(buildWeather())),
+    ),
+    http.get(
+      `${base}/widgets/currency`,
+      handle(() => HttpResponse.json(buildCurrency())),
+    ),
+    http.get(
+      `${base}/widgets/city`,
+      handle(() => HttpResponse.json(buildCitySummary())),
+    ),
   ];
 }

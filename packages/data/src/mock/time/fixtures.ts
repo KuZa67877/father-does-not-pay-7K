@@ -10,7 +10,7 @@ import {
   type RubricPreview,
   type Tag,
 } from '@dle/core/time';
-import { fakerRU as faker } from '@faker-js/faker';
+import { faker, ruFullName } from '../shared/faker';
 import { avatar, baseNow, minutesAgo, photo } from '../shared/utils';
 import {
   ARTICLES,
@@ -96,12 +96,13 @@ function buildBody(seed: ArticleSeed, slug: string): ArticleBlock[] {
     blocks.push({ type: 'heading', level: 2, text: heading, anchor: `${slugify(heading, 40)}` });
     const paragraphs = seed.long ? 3 : 2;
     for (let p = 0; p < paragraphs; p++) blocks.push({ type: 'paragraph', text: nextParagraph() });
-    if (s === 0 && seed.long) blocks.push({ type: 'facts', items: faker.helpers.arrayElements(FACTS_POOL, 3) });
+    if (s === 0 && seed.long)
+      blocks.push({ type: 'facts', items: faker.helpers.arrayElements(FACTS_POOL, 3) });
     if (s === 1) {
       blocks.push({
         type: 'quote',
         text: 'Мы не ждём мгновенного результата. Важно, чтобы изменения были понятны людям.',
-        cite: faker.person.fullName(),
+        cite: ruFullName(),
       });
     }
     if (s === 1 && seed.long) {
@@ -113,7 +114,11 @@ function buildBody(seed: ArticleSeed, slug: string): ArticleBlock[] {
       blocks.push({
         type: 'list',
         ordered: false,
-        items: ['Проверьте, касается ли это вас', 'Сохраните документы', 'Задайте вопрос через форму'],
+        items: [
+          'Проверьте, касается ли это вас',
+          'Сохраните документы',
+          'Задайте вопрос через форму',
+        ],
       });
     }
   }
@@ -123,7 +128,11 @@ function buildBody(seed: ArticleSeed, slug: string): ArticleBlock[] {
 function buildFormat(seed: ArticleSeed, slug: string, author: Author): ArticleFormat {
   switch (seed.format) {
     case 'video':
-      return { kind: 'video', provider: 'mp4', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' };
+      return {
+        kind: 'video',
+        provider: 'mp4',
+        url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+      };
     case 'photoReport':
       return {
         kind: 'photoReport',
@@ -166,7 +175,7 @@ function buildComments(articleId: string, count: number): Comment[] {
       parentId: null,
       author: {
         id: `reader-${n}`,
-        name: faker.person.fullName(),
+        name: ruFullName(),
         login: `reader${n}`,
         avatar: avatar(n),
         isVerified: false,
@@ -183,7 +192,13 @@ function buildComments(articleId: string, count: number): Comment[] {
         ...root,
         id: `${root.id}-r`,
         parentId: root.id,
-        author: { id: `reader-${m}`, name: faker.person.fullName(), login: `reader${m}`, avatar: avatar(m), isVerified: false },
+        author: {
+          id: `reader-${m}`,
+          name: ruFullName(),
+          login: `reader${m}`,
+          avatar: avatar(m),
+          isVerified: false,
+        },
         text: faker.helpers.arrayElement(COMMENT_TEXTS),
         likesCount: faker.number.int({ min: 0, max: 9 }),
         replies: [],
@@ -208,7 +223,7 @@ export function buildTimeFixtures(): TimeFixtures {
   const articles: Article[] = ARTICLES.map((seed, i) => {
     const rubric = rubricBySlug.get(seed.rubric);
     if (!rubric) throw new Error(`Неизвестная рубрика ${seed.rubric}`);
-    const sub = seed.sub ? rubricBySlug.get(seed.sub) ?? null : null;
+    const sub = seed.sub ? (rubricBySlug.get(seed.sub) ?? null) : null;
     const author = authors[seed.author % authors.length] as Author;
     const slug = slugify(seed.title, 64);
     const id = `a-${i + 1}`;
@@ -260,7 +275,9 @@ export function buildTimeFixtures(): TimeFixtures {
   });
 
   for (const r of rubrics) {
-    r.articlesCount = articles.filter((a) => a.rubric.id === r.id || a.subrubric?.id === r.id).length;
+    r.articlesCount = articles.filter(
+      (a) => a.rubric.id === r.id || a.subrubric?.id === r.id,
+    ).length;
   }
 
   const demoUser: User = {

@@ -10,7 +10,7 @@ import type {
   Profile,
   Story,
 } from '@dle/core/velora';
-import { fakerRU as faker } from '@faker-js/faker';
+import { faker } from '../shared/faker';
 import { avatar, baseNow, minutesAgo, photo } from '../shared/utils';
 import { CATEGORIES, COMMENTS, POSTS, STORY_TEXTS, USERS } from './content';
 
@@ -31,7 +31,9 @@ export interface VeloraFixtures {
 
 const logoMedia: Media = photo('olkha-team', 240, 240, 'Команда Ольхи');
 
-export const toPreview = (u: Pick<Profile, 'id' | 'name' | 'login' | 'avatar' | 'isVerified' | 'occupation'>): UserPreview => ({
+export const toPreview = (
+  u: Pick<Profile, 'id' | 'name' | 'login' | 'avatar' | 'isVerified' | 'occupation'>,
+): UserPreview => ({
   id: u.id,
   name: u.name,
   login: u.login,
@@ -78,8 +80,10 @@ export function buildVeloraFixtures(): VeloraFixtures {
   /* Граф подписок: demo читает половину, часть читает demo в ответ (это «Круги»). */
   const follows = new Map<string, Set<string>>(users.map((u) => [u.login, new Set<string>()]));
   const follow = (a: string, b: string) => follows.get(a)?.add(b);
-  for (const login of ['belova', 'lebedeva', 'gromov', 'orlov', 'vetrov', 'admin']) follow('demo', login);
-  for (const login of ['belova', 'lebedeva', 'kim', 'morozova', 'saveliev', 'tikhonova']) follow(login, 'demo');
+  for (const login of ['belova', 'lebedeva', 'gromov', 'orlov', 'vetrov', 'admin'])
+    follow('demo', login);
+  for (const login of ['belova', 'lebedeva', 'kim', 'morozova', 'saveliev', 'tikhonova'])
+    follow(login, 'demo');
   for (const u of users) {
     for (const v of faker.helpers.arrayElements(users, { min: 2, max: 6 })) {
       if (v.login !== u.login && u.login !== 'demo') follow(u.login, v.login);
@@ -110,20 +114,23 @@ export function buildVeloraFixtures(): VeloraFixtures {
       users.filter((u) => u.login !== seed.author),
       3,
     );
-    const thread: PostComment[] = Array.from({ length: faker.number.int({ min: 0, max: 5 }) }, (_, k) => {
-      const who = faker.helpers.arrayElement(users);
-      return {
-        id: `pc-${id}-${k}`,
-        postId: id,
-        parentId: null,
-        author: toPreview(who),
-        text: faker.helpers.arrayElement(COMMENTS),
-        createdAt: minutesAgo(Math.max(1, seed.ago - faker.number.int({ min: 1, max: 30 })), now),
-        likesCount: faker.number.int({ min: 0, max: 24 }),
-        isLiked: false,
-        replies: [],
-      };
-    });
+    const thread: PostComment[] = Array.from(
+      { length: faker.number.int({ min: 0, max: 5 }) },
+      (_, k) => {
+        const who = faker.helpers.arrayElement(users);
+        return {
+          id: `pc-${id}-${k}`,
+          postId: id,
+          parentId: null,
+          author: toPreview(who),
+          text: faker.helpers.arrayElement(COMMENTS),
+          createdAt: minutesAgo(Math.max(1, seed.ago - faker.number.int({ min: 1, max: 30 })), now),
+          likesCount: faker.number.int({ min: 0, max: 24 }),
+          isLiked: false,
+          replies: [],
+        };
+      },
+    );
     const first = thread[0];
     if (first && faker.datatype.boolean({ probability: 0.5 })) {
       first.replies.push({
@@ -143,7 +150,11 @@ export function buildVeloraFixtures(): VeloraFixtures {
       ? {
           id: `poll-${id}`,
           question: seed.poll.question,
-          options: seed.poll.options.map(([text, votes], k) => ({ id: `opt-${id}-${k}`, text, votes })),
+          options: seed.poll.options.map(([text, votes], k) => ({
+            id: `opt-${id}-${k}`,
+            text,
+            votes,
+          })),
           totalVotes: seed.poll.options.reduce((n, [, v]) => n + v, 0),
           votedOptionId: null,
           multiple: false,
@@ -157,7 +168,12 @@ export function buildVeloraFixtures(): VeloraFixtures {
       title: seed.title ?? null,
       text: seed.text,
       photos: Array.from({ length: seed.photos ?? 0 }, (_, k) =>
-        photo(`${id}-${k}`, 1200, k === 0 && (seed.photos ?? 0) === 1 ? 900 : 1200, `Фото ${k + 1}`),
+        photo(
+          `${id}-${k}`,
+          1200,
+          k === 0 && (seed.photos ?? 0) === 1 ? 900 : 1200,
+          `Фото ${k + 1}`,
+        ),
       ),
       video: seed.video
         ? {
@@ -196,7 +212,8 @@ export function buildVeloraFixtures(): VeloraFixtures {
     if (seed.pinned) author.pinnedPostId = id;
   });
 
-  for (const c of categories) c.postsCount = posts.filter((p) => p.categories.some((x) => x.id === c.id)).length;
+  for (const c of categories)
+    c.postsCount = posts.filter((p) => p.categories.some((x) => x.id === c.id)).length;
   for (const u of users) {
     u.postsCount = posts.filter((p) => p.author.id === u.id).length;
     u.followingCount = follows.get(u.login)?.size ?? 0;
@@ -207,7 +224,17 @@ export function buildVeloraFixtures(): VeloraFixtures {
 
   /* Истории: у половины авторов, живут 24 часа. */
   const stories: Story[] = [];
-  const storyAuthors = ['demo', 'vetrov', 'kim', 'lebedeva', 'belova', 'gromov', 'orlov', 'morozova', 'tikhonova'];
+  const storyAuthors = [
+    'demo',
+    'vetrov',
+    'kim',
+    'lebedeva',
+    'belova',
+    'gromov',
+    'orlov',
+    'morozova',
+    'tikhonova',
+  ];
   storyAuthors.forEach((login, i) => {
     const author = userAt(login);
     const count = login === 'demo' ? 1 : faker.number.int({ min: 1, max: 3 });
@@ -236,7 +263,12 @@ export function buildVeloraFixtures(): VeloraFixtures {
     [
       'demo',
       [
-        { id: 'h-ladoga', title: 'Ладога', cover: photo('hl-ladoga', 400, 400), storyIds: ['s-demo-0'] },
+        {
+          id: 'h-ladoga',
+          title: 'Ладога',
+          cover: photo('hl-ladoga', 400, 400),
+          storyIds: ['s-demo-0'],
+        },
         { id: 'h-film', title: 'Плёнка', cover: photo('hl-film', 400, 400), storyIds: [] },
         { id: 'h-city', title: 'Город', cover: photo('hl-city', 400, 400), storyIds: [] },
       ],
@@ -244,19 +276,41 @@ export function buildVeloraFixtures(): VeloraFixtures {
   ]);
 
   /* Уведомления для demo. */
-  const types: NotificationType[] = ['like', 'follow', 'comment', 'mention', 'reply', 'repost', 'new_post'];
+  const types: NotificationType[] = [
+    'like',
+    'follow',
+    'comment',
+    'mention',
+    'reply',
+    'repost',
+    'new_post',
+  ];
   const demoPosts = posts.filter((p) => p.author.login === 'demo');
   const notifications: Notification[] = Array.from({ length: 22 }, (_, i) => {
     const type = types[i % types.length] ?? 'like';
     const actor = faker.helpers.arrayElement(users.filter((u) => u.login !== 'demo'));
-    const post = type === 'follow' ? undefined : faker.helpers.arrayElement(type === 'new_post' ? posts : demoPosts.length ? demoPosts : posts);
+    const post =
+      type === 'follow'
+        ? undefined
+        : faker.helpers.arrayElement(
+            type === 'new_post' ? posts : demoPosts.length ? demoPosts : posts,
+          );
     return {
       id: `n-${i}`,
       type,
       actor: toPreview(actor),
       othersCount: type === 'like' ? faker.number.int({ min: 0, max: 14 }) : 0,
-      post: post ? { id: post.id, excerpt: (post.title ?? post.text).slice(0, 80), thumb: post.photos[0]?.url ?? null } : null,
-      commentExcerpt: type === 'comment' || type === 'reply' || type === 'mention' ? faker.helpers.arrayElement(COMMENTS) : null,
+      post: post
+        ? {
+            id: post.id,
+            excerpt: (post.title ?? post.text).slice(0, 80),
+            thumb: post.photos[0]?.url ?? null,
+          }
+        : null,
+      commentExcerpt:
+        type === 'comment' || type === 'reply' || type === 'mention'
+          ? faker.helpers.arrayElement(COMMENTS)
+          : null,
       createdAt: minutesAgo(15 + i * 170, now),
       isRead: i > 3,
     };
@@ -277,5 +331,15 @@ export function buildVeloraFixtures(): VeloraFixtures {
     isVerified: demo.isVerified,
   };
 
-  return { users, categories, posts, comments, stories, highlights, notifications, follows, demoUser };
+  return {
+    users,
+    categories,
+    posts,
+    comments,
+    stories,
+    highlights,
+    notifications,
+    follows,
+    demoUser,
+  };
 }

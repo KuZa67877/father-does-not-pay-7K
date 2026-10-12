@@ -12,7 +12,12 @@ import {
   type StoryGroup,
 } from '@dle/core/velora';
 import { http, HttpResponse } from 'msw';
-import { createAuthHandlers, createMediaHandlers, requireUser, type MockSession } from '../shared/handlers';
+import {
+  createAuthHandlers,
+  createMediaHandlers,
+  requireUser,
+  type MockSession,
+} from '../shared/handlers';
 import {
   createIdGenerator,
   handle,
@@ -52,7 +57,8 @@ export function createVeloraMockDb(): VeloraMockDb {
   };
 }
 
-const byNewest = (a: { createdAt: string }, b: { createdAt: string }) => b.createdAt.localeCompare(a.createdAt);
+const byNewest = (a: { createdAt: string }, b: { createdAt: string }) =>
+  b.createdAt.localeCompare(a.createdAt);
 
 export function createVeloraHandlers(base: string, db: VeloraMockDb = createVeloraMockDb()) {
   const viewerLogin = () => db.session.user?.login ?? null;
@@ -75,9 +81,12 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
     const me = viewerLogin();
     if (kind === 'all' || !me) return [...db.posts];
     const following = followsOf(me);
-    if (kind === 'following') return db.posts.filter((p) => following.has(p.author.login) || p.author.login === me);
+    if (kind === 'following')
+      return db.posts.filter((p) => following.has(p.author.login) || p.author.login === me);
     // Круги — взаимные подписки
-    return db.posts.filter((p) => following.has(p.author.login) && followsOf(p.author.login).has(me));
+    return db.posts.filter(
+      (p) => following.has(p.author.login) && followsOf(p.author.login).has(me),
+    );
   };
 
   const sortFeed = (list: Post[]) =>
@@ -107,11 +116,16 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
       `${base}/feed`,
       handle(({ request }) => {
         const p = new URL(request.url).searchParams;
-        const kind = (['all', 'following', 'circles'] as const).find((k) => k === p.get('kind')) ?? 'all';
+        const kind =
+          (['all', 'following', 'circles'] as const).find((k) => k === p.get('kind')) ?? 'all';
         let list = feed(kind);
         const category = p.get('category');
         if (category) list = list.filter((x) => x.categories.some((c) => c.slug === category));
-        const page = paginateCursor(sortFeed(list).map(postView), p.get('cursor'), intParam(p.get('limit'), 10, 30));
+        const page = paginateCursor(
+          sortFeed(list).map(postView),
+          p.get('cursor'),
+          intParam(p.get('limit'), 10, 30),
+        );
         return HttpResponse.json(page);
       }),
     ),
@@ -136,7 +150,8 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         const tag = p.get('tag')?.toLowerCase();
         if (tag) list = list.filter((x) => extractTags(x.text).includes(tag));
         const search = p.get('search')?.trim().toLowerCase();
-        if (search) list = list.filter((x) => `${x.title ?? ''} ${x.text}`.toLowerCase().includes(search));
+        if (search)
+          list = list.filter((x) => `${x.title ?? ''} ${x.text}`.toLowerCase().includes(search));
         const period = p.get('period');
         if (period === 'week' || period === 'month') {
           const days = period === 'week' ? 7 : 30;
@@ -144,16 +159,27 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
           list = list.filter((x) => x.createdAt >= since);
         }
         list.sort(p.get('sort') === 'popular' ? (a, b) => b.likesCount - a.likesCount : byNewest);
-        return HttpResponse.json(paginateCursor(list.map(postView), p.get('cursor'), intParam(p.get('limit'), 10, 50)));
+        return HttpResponse.json(
+          paginateCursor(list.map(postView), p.get('cursor'), intParam(p.get('limit'), 10, 50)),
+        );
       }),
     ),
-    http.get(`${base}/posts/:id`, handle(({ params }) => HttpResponse.json(postView(getPost(String(params['id'])))))),
+    http.get(
+      `${base}/posts/:id`,
+      handle(({ params }) => HttpResponse.json(postView(getPost(String(params['id']))))),
+    ),
     http.post(
       `${base}/posts`,
       handle(async ({ request }) => {
         const user = requireUser(db.session);
         const parsed = PostInputSchema.safeParse(await readJson(request));
-        if (!parsed.success) throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422, parsed.error.issues);
+        if (!parsed.success)
+          throw new ApiError(
+            'validation',
+            parsed.error.issues[0]?.message ?? 'Ошибка',
+            422,
+            parsed.error.issues,
+          );
         const input = parsed.data;
         const media = (ids: string[]) =>
           ids.map((id) => {
@@ -177,7 +203,11 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
             ? {
                 id: `poll-${id}`,
                 question: input.poll.question,
-                options: input.poll.options.map((text, k) => ({ id: `opt-${id}-${k}`, text, votes: 0 })),
+                options: input.poll.options.map((text, k) => ({
+                  id: `opt-${id}-${k}`,
+                  text,
+                  votes: 0,
+                })),
                 totalVotes: 0,
                 votedOptionId: null,
                 multiple: input.poll.multiple,
@@ -209,7 +239,8 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
       handle(async ({ params, request }) => {
         const user = requireUser(db.session);
         const post = getPost(String(params['id']));
-        if (post.author.id !== user.id) throw new ApiError('forbidden', 'Можно редактировать только свои посты', 403);
+        if (post.author.id !== user.id)
+          throw new ApiError('forbidden', 'Можно редактировать только свои посты', 403);
         const patch = await readJson<{ title?: string | null; text?: string }>(request);
         if (patch.title !== undefined) post.title = patch.title;
         if (patch.text !== undefined) post.text = patch.text;
@@ -260,7 +291,8 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
       handle(async ({ params, request }) => {
         const user = requireUser(db.session);
         const post = getPost(String(params['id']));
-        if (post.author.id !== user.id) throw new ApiError('forbidden', 'Закрепить можно только свой пост', 403);
+        if (post.author.id !== user.id)
+          throw new ApiError('forbidden', 'Закрепить можно только свой пост', 403);
         const { value } = await readJson<{ value: boolean }>(request);
         for (const p of db.posts) if (p.author.id === user.id) p.isPinned = false;
         post.isPinned = value;
@@ -269,7 +301,10 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         return new HttpResponse(null, { status: 204 });
       }),
     ),
-    http.post(`${base}/posts/:id/report`, handle(() => new HttpResponse(null, { status: 204 }))),
+    http.post(
+      `${base}/posts/:id/report`,
+      handle(() => new HttpResponse(null, { status: 204 })),
+    ),
     http.post(
       `${base}/posts/:id/vote`,
       handle(async ({ params, request }) => {
@@ -301,7 +336,9 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
       handle(async ({ params, request }) => {
         const user = requireUser(db.session);
         const post = getPost(String(params['id']));
-        const { text, parentId } = await readJson<{ text: string; parentId: string | null }>(request);
+        const { text, parentId } = await readJson<{ text: string; parentId: string | null }>(
+          request,
+        );
         if (!text?.trim()) throw new ApiError('validation', 'Пустой комментарий', 422);
         const comment: PostComment = {
           id: nextCommentId(),
@@ -336,8 +373,17 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         const groups = new Map<string, StoryGroup>();
         for (const s of alive.sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
           // «Близкие» видят только взаимные подписчики автора
-          if (s.audience === 'close' && me !== s.author.login && !(me && followsOf(s.author.login).has(me))) continue;
-          const g = groups.get(s.author.id) ?? { author: s.author, stories: [], hasUnviewed: false };
+          if (
+            s.audience === 'close' &&
+            me !== s.author.login &&
+            !(me && followsOf(s.author.login).has(me))
+          )
+            continue;
+          const g = groups.get(s.author.id) ?? {
+            author: s.author,
+            stories: [],
+            hasUnviewed: false,
+          };
           g.stories.push(s);
           g.hasUnviewed ||= !s.isViewed;
           groups.set(s.author.id, g);
@@ -355,10 +401,12 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
       handle(async ({ request }) => {
         const user = requireUser(db.session);
         const parsed = StoryInputSchema.safeParse(await readJson(request));
-        if (!parsed.success) throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422);
+        if (!parsed.success)
+          throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422);
         const { content, audience } = parsed.data;
         const media = content.kind === 'photo' ? db.media.get(content.mediaId) : undefined;
-        if (content.kind === 'photo' && !media) throw new ApiError('validation', 'Фото не найдено', 422);
+        if (content.kind === 'photo' && !media)
+          throw new ApiError('validation', 'Фото не найдено', 422);
         const now = new Date();
         const story: Story = {
           id: nextStoryId(),
@@ -400,20 +448,26 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         return new HttpResponse(null, { status: 204 });
       }),
     ),
-    http.post(`${base}/stories/:id/reply`, handle(() => new HttpResponse(null, { status: 204 }))),
+    http.post(
+      `${base}/stories/:id/reply`,
+      handle(() => new HttpResponse(null, { status: 204 })),
+    ),
     http.get(
       `${base}/stories/:id/viewers`,
       handle(({ params }) => {
         const user = requireUser(db.session);
         const s = db.stories.find((x) => x.id === params['id']);
         if (!s) return notFound('История');
-        if (s.author.id !== user.id) throw new ApiError('forbidden', 'Список доступен только автору', 403);
+        if (s.author.id !== user.id)
+          throw new ApiError('forbidden', 'Список доступен только автору', 403);
         return HttpResponse.json(s.viewers ?? []);
       }),
     ),
     http.get(
       `${base}/users/:login/highlights`,
-      handle(({ params }) => HttpResponse.json(db.fx.highlights.get(String(params['login'])) ?? [])),
+      handle(({ params }) =>
+        HttpResponse.json(db.fx.highlights.get(String(params['login'])) ?? []),
+      ),
     ),
 
     /* ---------- Уведомления ---------- */
@@ -423,18 +477,23 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         requireUser(db.session);
         const p = new URL(request.url).searchParams;
         const list = [...db.fx.notifications].sort(byNewest);
-        return HttpResponse.json(paginateCursor(list, p.get('cursor'), intParam(p.get('limit'), 20, 50)));
+        return HttpResponse.json(
+          paginateCursor(list, p.get('cursor'), intParam(p.get('limit'), 20, 50)),
+        );
       }),
     ),
     http.get(
       `${base}/notifications/unread-count`,
-      handle(() => HttpResponse.json({ count: db.fx.notifications.filter((n) => !n.isRead).length })),
+      handle(() =>
+        HttpResponse.json({ count: db.fx.notifications.filter((n) => !n.isRead).length }),
+      ),
     ),
     http.post(
       `${base}/notifications/read`,
       handle(async ({ request }) => {
         const { ids } = await readJson<{ ids: string[] | 'all' }>(request);
-        for (const n of db.fx.notifications) if (ids === 'all' || ids.includes(n.id)) n.isRead = true;
+        for (const n of db.fx.notifications)
+          if (ids === 'all' || ids.includes(n.id)) n.isRead = true;
         return new HttpResponse(null, { status: 204 });
       }),
     ),
@@ -446,8 +505,13 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         const p = new URL(request.url).searchParams;
         const q = p.get('search')?.trim().toLowerCase();
         let list = db.fx.users.filter((u) => u.login !== 'admin');
-        if (q) list = list.filter((u) => `${u.name} ${u.login} ${u.occupation ?? ''}`.toLowerCase().includes(q));
-        return HttpResponse.json(paginateCursor(list.map(profileView), p.get('cursor'), intParam(p.get('limit'), 20, 50)));
+        if (q)
+          list = list.filter((u) =>
+            `${u.name} ${u.login} ${u.occupation ?? ''}`.toLowerCase().includes(q),
+          );
+        return HttpResponse.json(
+          paginateCursor(list.map(profileView), p.get('cursor'), intParam(p.get('limit'), 20, 50)),
+        );
       }),
     ),
     http.get(
@@ -456,7 +520,9 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         const limit = intParam(new URL(request.url).searchParams.get('limit'), 3, 10);
         const me = viewerLogin();
         const list = db.fx.users
-          .filter((u) => u.login !== me && u.login !== 'admin' && !(me && followsOf(me).has(u.login)))
+          .filter(
+            (u) => u.login !== me && u.login !== 'admin' && !(me && followsOf(me).has(u.login)),
+          )
           .slice(0, limit)
           .map(profileView);
         return HttpResponse.json(list);
@@ -492,7 +558,8 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
       handle(async ({ request }) => {
         const user = requireUser(db.session);
         const parsed = ProfileInputSchema.safeParse(await readJson(request));
-        if (!parsed.success) throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422);
+        if (!parsed.success)
+          throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422);
         const u = findUser(user.login);
         if (!u) return notFound('Пользователь');
         const { avatarId, coverId, ...rest } = parsed.data;
@@ -552,7 +619,10 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
     ),
 
     /* ---------- Категории и теги ---------- */
-    http.get(`${base}/categories`, handle(() => HttpResponse.json(db.fx.categories))),
+    http.get(
+      `${base}/categories`,
+      handle(() => HttpResponse.json(db.fx.categories)),
+    ),
     http.get(
       `${base}/categories/:slug`,
       handle(({ params }) => {
@@ -570,7 +640,10 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         if (c.isSubscribed !== value) c.subscribersCount += value ? 1 : -1;
         c.isSubscribed = value;
         if (!value) c.notify = false;
-        return HttpResponse.json({ isSubscribed: c.isSubscribed, subscribersCount: c.subscribersCount });
+        return HttpResponse.json({
+          isSubscribed: c.isSubscribed,
+          subscribersCount: c.subscribersCount,
+        });
       }),
     ),
     http.put(
@@ -588,7 +661,10 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         const limit = intParam(new URL(request.url).searchParams.get('limit'), 5, 20);
         const list = TRENDING.slice(0, limit).map((tag) => ({
           tag,
-          postsCount: Math.max(1, db.posts.filter((p) => extractTags(p.text).includes(tag.toLowerCase())).length),
+          postsCount: Math.max(
+            1,
+            db.posts.filter((p) => extractTags(p.text).includes(tag.toLowerCase())).length,
+          ),
         }));
         return HttpResponse.json(list);
       }),
@@ -607,7 +683,15 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
   ];
 }
 
-const METRICS: StatsMetric[] = ['postViews', 'likes', 'comments', 'reposts', 'newFollowers', 'profileViews', 'storyViews'];
+const METRICS: StatsMetric[] = [
+  'postViews',
+  'likes',
+  'comments',
+  'reposts',
+  'newFollowers',
+  'profileViews',
+  'storyViews',
+];
 const SCALE: Record<StatsMetric, number> = {
   postViews: 140,
   likes: 22,
@@ -631,7 +715,10 @@ function buildStats(period: 7 | 30 | 90, login: string, posts: Post[]) {
     const offset = period - 1 - i;
     const d = new Date(Date.now() - offset * 86_400_000);
     const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    const values = Object.fromEntries(METRICS.map((m) => [m, day(offset, m)])) as Record<StatsMetric, number>;
+    const values = Object.fromEntries(METRICS.map((m) => [m, day(offset, m)])) as Record<
+      StatsMetric,
+      number
+    >;
     return { date, values };
   });
   const sum = (from: number, to: number) =>

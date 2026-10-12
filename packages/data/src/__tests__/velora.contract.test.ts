@@ -15,7 +15,10 @@ const adapters: Record<string, () => VeloraRepositories> = {
   'rest + mock': () => {
     server.resetHandlers(...createVeloraHandlers(BASE, createVeloraMockDb()));
     const tokens = createMemoryTokenStore();
-    return createRestVeloraRepositories(createHttpClient({ baseUrl: BASE, tokenStore: tokens, retries: 0 }), tokens);
+    return createRestVeloraRepositories(
+      createHttpClient({ baseUrl: BASE, tokenStore: tokens, retries: 0 }),
+      tokens,
+    );
   },
 };
 
@@ -35,16 +38,20 @@ describe.each(Object.entries(adapters))('VeloraRepositories: %s', (_name, make) 
   });
 
   it('круги ⊆ подписки ⊆ все', async () => {
-    const [all, following, circles] = await Promise.all(
-      (['all', 'following', 'circles'] as const).map((kind) => repo.feed.list({ kind, limit: 100 })),
-    );
+    const [all, following, circles] = await Promise.all([
+      repo.feed.list({ kind: 'all', limit: 100 }),
+      repo.feed.list({ kind: 'following', limit: 100 }),
+      repo.feed.list({ kind: 'circles', limit: 100 }),
+    ]);
     const f = new Set(following.items.map((p) => p.id));
     expect(circles.items.every((p) => f.has(p.id))).toBe(true);
     expect(following.total).toBeLessThanOrEqual(all.total);
   });
 
   it('создание поста с фото, лайк и сохранение', async () => {
-    const media = await repo.media.upload(new File([new Uint8Array([1])], 'a.png', { type: 'image/png' }));
+    const media = await repo.media.upload(
+      new File([new Uint8Array([1])], 'a.png', { type: 'image/png' }),
+    );
     const post = await repo.posts.create({
       title: null,
       text: 'Первый пост #тест @belova',
@@ -67,8 +74,15 @@ describe.each(Object.entries(adapters))('VeloraRepositories: %s', (_name, make) 
   it('пустой пост отклоняется', async () => {
     await expect(
       repo.posts.create({
-        title: null, text: '', photoIds: [], video: null, fileIds: [], poll: null, location: null,
-        categoryIds: ['cat-photo'], repostOfId: null,
+        title: null,
+        text: '',
+        photoIds: [],
+        video: null,
+        fileIds: [],
+        poll: null,
+        location: null,
+        categoryIds: ['cat-photo'],
+        repostOfId: null,
       }),
     ).rejects.toMatchObject({ code: 'validation' });
   });
@@ -79,7 +93,9 @@ describe.each(Object.entries(adapters))('VeloraRepositories: %s', (_name, make) 
     const option = withPoll?.poll?.options[0];
     const voted = await repo.posts.vote(withPoll?.id ?? '', [option?.id ?? '']);
     expect(voted.poll?.votedOptionId).toBe(option?.id);
-    await expect(repo.posts.vote(withPoll?.id ?? '', [option?.id ?? ''])).rejects.toMatchObject({ code: 'conflict' });
+    await expect(repo.posts.vote(withPoll?.id ?? '', [option?.id ?? ''])).rejects.toMatchObject({
+      code: 'conflict',
+    });
   });
 
   it('истории: свои первыми, создание текстовой', async () => {

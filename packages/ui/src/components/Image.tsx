@@ -1,28 +1,7 @@
 import { useState, type CSSProperties, type ImgHTMLAttributes } from 'react';
 import { cx } from '../cx';
+import { buildSrcSet, type ImageSource } from './srcset';
 import s from './Media.module.css';
-
-export interface ImageSource {
-  url: string;
-  width?: number | undefined;
-  height?: number | undefined;
-  alt?: string | undefined;
-}
-
-/**
- * srcset для источников, которые умеют отдавать размер в URL (picsum.photos).
- * Для остальных — только исходный URL.
- */
-export const buildSrcSet = (src: ImageSource, widths: readonly number[] = [480, 800, 1200, 1600]): string | undefined => {
-  const m = src.url.match(/^(https:\/\/picsum\.photos\/seed\/[^/]+)\/(\d+)\/(\d+)$/);
-  if (!m || !src.width || !src.height) return undefined;
-  const [, base] = m;
-  const ratio = src.height / src.width;
-  return widths
-    .filter((w) => w <= (src.width ?? 0))
-    .map((w) => `${base}/${w}/${Math.round(w * ratio)} ${w}w`)
-    .join(', ');
-};
 
 export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'srcSet'> {
   src: ImageSource;
@@ -35,7 +14,17 @@ export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 's
 }
 
 /** Картинка с lazy-загрузкой, srcset, плавным появлением и заглушкой при ошибке. */
-export function Image({ src, ratio, priority, sizes = '100vw', className, frameClassName, frameStyle, alt, ...rest }: ImageProps) {
+export function Image({
+  src,
+  ratio,
+  priority,
+  sizes = '100vw',
+  className,
+  frameClassName,
+  frameStyle,
+  alt,
+  ...rest
+}: ImageProps) {
   const [state, setState] = useState<'loading' | 'loaded' | 'error'>('loading');
   const aspect = ratio ?? (src.width && src.height ? `${src.width}/${src.height}` : undefined);
   return (
@@ -87,7 +76,15 @@ export function Avatar({ name, src, size = 40, className }: AvatarProps) {
   return (
     <span className={cx(s.avatar, className)} style={{ '--_size': `${size}px` } as CSSProperties}>
       {src && !failed ? (
-        <img src={src} alt={name} width={size} height={size} loading="lazy" decoding="async" onError={() => setFailed(true)} />
+        <img
+          src={src}
+          alt={name}
+          width={size}
+          height={size}
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(true)}
+        />
       ) : (
         <span aria-label={name} role="img">
           {initials(name)}

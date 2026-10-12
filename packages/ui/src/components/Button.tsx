@@ -11,7 +11,18 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'primary', size = 'md', block, loading, icon, className, children, disabled, type = 'button', ...rest },
+  {
+    variant = 'primary',
+    size = 'md',
+    block,
+    loading,
+    icon,
+    className,
+    children,
+    disabled,
+    type = 'button',
+    ...rest
+  },
   ref,
 ) {
   return (
@@ -47,7 +58,13 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
       type={type}
       aria-label={label}
       title={label}
-      className={cx(s.iconButton, plain && s.plain, size === 'sm' && s.iconSm, size === 'lg' && s.iconLg, className)}
+      className={cx(
+        s.iconButton,
+        plain && s.plain,
+        size === 'sm' && s.iconSm,
+        size === 'lg' && s.iconLg,
+        className,
+      )}
       {...rest}
     >
       {children}

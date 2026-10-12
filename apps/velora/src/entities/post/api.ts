@@ -9,7 +9,10 @@ export function useFeed(kind: FeedKind, category?: string) {
   return useInfiniteQuery({
     queryKey: qk.feed(kind, category),
     queryFn: ({ pageParam, signal }) =>
-      feed.list({ kind, cursor: pageParam, limit: 10, ...(category ? { category } : {}) }, { signal }),
+      feed.list(
+        { kind, cursor: pageParam, limit: 10, ...(category ? { category } : {}) },
+        { signal },
+      ),
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });

@@ -34,7 +34,11 @@ export interface HttpClient {
   upload<S extends z.ZodType>(
     path: string,
     form: FormData,
-    opts: { schema: S; signal?: AbortSignal | undefined; onProgress?: ((p: number) => void) | undefined },
+    opts: {
+      schema: S;
+      signal?: AbortSignal | undefined;
+      onProgress?: ((p: number) => void) | undefined;
+    },
   ): Promise<z.infer<S>>;
 }
 
@@ -96,14 +100,23 @@ async function parseError(res: Response): Promise<ApiError> {
     const { code, message, details } = parsed.data.error;
     return new ApiError(code, message, res.status, details);
   }
-  return new ApiError(codeFromStatus(res.status), res.statusText || `HTTP ${res.status}`, res.status);
+  return new ApiError(
+    codeFromStatus(res.status),
+    res.statusText || `HTTP ${res.status}`,
+    res.status,
+  );
 }
 
 function validate<S extends z.ZodType>(schema: S, data: unknown, url: string): z.infer<S> {
   const r = schema.safeParse(data);
   if (!r.success) {
     console.error(`[api] ответ ${url} не прошёл валидацию`, r.error.issues);
-    throw new ApiError('invalid_response', 'Сервер вернул данные в неожиданном формате', undefined, r.error.issues);
+    throw new ApiError(
+      'invalid_response',
+      'Сервер вернул данные в неожиданном формате',
+      undefined,
+      r.error.issues,
+    );
   }
   return r.data;
 }
@@ -154,7 +167,11 @@ export function createHttpClient(config: HttpClientConfig): HttpClient {
     }
   }
 
-  async function request<S extends z.ZodType>(method: Method, path: string, opts: RequestOptions<S>) {
+  async function request<S extends z.ZodType>(
+    method: Method,
+    path: string,
+    opts: RequestOptions<S>,
+  ) {
     const attempts = IDEMPOTENT.has(method) ? retries + 1 : 1;
     let lastError: unknown;
     for (let i = 0; i < attempts; i++) {
@@ -173,13 +190,22 @@ export function createHttpClient(config: HttpClientConfig): HttpClient {
   function upload<S extends z.ZodType>(
     path: string,
     form: FormData,
-    opts: { schema: S; signal?: AbortSignal | undefined; onProgress?: ((p: number) => void) | undefined },
+    opts: {
+      schema: S;
+      signal?: AbortSignal | undefined;
+      onProgress?: ((p: number) => void) | undefined;
+    },
   ): Promise<z.infer<S>> {
     const url = buildUrl(baseUrl, path);
     // В окружениях без XHR (тесты, SSR) — обычный fetch без прогресса.
     if (typeof XMLHttpRequest === 'undefined') {
       return (async () => {
-        const res = await doFetch(url, { method: 'POST', body: form, headers: authHeaders(), signal: opts.signal ?? null });
+        const res = await doFetch(url, {
+          method: 'POST',
+          body: form,
+          headers: authHeaders(),
+          signal: opts.signal ?? null,
+        });
         if (!res.ok) throw await parseError(res);
         opts.onProgress?.(1);
         return validate(opts.schema, await res.json(), url);

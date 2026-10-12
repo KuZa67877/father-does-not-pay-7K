@@ -41,11 +41,14 @@ export const createMediaHandlers = (base: string, store: Map<string, Media>) => 
       const form = await request.formData();
       const file = form.get('file');
       if (!(file instanceof File)) return errorResponse('validation', 'Файл не передан');
-      if (file.size > MAX_UPLOAD_BYTES) return errorResponse('payload_too_large', 'Файл больше 20 МБ');
+      if (file.size > MAX_UPLOAD_BYTES)
+        return errorResponse('payload_too_large', 'Файл больше 20 МБ');
       const rawType = form.get('type');
       const type: MediaType = isMediaType(rawType) ? rawType : 'file';
       const url =
-        typeof URL.createObjectURL === 'function' ? URL.createObjectURL(file) : `memory://${file.name}`;
+        typeof URL.createObjectURL === 'function'
+          ? URL.createObjectURL(file)
+          : `memory://${file.name}`;
       const size = type === 'image' ? await imageSize(file) : {};
       const media: Media = {
         id: nextMediaId(),
@@ -82,7 +85,8 @@ export const createAuthHandlers = (base: string, session: MockSession) => [
     `${base}/auth/login`,
     handle(async ({ request }) => {
       const parsed = LoginInputSchema.safeParse(await readJson(request));
-      if (!parsed.success) throw new ApiError('validation', 'Проверьте логин и пароль', 422, parsed.error.issues);
+      if (!parsed.success)
+        throw new ApiError('validation', 'Проверьте логин и пароль', 422, parsed.error.issues);
       if (parsed.data.password === 'wrong-password') {
         throw new ApiError('unauthorized', 'Неверный логин или пароль', 401);
       }
@@ -94,7 +98,8 @@ export const createAuthHandlers = (base: string, session: MockSession) => [
     `${base}/auth/register`,
     handle(async ({ request }) => {
       const parsed = RegisterInputSchema.safeParse(await readJson(request));
-      if (!parsed.success) throw new ApiError('validation', 'Проверьте поля формы', 422, parsed.error.issues);
+      if (!parsed.success)
+        throw new ApiError('validation', 'Проверьте поля формы', 422, parsed.error.issues);
       session.user = { ...session.demoUser, name: parsed.data.name, login: parsed.data.login };
       return HttpResponse.json({ token: 'mock-token', user: session.user }, { status: 201 });
     }),

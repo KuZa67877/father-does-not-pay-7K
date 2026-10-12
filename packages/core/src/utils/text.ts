@@ -23,9 +23,39 @@ export const plural = (n: number, forms: readonly [string, string, string]): str
 };
 
 const TRANSLIT: Record<string, string> = {
-  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y',
-  к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f',
-  х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'shch', ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya',
+  а: 'a',
+  б: 'b',
+  в: 'v',
+  г: 'g',
+  д: 'd',
+  е: 'e',
+  ё: 'e',
+  ж: 'zh',
+  з: 'z',
+  и: 'i',
+  й: 'y',
+  к: 'k',
+  л: 'l',
+  м: 'm',
+  н: 'n',
+  о: 'o',
+  п: 'p',
+  р: 'r',
+  с: 's',
+  т: 't',
+  у: 'u',
+  ф: 'f',
+  х: 'kh',
+  ц: 'ts',
+  ч: 'ch',
+  ш: 'sh',
+  щ: 'shch',
+  ъ: '',
+  ы: 'y',
+  ь: '',
+  э: 'e',
+  ю: 'yu',
+  я: 'ya',
 };
 
 /** Человекочитаемый slug из русского заголовка. */
@@ -94,10 +124,7 @@ export const extractMentions = (text: string): string[] => [
 ];
 
 /** Разбивает строку на части для подсветки совпадений в поиске. */
-export const highlightParts = (
-  text: string,
-  query: string,
-): { text: string; match: boolean }[] => {
+export const highlightParts = (text: string, query: string): { text: string; match: boolean }[] => {
   const q = query.trim();
   if (!q) return [{ text, match: false }];
   const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

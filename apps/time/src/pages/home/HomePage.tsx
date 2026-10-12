@@ -25,7 +25,7 @@ export function HomePage() {
       {isError ? (
         <ErrorState error={error} onRetry={() => void refetch()} />
       ) : (
-        <ol className={s.list} role="list" aria-busy={isPending}>
+        <ol className={s.list} aria-busy={isPending}>
           {isPending
             ? Array.from({ length: 6 }, (_, i) => (
                 <li key={i} className={s.item}>
@@ -42,7 +42,8 @@ export function HomePage() {
                   <div>
                     <p className={s.title}>{a.title}</p>
                     <p className={s.meta}>
-                      {a.rubric.name} · <time dateTime={a.publishedAt}>{formatRelative(a.publishedAt)}</time> ·{' '}
+                      {a.rubric.name} ·{' '}
+                      <time dateTime={a.publishedAt}>{formatRelative(a.publishedAt)}</time> ·{' '}
                       {a.readingTimeMin} мин
                     </p>
                   </div>

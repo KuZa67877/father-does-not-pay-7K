@@ -1,7 +1,15 @@
 export { cx } from './cx';
-export { Button, IconButton, Spinner, type ButtonProps, type IconButtonProps } from './components/Button';
-export { NamedIcon, hasNamedIcon } from './components/Icon';
-export { Avatar, Image, Skeleton, buildSrcSet, type ImageSource } from './components/Image';
+export {
+  Button,
+  IconButton,
+  Spinner,
+  type ButtonProps,
+  type IconButtonProps,
+} from './components/Button';
+export { NamedIcon } from './components/Icon';
+export { hasNamedIcon } from './components/icon-registry';
+export { Avatar, Image, Skeleton } from './components/Image';
+export { buildSrcSet, type ImageSource } from './components/srcset';
 export { Modal, type ModalProps } from './components/Modal';
 export { Tabs, type TabItem } from './components/Tabs';
 export { ThemeToggle } from './components/ThemeToggle';

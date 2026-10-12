@@ -7,7 +7,15 @@ const isoDate = (d: Date) =>
 
 /** Детерминированный «прогноз» от даты: одинаковый в течение дня. */
 export function buildWeather(city = 'Москва', now = new Date()): WeatherForecast {
-  const conditions: WeatherCondition[] = ['partly-cloudy', 'cloudy', 'rain', 'clear', 'cloudy', 'rain', 'partly-cloudy'];
+  const conditions: WeatherCondition[] = [
+    'partly-cloudy',
+    'cloudy',
+    'rain',
+    'clear',
+    'cloudy',
+    'rain',
+    'partly-cloudy',
+  ];
   const dayIndex = Math.floor(now.getTime() / 86_400_000);
   const days = Array.from({ length: 5 }, (_, i) => {
     const d = new Date(now.getTime() + i * 86_400_000);

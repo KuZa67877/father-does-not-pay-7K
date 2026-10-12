@@ -7,7 +7,9 @@ const DAY = 24 * HOUR;
 const toDate = (d: Date | string | number): Date => (d instanceof Date ? d : new Date(d));
 
 const isSameDay = (a: Date, b: Date) =>
-  a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
 
 /** «Четверг, 1 октября 2026». */
 export const formatLongDate = (d: Date | string, locale = 'ru-RU'): string => {

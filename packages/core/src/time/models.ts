@@ -66,8 +66,8 @@ export const ArticleBlockSchema = z.discriminatedUnion('type', [
     type: z.literal('heading'),
     level: z.union([z.literal(2), z.literal(3)]),
     text: z.string().min(1),
-    /** Якорь для оглавления. */
-    anchor: z.string().min(1),
+    /** Якорь для оглавления. Пустой во вводе — сервер проставит из текста. */
+    anchor: z.string(),
   }),
   z.object({ type: z.literal('image'), media: MediaSchema, caption: z.string().optional() }),
   z.object({
@@ -93,9 +93,7 @@ export const ArticleBlockSchema = z.discriminatedUnion('type', [
   }),
   z.object({
     type: z.literal('facts'),
-    items: z
-      .array(z.object({ value: z.string().min(1), label: z.string().min(1) }))
-      .min(1),
+    items: z.array(z.object({ value: z.string().min(1), label: z.string().min(1) })).min(1),
   }),
 ]);
 export type ArticleBlock = z.infer<typeof ArticleBlockSchema>;

@@ -1,11 +1,4 @@
-import type {
-  AuthSession,
-  LoginInput,
-  Media,
-  MediaType,
-  RegisterInput,
-  User,
-} from '../common';
+import type { AuthSession, LoginInput, Media, MediaType, RegisterInput, User } from '../common';
 
 /** Общие опции вызова: отмена запроса. */
 export interface CallOptions {

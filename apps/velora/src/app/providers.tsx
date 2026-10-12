@@ -6,7 +6,13 @@ import { RepositoriesContext } from '@/shared/api/di';
 import { THEME_STORAGE_KEY } from '@/shared/config/env';
 import { createQueryClient } from './query-client';
 
-export function AppProviders({ repositories, children }: { repositories: VeloraRepositories; children: ReactNode }) {
+export function AppProviders({
+  repositories,
+  children,
+}: {
+  repositories: VeloraRepositories;
+  children: ReactNode;
+}) {
   const [queryClient] = useState(createQueryClient);
   return (
     <RepositoriesContext.Provider value={repositories}>

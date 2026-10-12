@@ -40,7 +40,8 @@ export function HomePage() {
             <div>
               <div className={s.name}>{p.author.name}</div>
               <div className={s.meta}>
-                @{p.author.login} · <time dateTime={p.createdAt}>{formatRelative(p.createdAt)}</time>
+                @{p.author.login} ·{' '}
+                <time dateTime={p.createdAt}>{formatRelative(p.createdAt)}</time>
               </div>
             </div>
           </div>

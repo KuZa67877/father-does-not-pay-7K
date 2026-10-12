@@ -19,7 +19,9 @@ export async function createTimeRepositories(config: DataConfig): Promise<TimeRe
       break;
     }
     case 'strapi':
-      throw new Error('Адаптер Strapi появится на этапе 5 — пока используйте VITE_DATA_SOURCE=mock или rest.');
+      throw new Error(
+        'Адаптер Strapi появится на этапе 5 — пока используйте VITE_DATA_SOURCE=mock или rest.',
+      );
     case 'rest':
       break;
   }

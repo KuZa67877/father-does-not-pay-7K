@@ -8,17 +8,25 @@ const json = (body: unknown, status = 200) =>
 
 describe('buildUrl', () => {
   it('пропускает пустые значения и повторяет массивы', () => {
-    expect(buildUrl('/api/', '/articles', { page: 2, rubric: '', tag: undefined, ids: ['a', 'b'] })).toBe(
-      '/api/articles?page=2&ids=a&ids=b',
-    );
+    expect(
+      buildUrl('/api/', '/articles', { page: 2, rubric: '', tag: undefined, ids: ['a', 'b'] }),
+    ).toBe('/api/articles?page=2&ids=a&ids=b');
   });
 });
 
 describe('HttpClient', () => {
   it('валидирует ответ схемой и добавляет токен', async () => {
-    const fetchMock = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => json({ id: '1' }));
-    const http = createHttpClient({ baseUrl: '/api', tokenStore: createMemoryTokenStore('t0k'), fetch: fetchMock });
-    await expect(http.get('/x', { schema: z.object({ id: z.string() }) })).resolves.toEqual({ id: '1' });
+    const fetchMock = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) =>
+      json({ id: '1' }),
+    );
+    const http = createHttpClient({
+      baseUrl: '/api',
+      tokenStore: createMemoryTokenStore('t0k'),
+      fetch: fetchMock,
+    });
+    await expect(http.get('/x', { schema: z.object({ id: z.string() }) })).resolves.toEqual({
+      id: '1',
+    });
     const headers = fetchMock.mock.calls[0]?.[1]?.headers as Record<string, string>;
     expect(headers['Authorization']).toBe('Bearer t0k');
   });
@@ -47,7 +55,9 @@ describe('HttpClient', () => {
     await expect(http.get('/x', { schema: z.unknown() })).rejects.toMatchObject({ code: 'server' });
     expect(fetchMock).toHaveBeenCalledTimes(3);
     fetchMock.mockClear();
-    await expect(http.post('/x', { schema: z.unknown(), body: {} })).rejects.toMatchObject({ code: 'server' });
+    await expect(http.post('/x', { schema: z.unknown(), body: {} })).rejects.toMatchObject({
+      code: 'server',
+    });
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -57,9 +67,13 @@ describe('HttpClient', () => {
       retries: 0,
       timeoutMs: 20,
       fetch: (_u, init) =>
-        new Promise((_, reject) => init?.signal?.addEventListener('abort', () => reject(new DOMException('', 'AbortError')))),
+        new Promise((_, reject) =>
+          init?.signal?.addEventListener('abort', () => reject(new DOMException('', 'AbortError'))),
+        ),
     });
-    await expect(http.get('/x', { schema: z.unknown() })).rejects.toMatchObject({ code: 'timeout' });
+    await expect(http.get('/x', { schema: z.unknown() })).rejects.toMatchObject({
+      code: 'timeout',
+    });
   });
 
   it('отмена через AbortController', async () => {
@@ -68,7 +82,9 @@ describe('HttpClient', () => {
       baseUrl: '/api',
       retries: 0,
       fetch: (_u, init) =>
-        new Promise((_, reject) => init?.signal?.addEventListener('abort', () => reject(new DOMException('', 'AbortError')))),
+        new Promise((_, reject) =>
+          init?.signal?.addEventListener('abort', () => reject(new DOMException('', 'AbortError'))),
+        ),
     });
     const p = http.get('/x', { schema: z.unknown(), signal: ctrl.signal });
     ctrl.abort();
