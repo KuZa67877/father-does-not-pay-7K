@@ -1,0 +1,60 @@
+.form {
+  display: flex;
+  gap: 10px;
+  padding: 8px 8px 8px 20px;
+  border: 1px solid var(--line-2);
+  border-radius: 20px;
+  background: var(--bg);
+}
+.form:focus-within {
+  border-color: var(--ink);
+}
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  border: 0;
+  background: none;
+  outline: none;
+  font-size: 18px;
+}
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+}
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.groupLabel {
+  font-size: 13px;
+  color: var(--muted);
+}
+.select {
+  height: 37px;
+  padding: 0 34px 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2366645E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right 14px center;
+  font-size: 14px;
+  appearance: none;
+}
+.results {
+  padding-bottom: 80px;
+}
+.count {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}

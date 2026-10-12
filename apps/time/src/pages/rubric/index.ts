@@ -1,0 +1,1 @@
+export { RubricPage } from './RubricPage';
