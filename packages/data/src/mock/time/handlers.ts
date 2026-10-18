@@ -46,6 +46,7 @@ export interface TimeMockDb {
   subscriptions: Set<string>;
   favorites: Set<string>;
   newsletter: Set<string>;
+  reactions: Map<string, Map<string, ReactionType>>;
   media: Map<string, Media>;
   session: MockSession;
 }
@@ -59,6 +60,7 @@ export function createTimeMockDb(): TimeMockDb {
     subscriptions: new Set(['r-economy', 'r-science', 'r-culture']),
     favorites: new Set(),
     newsletter: new Set(),
+    reactions: new Map(),
     media: new Map(),
     session: { user: fx.demoUser, demoUser: fx.demoUser },
   };
@@ -85,6 +87,10 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
   const withUserState = (a: Article): Article => ({
     ...a,
     isFavorite: Boolean(db.session.user) && db.favorites.has(a.id),
+    reactions: {
+      ...a.reactions,
+      mine: db.session.user ? (db.reactions.get(a.id)?.get(db.session.user.id) ?? null) : null,
+    },
   });
 
   const published = () => [...db.articles.values()].filter((a) => a.status === 'published');
@@ -343,15 +349,21 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     http.put(
       `${base}/articles/:id/reaction`,
       handle(async ({ params, request }) => {
+        const user = requireUser(db.session);
         const a = db.articles.get(String(params['id']));
         if (!a) return notFound('Материал');
         const { type } = await readJson<{ type: ReactionType | null }>(request);
         const next = type === null ? null : ReactionTypeSchema.parse(type);
         const counts = { ...a.reactions.counts };
-        if (a.reactions.mine) counts[a.reactions.mine] = Math.max(0, counts[a.reactions.mine] - 1);
+        const choices = db.reactions.get(a.id) ?? new Map<string, ReactionType>();
+        const mine = choices.get(user.id);
+        if (mine) counts[mine] = Math.max(0, counts[mine] - 1);
         if (next) counts[next] += 1;
-        a.reactions = { counts, mine: next };
-        return HttpResponse.json(a.reactions);
+        if (next) choices.set(user.id, next);
+        else choices.delete(user.id);
+        db.reactions.set(a.id, choices);
+        a.reactions = { counts, mine: null };
+        return HttpResponse.json({ counts, mine: next });
       }),
     ),
 

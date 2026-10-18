@@ -1,4 +1,4 @@
-import { BarChart3, Bell, Compass, Mail, Users } from 'lucide-react';
+import { BarChart3, Compass, Mail, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
 import { routes } from '@/shared/lib/routes';
@@ -36,13 +36,6 @@ export const PeoplePage = () => (
   <Soon title="Люди" icon={<Users size={28} />}>
     Список авторов с поиском и подпиской скоро будет здесь. А пока найти человека можно через поиск
     справа или в «Популярных авторах».
-  </Soon>
-);
-
-export const NotificationsPage = () => (
-  <Soon title="Уведомления" icon={<Bell size={28} />}>
-    Подписки, отметки, ответы и упоминания — по дням, с отметкой прочитанного. Раздел появится
-    вместе с историями.
   </Soon>
 );
 

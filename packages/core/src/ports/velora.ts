@@ -43,6 +43,8 @@ export interface FeedRepository {
 }
 
 export interface StoryRepository {
+  /** История по id, в том числе сохранённая в «Актуальном». */
+  get(id: Id, opts?: CallOptions): Promise<Story>;
   groups(opts?: CallOptions): Promise<StoryGroup[]>;
   create(input: StoryInput): Promise<Story>;
   markViewed(id: Id): Promise<void>;

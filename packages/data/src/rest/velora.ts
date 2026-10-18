@@ -61,6 +61,8 @@ export function createRestVeloraRepositories(
         http.put(`/comments/${enc(id)}/like`, { body: { value }, schema: LikeState }),
     },
     stories: {
+      get: (id, opts) =>
+        http.get(`/stories/${enc(id)}`, { schema: StorySchema, signal: opts?.signal }),
       groups: (opts) =>
         http.get('/stories', { schema: z.array(StoryGroupSchema), signal: opts?.signal }),
       create: (input) => http.post('/stories', { body: input, schema: StorySchema }),

@@ -21,6 +21,8 @@ import { Gallery } from '@/widgets/article/Gallery';
 import { PodcastPlayer } from '@/widgets/article/PodcastPlayer';
 import s from '@/widgets/article/article.module.css';
 import { NotFoundPage } from '../not-found';
+import { ListenArticle } from '@/features/listen-article/ListenArticle';
+import { ArticleComments } from '@/widgets/comments/ArticleComments';
 
 /** Прогресс чтения тела статьи → шапка (полоса и «Осталось N мин»). */
 function useReadingProgress(a: Article | undefined, target: RefObject<HTMLElement | null>) {
@@ -109,13 +111,17 @@ export function ArticlePage() {
       )}
       <ArticleHero a={a} compact={mediaFirst} />
       {kind === 'standard' && <ArticleCover a={a} />}
-      <div ref={bodyRef} className={cx('container', s.layout)}>
+      <div className={cx('container', s.layout)}>
         <ArticleAside a={a} toc={toc} />
         <div className={s.body}>
-          {kind === 'opinion' && <OpinionQuote a={a} />}
-          {kind === 'podcast' && <PodcastPlayer format={a.format} title={a.title} />}
-          <Prose blocks={a.body} />
+          <ListenArticle key={a.id} target={bodyRef} />
+          <div ref={bodyRef}>
+            {kind === 'opinion' && <OpinionQuote a={a} />}
+            {kind === 'podcast' && <PodcastPlayer format={a.format} title={a.title} />}
+            <Prose blocks={a.body} />
+          </div>
           <ArticleFooter a={a} />
+          <ArticleComments key={a.id} articleId={a.id} />
         </div>
       </div>
       <Related a={a} />

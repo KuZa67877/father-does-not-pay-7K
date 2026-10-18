@@ -411,7 +411,14 @@
 }
 @media (max-width: 600px) {
   .author {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+  .authorBtn {
+    grid-column: 2;
+    justify-self: start;
   }
 }
 .related {

@@ -48,7 +48,12 @@ export function PostActions({ post, commentsHref }: { post: Post; commentsHref?:
         aria-pressed={post.isLiked}
         aria-label={post.isLiked ? 'Убрать отметку «нравится»' : 'Нравится'}
         title={likeLabel || undefined}
-        onClick={gate(() => like.mutate(!post.isLiked))}
+        disabled={like.isPending}
+        onClick={gate(() =>
+          like.mutate(!post.isLiked, {
+            onError: () => toast('Не удалось сохранить отметку. Попробуйте ещё раз.'),
+          }),
+        )}
       >
         <Heart size={19} aria-hidden fill={post.isLiked ? 'currentColor' : 'none'} />
         <span className={s.n}>{compactNumber(post.likesCount)}</span>
@@ -77,9 +82,11 @@ export function PostActions({ post, commentsHref }: { post: Post; commentsHref?:
         type="button"
         className={cx(s.act, s.icon, post.isSaved && s.saved)}
         aria-pressed={post.isSaved}
+        disabled={save.isPending}
         aria-label={post.isSaved ? 'Убрать из сохранённого' : 'Сохранить'}
         onClick={gate(() =>
           save.mutate(!post.isSaved, {
+            onError: () => toast('Не удалось сохранить пост. Попробуйте ещё раз.'),
             onSuccess: () => toast(post.isSaved ? 'Убрали из сохранённого' : 'Сохранено'),
           }),
         )}
@@ -157,6 +164,7 @@ function PostMenu({ post }: { post: Post }) {
               onClick={() => {
                 close();
                 pin.mutate(!post.isPinned, {
+                  onError: () => toast('Не удалось закрепить пост. Попробуйте ещё раз.'),
                   onSuccess: () =>
                     toast(post.isPinned ? 'Пост откреплён' : 'Пост закреплён в профиле'),
                 });
@@ -173,7 +181,10 @@ function PostMenu({ post }: { post: Post }) {
               className={cx(s.item, s.danger)}
               onClick={() => {
                 close();
-                remove.mutate(undefined, { onSuccess: () => toast('Пост удалён') });
+                remove.mutate(undefined, {
+                  onSuccess: () => toast('Пост удалён'),
+                  onError: () => toast('Не удалось удалить пост. Попробуйте ещё раз.'),
+                });
               }}
             >
               <Trash2 size={16} aria-hidden /> Удалить
@@ -202,7 +213,10 @@ function PostMenu({ post }: { post: Post }) {
                 className={s.item}
                 onClick={() => {
                   close();
-                  report.mutate(r, { onSuccess: () => toast('Спасибо, модераторы посмотрят') });
+                  report.mutate(r, {
+                    onSuccess: () => toast('Спасибо, модераторы посмотрят'),
+                    onError: () => toast('Не удалось отправить жалобу. Попробуйте ещё раз.'),
+                  });
                 }}
               >
                 {r}

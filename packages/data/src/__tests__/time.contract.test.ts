@@ -122,6 +122,19 @@ describe.each(Object.entries(adapters))('TimeRepositories: %s', (_name, make) =>
     expect(feed.items.some((a) => a.rubric.slug === 'sport')).toBe(true);
   });
 
+  it('гость видит общий счётчик реакций без чужого выбора', async () => {
+    const a = (await repo.articles.list({ pageSize: 1 })).items[0];
+    if (!a) throw new Error('Нет материала');
+    const chosen = await repo.reactions.react(a.id, 'useful');
+    await repo.auth.logout();
+    const guest = await repo.articles.getBySlug(a.slug);
+    expect(guest.reactions.mine).toBeNull();
+    expect(guest.reactions.counts).toEqual(chosen.counts);
+    await expect(repo.reactions.react(a.id, 'like')).rejects.toMatchObject({
+      code: 'unauthorized',
+    });
+  });
+
   it('комментарии: дерево и ответ', async () => {
     const [a] = (await repo.articles.list({ pageSize: 1 })).items;
     const root = await repo.comments.create(a?.id ?? '', {

@@ -55,6 +55,7 @@ export function FollowRubric({ rubric, className }: { rubric: Rubric; className?
         variant={isOn ? 'secondary' : 'outline'}
         size="lg"
         aria-pressed={isOn}
+        disabled={m.isPending}
         icon={isOn ? <Check size={18} aria-hidden /> : <Plus size={18} aria-hidden />}
         onClick={() => (me ? m.mutate(!isOn) : openLogin('login'))}
       >

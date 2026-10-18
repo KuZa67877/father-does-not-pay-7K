@@ -30,14 +30,18 @@ export function SaveArticle({ article, className }: { article: Article; classNam
 
   const on = article.isFavorite;
   return (
-    <button
-      type="button"
-      className={cx(s.save, on && s.on, className)}
-      aria-pressed={on}
-      onClick={() => (me ? m.mutate(!on) : openLogin('login'))}
-    >
-      {on ? <BookmarkCheck size={17} aria-hidden /> : <Bookmark size={17} aria-hidden />}
-      {on ? 'Сохранено' : 'Сохранить'}
-    </button>
+    <div>
+      <button
+        type="button"
+        className={cx(s.save, on && s.on, className)}
+        aria-pressed={on}
+        disabled={m.isPending}
+        onClick={() => (me ? m.mutate(!on) : openLogin('login'))}
+      >
+        {on ? <BookmarkCheck size={17} aria-hidden /> : <Bookmark size={17} aria-hidden />}
+        {on ? 'Сохранено' : 'Сохранить'}
+      </button>
+      {m.isError && <p role="alert">Не удалось сохранить материал. Попробуйте ещё раз.</p>}
+    </div>
   );
 }

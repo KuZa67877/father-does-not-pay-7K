@@ -204,32 +204,24 @@ function ProfileHead({ profile: p, own }: { profile: Profile; own: boolean }) {
 
 function Highlights({ login, own }: { login: string; own: boolean }) {
   const { data } = useHighlights(login);
-  const { toast } = useUi();
+  const { openStory, openStoryComposer } = useUi();
   if (!own && !data?.length) return null;
   return (
     <section className={cx('card', s.highlights)} aria-label="Актуальное">
       <ul className={s.hlList}>
         {own && (
           <li>
-            <button
-              type="button"
-              className={s.hl}
-              onClick={() => toast('Подборки историй появятся вместе с историями')}
-            >
+            <button type="button" className={s.hl} onClick={openStoryComposer}>
               <span className={cx(s.hlCover, s.hlNew)}>
                 <Plus size={20} aria-hidden />
               </span>
-              <span className={s.hlTitle}>Новое</span>
+              <span className={s.hlTitle}>История</span>
             </button>
           </li>
         )}
         {data?.map((h) => (
           <li key={h.id}>
-            <button
-              type="button"
-              className={s.hl}
-              onClick={() => toast('Просмотр историй появится в следующем обновлении')}
-            >
+            <button type="button" className={s.hl} onClick={() => openStory({ ids: h.storyIds })}>
               <span className={s.hlCover}>
                 {h.cover && <Image src={h.cover} ratio="1/1" sizes="64px" alt="" />}
               </span>

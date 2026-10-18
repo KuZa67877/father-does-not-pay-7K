@@ -28,6 +28,13 @@
   --danger: #d9441f;
   --green: #1f6b55;
   --story-ring: conic-gradient(#4b3fe0, #ff7a59, #ffb547, #4b3fe0);
+  --story-violet: #4b3fe0;
+  --story-forest: #1f6b55;
+  --story-clay: #a53e25;
+  --story-night: #141412;
+  --story-foreground: #ffffff;
+  --story-overlay: rgba(0, 0, 0, 0.6);
+  --story-track: rgba(255, 255, 255, 0.35);
 
   /* Алиасы для общих компонентов */
   --surface: var(--card);

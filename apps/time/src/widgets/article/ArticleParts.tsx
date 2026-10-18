@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import { ArticleCard, CardSkeleton, Initials, useRelated } from '@/entities/article';
 import { SaveArticle } from '@/features/save-article';
 import { ShareArticle } from '@/features/share-article';
+import { Reactions } from '@/features/react-to-article/Reactions';
 import { isLongTitle } from '@/shared/lib/format';
 import { routes } from '@/shared/lib/routes';
 import { ArrowLink, Badge, Label, SectionHead } from '@/shared/ui';
@@ -295,6 +296,7 @@ export function ArticleFooter({ a }: { a: Article }) {
           ))}
         </ul>
       )}
+      <Reactions article={a} />
       <div className={s.author}>
         <Avatar name={a.author.name} src={a.author.avatar?.url} size={64} />
         <div className={s.authorText}>

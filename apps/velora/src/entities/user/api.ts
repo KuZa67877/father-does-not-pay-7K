@@ -1,7 +1,8 @@
-import type { Profile, ProfileInput } from '@dle/core/velora';
+import type { ProfileInput } from '@dle/core/velora';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRepositories } from '@/shared/api/di';
 import { qk } from '@/shared/api/query-keys';
+import { patchProfile, profileQueries } from './cache';
 
 export function useProfile(login: string | null | undefined) {
   const { users } = useRepositories();
@@ -44,26 +45,25 @@ export function usePeopleSearch(search: string, enabled = true) {
 export function useFollow(login: string) {
   const { users } = useRepositories();
   const qc = useQueryClient();
-  const key = qk.profile(login);
   return useMutation({
     mutationFn: (value: boolean) => users.follow(login, value),
     onMutate: async (value) => {
-      await qc.cancelQueries({ queryKey: key });
-      const prev = qc.getQueryData<Profile>(key);
-      if (prev)
-        qc.setQueryData<Profile>(key, {
-          ...prev,
-          isFollowing: value,
-          followersCount: Math.max(0, prev.followersCount + (value ? 1 : -1)),
-        });
-      return { prev };
+      await qc.cancelQueries(profileQueries);
+      const snapshot = qc.getQueriesData(profileQueries);
+      patchProfile(qc, login, (p) => ({
+        ...p,
+        isFollowing: value,
+        followersCount: Math.max(0, p.followersCount + Number(value) - Number(p.isFollowing)),
+      }));
+      return { snapshot };
     },
     onError: (_e, _v, ctx) => {
-      if (ctx?.prev) qc.setQueryData(key, ctx.prev);
+      for (const [key, data] of ctx?.snapshot ?? []) qc.setQueryData(key, data);
     },
     onSuccess: (res) => {
-      qc.setQueryData<Profile>(key, (p) => (p ? { ...p, ...res } : p));
+      patchProfile(qc, login, (p) => ({ ...p, ...res }));
       void qc.invalidateQueries({ queryKey: qk.suggestions });
+      void qc.invalidateQueries({ queryKey: qk.stories });
       void qc.invalidateQueries({ queryKey: ['feed', 'following'] });
       void qc.invalidateQueries({ queryKey: ['feed', 'circles'] });
     },

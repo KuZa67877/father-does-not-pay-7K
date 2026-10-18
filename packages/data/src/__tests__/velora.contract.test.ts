@@ -114,6 +114,64 @@ describe.each(Object.entries(adapters))('VeloraRepositories: %s', (_name, make) 
     expect(after.followersCount).toBe(before.followersCount + (before.isFollowing ? -1 : 1));
   });
 
+  it('истории: просмотр учитывается один раз, лайк снимается, список зрителей закрыт', async () => {
+    const groups = await repo.stories.groups();
+    const story = groups
+      .flatMap((g) => g.stories)
+      .find((s) => s.author.login !== 'demo' && !s.isViewed && s.audience === 'all');
+    if (!story) throw new Error('Нет истории для просмотра');
+    expect((await repo.stories.get(story.id)).viewers).toBeUndefined();
+    await repo.stories.markViewed(story.id);
+    await repo.stories.markViewed(story.id);
+    expect(await repo.stories.get(story.id)).toMatchObject({
+      isViewed: true,
+      viewsCount: story.viewsCount + 1,
+    });
+    await repo.stories.like(story.id, true);
+    expect((await repo.stories.get(story.id)).isLiked).toBe(true);
+    await repo.stories.like(story.id, false);
+    expect((await repo.stories.get(story.id)).isLiked).toBe(false);
+    await expect(repo.stories.viewers(story.id)).rejects.toMatchObject({ code: 'forbidden' });
+  });
+
+  it('истории: фото загружается, гость не видит «Близких» и чужие отметки', async () => {
+    const media = await repo.media.upload(
+      new File([new Uint8Array([1])], 'story.png', { type: 'image/png' }),
+    );
+    const story = await repo.stories.create({
+      content: { kind: 'photo', mediaId: media.id, caption: 'У воды' },
+      audience: 'close',
+    });
+    expect((await repo.stories.get(story.id)).content).toMatchObject({
+      kind: 'photo',
+      media: { id: media.id },
+      caption: 'У воды',
+    });
+    await repo.auth.logout();
+    expect((await repo.stories.groups()).flatMap((g) => g.stories).map((s) => s.id)).not.toContain(
+      story.id,
+    );
+    await expect(repo.stories.get(story.id)).rejects.toMatchObject({ code: 'not_found' });
+    await expect(repo.notifications.markRead('all')).rejects.toMatchObject({
+      code: 'unauthorized',
+    });
+    expect(await repo.notifications.unreadCount()).toBe(0);
+  });
+
+  it('истории: после 24 часов остаются доступны только сохранённые в «Актуальном»', async () => {
+    const db = createVeloraMockDb();
+    const saved = db.stories.find((s) => s.id === 's-demo-0');
+    const expired = db.stories.find((s) => s.author.login !== 'demo' && s.audience === 'all');
+    if (!saved || !expired) throw new Error('Нет фикстур историй');
+    saved.expiresAt = expired.expiresAt = '2000-01-01T00:00:00.000Z';
+    server.resetHandlers(...createVeloraHandlers(BASE, db));
+    const ids = (await repo.stories.groups()).flatMap((g) => g.stories.map((s) => s.id));
+    expect(ids).not.toContain(saved.id);
+    expect(ids).not.toContain(expired.id);
+    expect((await repo.stories.get(saved.id)).id).toBe(saved.id);
+    await expect(repo.stories.get(expired.id)).rejects.toMatchObject({ code: 'not_found' });
+  });
+
   it('уведомления: отметить все прочитанными', async () => {
     expect(await repo.notifications.unreadCount()).toBeGreaterThan(0);
     await repo.notifications.markRead('all');

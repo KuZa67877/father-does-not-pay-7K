@@ -68,7 +68,10 @@ export const router = createBrowserRouter([
       },
       {
         path: 'notifications',
-        lazy: () => import('@/pages/soon').then((m) => ({ Component: m.NotificationsPage })),
+        lazy: () =>
+          import('@/pages/notifications/NotificationsPage').then((m) => ({
+            Component: m.NotificationsPage,
+          })),
       },
       {
         path: 'mystats',

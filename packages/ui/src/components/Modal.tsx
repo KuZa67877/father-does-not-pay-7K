@@ -36,6 +36,14 @@ export function Modal({
   const titleId = useId();
   const openerRef = useRef<Element | null>(null);
 
+  useEffect(
+    () => () => {
+      if (openerRef.current instanceof HTMLElement && openerRef.current.isConnected)
+        openerRef.current.focus();
+    },
+    [],
+  );
+
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;

@@ -1,5 +1,5 @@
 import { greeting, plural } from '@dle/core';
-import { Avatar, NamedIcon, Skeleton, ThemeToggle, cx } from '@dle/ui';
+import { Avatar, ErrorState, NamedIcon, Skeleton, ThemeToggle, cx } from '@dle/ui';
 import {
   BarChart3,
   ChevronLeft,
@@ -72,10 +72,9 @@ function useHScroll() {
 
 export function StoriesBar() {
   const { data: me } = useMe();
-  const { data, isPending } = useStoryGroups();
-  const { toast, openLogin } = useUi();
+  const { data, isPending, isError, error, refetch } = useStoryGroups();
+  const { openStory, openStoryComposer, openLogin } = useUi();
   const h = useHScroll();
-  const soon = () => toast('Просмотр и создание историй появятся в следующем обновлении');
   const groups = (data ?? []).filter((g) => g.author.login !== me?.login);
   const mine = (data ?? []).find((g) => g.author.login === me?.login);
   return (
@@ -84,7 +83,9 @@ export function StoriesBar() {
         <button
           type="button"
           className={s.story}
-          onClick={me ? soon : () => openLogin('login')}
+          onClick={() =>
+            me ? (mine ? openStory({ login: me.login }) : openStoryComposer()) : openLogin('login')
+          }
           aria-label={mine ? 'Ваши истории' : 'Добавить историю'}
         >
           <span className={cx(s.ring, mine?.hasUnviewed && s.ringNew, !mine && s.ringNone)}>
@@ -107,7 +108,7 @@ export function StoriesBar() {
             key={g.author.login}
             type="button"
             className={s.story}
-            onClick={soon}
+            onClick={() => openStory({ login: g.author.login })}
             aria-label={`Истории ${g.author.name}${g.hasUnviewed ? ', есть новые' : ''}`}
           >
             <span className={cx(s.ring, g.hasUnviewed ? s.ringNew : s.ringSeen)}>
@@ -119,6 +120,7 @@ export function StoriesBar() {
           </button>
         ))}
       </div>
+      {isError && <ErrorState compact error={error} onRetry={() => void refetch()} />}
       {!h.edges.start && (
         <button
           type="button"
@@ -147,7 +149,7 @@ export function StoriesBar() {
 
 export function ComposerBar({ categoryId }: { categoryId?: string }) {
   const { data: me } = useMe();
-  const { openCompose, openLogin, toast } = useUi();
+  const { openCompose, openLogin, openStoryComposer } = useUi();
   const open = (section?: 'photos' | 'poll') =>
     me
       ? openCompose({ ...(section ? { section } : {}), ...(categoryId ? { categoryId } : {}) })
@@ -176,9 +178,7 @@ export function ComposerBar({ categoryId }: { categoryId?: string }) {
         <button
           type="button"
           className={s.chipBtn}
-          onClick={() =>
-            me ? toast('Истории появятся в следующем обновлении') : openLogin('login')
-          }
+          onClick={() => (me ? openStoryComposer() : openLogin('login'))}
           aria-label="История"
         >
           <PlayCircle size={17} aria-hidden className={s.icStory} />

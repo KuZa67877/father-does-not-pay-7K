@@ -20,19 +20,21 @@ export function SubscribeButton({ category }: { category: Category }) {
           type="button"
           className={cx(s.bell, category.notify && s.bellOn)}
           aria-pressed={category.notify}
+          disabled={notify.isPending}
           aria-label={
             category.notify ? 'Не сообщать о новых постах канала' : 'Сообщать о новых постах канала'
           }
-          onClick={() =>
+          onClick={gate(() =>
             notify.mutate(!category.notify, {
+              onError: () => toast('Не удалось изменить уведомления. Попробуйте ещё раз.'),
               onSuccess: () =>
                 toast(
                   category.notify
                     ? 'Уведомления выключены'
                     : `Сообщим о новых постах в «${category.name}»`,
                 ),
-            })
-          }
+            }),
+          )}
         >
           {category.notify ? (
             <Bell size={17} aria-hidden fill="currentColor" />
@@ -45,7 +47,12 @@ export function SubscribeButton({ category }: { category: Category }) {
         type="button"
         className={cx(s.btn, on ? s.on : s.off)}
         aria-pressed={on}
-        onClick={gate(() => sub.mutate(!on))}
+        disabled={sub.isPending}
+        onClick={gate(() =>
+          sub.mutate(!on, {
+            onError: () => toast('Не удалось изменить подписку. Попробуйте ещё раз.'),
+          }),
+        )}
       >
         {on ? <Check size={16} aria-hidden /> : <Plus size={16} aria-hidden />}
         {on ? 'Вы подписаны' : 'Подписаться'}

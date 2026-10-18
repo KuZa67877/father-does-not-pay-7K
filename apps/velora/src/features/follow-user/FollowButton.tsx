@@ -32,8 +32,15 @@ export function FollowButton({
   const qc = useQueryClient();
   const notify = useMutation({
     mutationFn: (value: boolean) => users.setNotify(profile.login, value),
-    onMutate: (value) => {
+    onMutate: async (value) => {
+      await qc.cancelQueries({ queryKey: qk.profile(profile.login) });
+      const previous = qc.getQueryData<Profile>(qk.profile(profile.login));
       qc.setQueryData<Profile>(qk.profile(profile.login), (p) => (p ? { ...p, notify: value } : p));
+      return { previous };
+    },
+    onError: (_error, _value, ctx) => {
+      if (ctx?.previous) qc.setQueryData(qk.profile(profile.login), ctx.previous);
+      toast('Не удалось изменить уведомления. Попробуйте ещё раз.');
     },
     onSuccess: (_r, value) =>
       toast(value ? `Сообщим о новых постах ${profile.name}` : 'Уведомления выключены'),
@@ -48,9 +55,10 @@ export function FollowButton({
           type="button"
           className={cx(s.bell, profile.notify && s.bellOn)}
           aria-pressed={profile.notify}
+          disabled={notify.isPending}
           aria-label={profile.notify ? 'Не сообщать о новых постах' : 'Сообщать о новых постах'}
           title={profile.notify ? 'Уведомления включены' : 'Уведомлять о новых постах'}
-          onClick={() => notify.mutate(!profile.notify)}
+          onClick={gate(() => notify.mutate(!profile.notify))}
         >
           {profile.notify ? (
             <Bell size={17} aria-hidden fill="currentColor" />
@@ -63,8 +71,13 @@ export function FollowButton({
         type="button"
         className={cx(s.btn, size === 'sm' && s.sm, on ? s.on : s.off)}
         aria-pressed={on}
+        disabled={follow.isPending}
         aria-label={`${on ? 'Вы подписаны' : 'Подписаться'}: ${profile.name}`}
-        onClick={gate(() => follow.mutate(!on))}
+        onClick={gate(() =>
+          follow.mutate(!on, {
+            onError: () => toast('Не удалось изменить подписку. Попробуйте ещё раз.'),
+          }),
+        )}
       >
         {on ? <Check size={16} aria-hidden /> : <Plus size={16} aria-hidden />}
         <span className={s.label}>{on ? 'Вы подписаны' : 'Подписаться'}</span>

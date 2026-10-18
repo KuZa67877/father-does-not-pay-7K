@@ -22,6 +22,7 @@ export function useUploads({ max, accept }: { max: number; accept?: (f: File) =>
   const { media } = useRepositories();
   const [items, setItems] = useState<UploadItem[]>([]);
   const controllers = useRef(new Map<string, AbortController>());
+  const previews = useRef(new Set<string>());
 
   const patch = (key: string, p: Partial<UploadItem>) =>
     setItems((list) => list.map((it) => (it.key === key ? { ...it, ...p } : it)));
@@ -58,10 +59,12 @@ export function useUploads({ max, accept }: { max: number; accept?: (f: File) =>
         error = problem;
         continue;
       }
+      const preview = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+      if (preview) previews.current.add(preview);
       accepted.push({
         key: `u${++seq}`,
         file,
-        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+        preview,
         progress: 0,
         media: null,
         error: null,
@@ -76,7 +79,10 @@ export function useUploads({ max, accept }: { max: number; accept?: (f: File) =>
     controllers.current.get(key)?.abort();
     setItems((list) => {
       const it = list.find((x) => x.key === key);
-      if (it?.preview) URL.revokeObjectURL(it.preview);
+      if (it?.preview) {
+        URL.revokeObjectURL(it.preview);
+        previews.current.delete(it.preview);
+      }
       return list.filter((x) => x.key !== key);
     });
   };
@@ -100,7 +106,12 @@ export function useUploads({ max, accept }: { max: number; accept?: (f: File) =>
 
   useEffect(() => {
     const ctrls = controllers.current;
-    return () => ctrls.forEach((c) => c.abort());
+    const urls = previews.current;
+    return () => {
+      ctrls.forEach((c) => c.abort());
+      urls.forEach((url) => URL.revokeObjectURL(url));
+      urls.clear();
+    };
   }, []);
 
   const pending = items.some((it) => !it.media && !it.error);

@@ -1,6 +1,6 @@
 import { formatRelative, isApiError } from '@dle/core';
 import type { CommentSort, PostComment } from '@dle/core/velora';
-import { Avatar, Button, Skeleton, cx } from '@dle/ui';
+import { Avatar, Button, ErrorState, Skeleton, cx } from '@dle/ui';
 import { CornerUpLeft, Heart, Quote, X } from 'lucide-react';
 import { forwardRef, useImperativeHandle, useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router';
@@ -17,7 +17,7 @@ const countAll = (list: PostComment[]): number =>
 /** «Обсуждение»: дерево, «Популярные / Новые», отправка по Enter. */
 export function Comments({ postId, authorLogin }: { postId: string; authorLogin: string }) {
   const [sort, setSort] = useState<CommentSort>('popular');
-  const { data, isPending } = useComments(postId, sort);
+  const { data, isPending, isError, error, refetch } = useComments(postId, sort);
   const [replyTo, setReplyTo] = useState<PostComment | null>(null);
   const [quote, setQuote] = useState<string | null>(null);
   const editor = useRef<HTMLTextAreaElement>(null);
@@ -56,6 +56,7 @@ export function Comments({ postId, authorLogin }: { postId: string; authorLogin:
           setQuote(null);
         }}
       />
+      {isError && <ErrorState error={error} onRetry={() => void refetch()} />}
 
       {isPending && (
         <div className={s.list}>
@@ -113,6 +114,7 @@ function CommentItem({
 }) {
   const gate = useRequireAuth();
   const like = useLikeComment(c.postId);
+  const { toast } = useUi();
   return (
     <li className={cx(s.item, depth > 0 && s.reply)}>
       <Link to={routes.user(c.author.login)} className={s.av} tabIndex={-1} aria-hidden>
@@ -132,7 +134,13 @@ function CommentItem({
             type="button"
             className={cx(s.act, c.isLiked && s.liked)}
             aria-pressed={c.isLiked}
-            onClick={gate(() => like.mutate({ id: c.id, value: !c.isLiked }))}
+            disabled={like.isPending}
+            onClick={gate(() =>
+              like.mutate(
+                { id: c.id, value: !c.isLiked },
+                { onError: () => toast('Не удалось сохранить отметку. Попробуйте ещё раз.') },
+              ),
+            )}
           >
             <Heart size={15} aria-hidden fill={c.isLiked ? 'currentColor' : 'none'} />
             {c.likesCount}
@@ -186,6 +194,7 @@ const CommentForm = forwardRef<
     );
 
   const send = () => {
+    if (add.isPending) return;
     const body =
       (quote ? `«${quote.length > 120 ? `${quote.slice(0, 120)}…` : quote}»\n\n` : '') +
       text.trim();

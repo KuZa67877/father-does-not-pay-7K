@@ -39,6 +39,8 @@ export interface VeloraMockDb {
   posts: Post[];
   comments: Map<string, PostComment[]>;
   stories: Story[];
+  storyViews: Map<string, Set<string>>;
+  storyLikes: Map<string, Set<string>>;
   media: Map<string, Media>;
   saved: Set<string>;
   session: MockSession;
@@ -51,6 +53,10 @@ export function createVeloraMockDb(): VeloraMockDb {
     posts: fx.posts,
     comments: fx.comments,
     stories: fx.stories,
+    storyViews: new Map([
+      [fx.demoUser.login, new Set(fx.stories.filter((s) => s.isViewed).map((s) => s.id))],
+    ]),
+    storyLikes: new Map(),
     media: new Map(),
     saved: new Set(),
     session: { user: fx.demoUser, demoUser: fx.demoUser },
@@ -63,6 +69,29 @@ const byNewest = (a: { createdAt: string }, b: { createdAt: string }) =>
 export function createVeloraHandlers(base: string, db: VeloraMockDb = createVeloraMockDb()) {
   const viewerLogin = () => db.session.user?.login ?? null;
   const followsOf = (login: string) => db.fx.follows.get(login) ?? new Set<string>();
+  const canViewStory = (s: Story) => {
+    const me = viewerLogin();
+    return (
+      s.audience === 'all' ||
+      me === s.author.login ||
+      Boolean(me && followsOf(me).has(s.author.login) && followsOf(s.author.login).has(me))
+    );
+  };
+  const storyView = (s: Story): Story => ({
+    ...s,
+    isViewed:
+      s.author.login === viewerLogin() ||
+      Boolean(db.storyViews.get(viewerLogin() ?? 'guest')?.has(s.id)),
+    isLiked: Boolean(db.storyLikes.get(viewerLogin() ?? 'guest')?.has(s.id)),
+    viewers: s.author.login === viewerLogin() ? s.viewers : undefined,
+  });
+  const getStory = (id: string) => {
+    const s = db.stories.find((s) => s.id === id);
+    const saved = s && db.fx.highlights.get(s.author.login)?.some((h) => h.storyIds.includes(id));
+    if (!s || !canViewStory(s) || (s.expiresAt <= toIsoOffset(new Date()) && !saved))
+      throw new ApiError('not_found', 'История недоступна', 404);
+    return s;
+  };
 
   const profileView = (u: Profile): Profile => {
     const me = viewerLogin();
@@ -386,16 +415,11 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
       handle(() => {
         const nowIso = toIsoOffset(new Date());
         const me = viewerLogin();
-        const alive = db.stories.filter((s) => s.expiresAt > nowIso);
+        const alive = db.stories
+          .filter((s) => s.expiresAt > nowIso && canViewStory(s))
+          .map(storyView);
         const groups = new Map<string, StoryGroup>();
         for (const s of alive.sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
-          // «Близкие» видят только взаимные подписчики автора
-          if (
-            s.audience === 'close' &&
-            me !== s.author.login &&
-            !(me && followsOf(s.author.login).has(me))
-          )
-            continue;
           const g = groups.get(s.author.id) ?? {
             author: s.author,
             stories: [],
@@ -412,6 +436,10 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
         );
         return HttpResponse.json(list);
       }),
+    ),
+    http.get(
+      `${base}/stories/:id`,
+      handle(({ params }) => HttpResponse.json(storyView(getStory(String(params['id']))))),
     ),
     http.post(
       `${base}/stories`,
@@ -449,32 +477,51 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
     http.post(
       `${base}/stories/:id/view`,
       handle(({ params }) => {
-        const s = db.stories.find((x) => x.id === params['id']);
-        if (!s) return notFound('История');
-        if (!s.isViewed) s.viewsCount += 1;
-        s.isViewed = true;
+        const s = getStory(String(params['id']));
+        const login = viewerLogin() ?? 'guest';
+        const viewed = db.storyViews.get(login) ?? new Set<string>();
+        if (!viewed.has(s.id) && login !== s.author.login) {
+          s.viewsCount += 1;
+          if (db.session.user) {
+            s.viewers ??= [];
+            if (!s.viewers.some((v) => v.id === db.session.user?.id))
+              s.viewers.push(toPreview(db.session.user));
+          }
+        }
+        viewed.add(s.id);
+        db.storyViews.set(login, viewed);
         return new HttpResponse(null, { status: 204 });
       }),
     ),
     http.put(
       `${base}/stories/:id/like`,
       handle(async ({ params, request }) => {
-        const s = db.stories.find((x) => x.id === params['id']);
-        if (!s) return notFound('История');
-        s.isLiked = (await readJson<{ value: boolean }>(request)).value;
+        const user = requireUser(db.session);
+        const s = getStory(String(params['id']));
+        const likes = db.storyLikes.get(user.login) ?? new Set<string>();
+        if ((await readJson<{ value: boolean }>(request)).value) likes.add(s.id);
+        else likes.delete(s.id);
+        db.storyLikes.set(user.login, likes);
         return new HttpResponse(null, { status: 204 });
       }),
     ),
     http.post(
       `${base}/stories/:id/reply`,
-      handle(() => new HttpResponse(null, { status: 204 })),
+      handle(async ({ params, request }) => {
+        requireUser(db.session);
+        getStory(String(params['id']));
+        const { text } = await readJson<{ text: string }>(request);
+        if (typeof text !== 'string' || !text.trim() || text.length > 500)
+          throw new ApiError('validation', 'Напишите ответ до 500 символов', 422);
+        // Переписка вне объёма проекта: подтверждаем ответ без реализации мессенджера.
+        return new HttpResponse(null, { status: 204 });
+      }),
     ),
     http.get(
       `${base}/stories/:id/viewers`,
       handle(({ params }) => {
         const user = requireUser(db.session);
-        const s = db.stories.find((x) => x.id === params['id']);
-        if (!s) return notFound('История');
+        const s = getStory(String(params['id']));
         if (s.author.id !== user.id)
           throw new ApiError('forbidden', 'Список доступен только автору', 403);
         return HttpResponse.json(s.viewers ?? []);
@@ -493,7 +540,8 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
       handle(({ request }) => {
         requireUser(db.session);
         const p = new URL(request.url).searchParams;
-        const list = [...db.fx.notifications].sort(byNewest);
+        const list =
+          db.session.user?.id === db.fx.demoUser.id ? [...db.fx.notifications].sort(byNewest) : [];
         return HttpResponse.json(
           paginateCursor(list, p.get('cursor'), intParam(p.get('limit'), 20, 50)),
         );
@@ -502,13 +550,21 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
     http.get(
       `${base}/notifications/unread-count`,
       handle(() =>
-        HttpResponse.json({ count: db.fx.notifications.filter((n) => !n.isRead).length }),
+        HttpResponse.json({
+          count:
+            db.session.user?.id === db.fx.demoUser.id
+              ? db.fx.notifications.filter((n) => !n.isRead).length
+              : 0,
+        }),
       ),
     ),
     http.post(
       `${base}/notifications/read`,
       handle(async ({ request }) => {
+        requireUser(db.session);
         const { ids } = await readJson<{ ids: string[] | 'all' }>(request);
+        if (db.session.user?.id !== db.fx.demoUser.id)
+          return new HttpResponse(null, { status: 204 });
         for (const n of db.fx.notifications)
           if (ids === 'all' || ids.includes(n.id)) n.isRead = true;
         return new HttpResponse(null, { status: 204 });

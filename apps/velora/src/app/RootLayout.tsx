@@ -4,6 +4,11 @@ import { MessageCircle } from 'lucide-react';
 import type { AuthModal as AuthModalType } from '@/features/auth';
 import type { ComposeModal as ComposeModalType } from '@/features/compose';
 import type { EditProfileModal as EditProfileModalType } from '@/features/edit-profile';
+import type { StoryComposer as StoryComposerType } from '@/features/stories/StoryComposer';
+import type {
+  StoryViewer as StoryViewerType,
+  StorySelection,
+} from '@/features/stories/StoryViewer';
 import { routes } from '@/shared/lib/routes';
 import { RailContext, type RailContextValue } from '@/shared/model/rail';
 import {
@@ -21,6 +26,9 @@ import s from './RootLayout.module.css';
 const loadAuth = () => import('@/features/auth').then((m) => m.AuthModal);
 const loadCompose = () => import('@/features/compose').then((m) => m.ComposeModal);
 const loadEdit = () => import('@/features/edit-profile').then((m) => m.EditProfileModal);
+const loadStoryComposer = () =>
+  import('@/features/stories/StoryComposer').then((m) => m.StoryComposer);
+const loadStoryViewer = () => import('@/features/stories/StoryViewer').then((m) => m.StoryViewer);
 
 type Lazy<T> = { C: T } | null;
 
@@ -41,6 +49,10 @@ export function RootLayout() {
   const [AuthC, setAuthC] = useState<Lazy<typeof AuthModalType>>(null);
   const [ComposeC, setComposeC] = useState<Lazy<typeof ComposeModalType>>(null);
   const [EditC, setEditC] = useState<Lazy<typeof EditProfileModalType>>(null);
+  const [StoryComposerC, setStoryComposerC] = useState<Lazy<typeof StoryComposerType>>(null);
+  const [StoryViewerC, setStoryViewerC] = useState<Lazy<typeof StoryViewerType>>(null);
+  const [storyComposer, setStoryComposer] = useState(false);
+  const [storySelection, setStorySelection] = useState<StorySelection | null>(null);
 
   /* ---------- Тост ---------- */
   const [toastText, setToastText] = useState<{ text: string; id: number } | null>(null);
@@ -53,8 +65,27 @@ export function RootLayout() {
 
   const ui = useMemo<UiContextValue>(
     () => ({
+      openStory: (selection = {}) => {
+        void loadStoryViewer()
+          .then((C) => {
+            setStoryViewerC({ C });
+            setStorySelection(selection);
+          })
+          .catch(() => toast('Не удалось открыть истории. Попробуйте ещё раз.'));
+      },
+      openStoryComposer: () => {
+        void loadStoryComposer()
+          .then((C) => {
+            setStorySelection(null);
+            setStoryComposerC({ C });
+            setStoryComposer(true);
+          })
+          .catch(() => toast('Не удалось открыть редактор истории. Попробуйте ещё раз.'));
+      },
       openLogin: (mode = 'login') =>
         void loadAuth().then((C) => {
+          setStorySelection(null);
+          setStoryComposer(false);
           setAuthC({ C });
           setAuth({ open: true, mode });
         }),
@@ -87,6 +118,8 @@ export function RootLayout() {
 
   useEffect(() => {
     setAuth((a) => (a.open ? { ...a, open: false } : a));
+    setStorySelection(null);
+    setStoryComposer(false);
   }, [pathname]);
 
   return (
@@ -139,6 +172,12 @@ export function RootLayout() {
           />
         )}
         {EditC && <EditC.C open={edit} onClose={() => setEdit(false)} />}
+        {StoryComposerC && storyComposer && (
+          <StoryComposerC.C onClose={() => setStoryComposer(false)} />
+        )}
+        {StoryViewerC && storySelection && (
+          <StoryViewerC.C selection={storySelection} onClose={() => setStorySelection(null)} />
+        )}
         <ScrollRestoration />
       </RailContext.Provider>
     </UiContext.Provider>

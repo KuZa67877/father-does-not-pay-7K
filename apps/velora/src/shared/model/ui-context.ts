@@ -13,6 +13,8 @@ export interface ComposeOptions {
 }
 
 export interface UiContextValue {
+  openStory: (selection?: { login?: string; ids?: string[] }) => void;
+  openStoryComposer: () => void;
   openCompose: (opts?: ComposeOptions) => void;
   openLogin: (mode?: AuthMode) => void;
   openProfileEdit: () => void;

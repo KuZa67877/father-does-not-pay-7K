@@ -46,6 +46,8 @@ export function renderWithApp(ui: ReactNode, repositories = makeRepositories()) 
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   const uiCtx: UiContextValue = {
+    openStory: vi.fn(),
+    openStoryComposer: vi.fn(),
     openCompose: vi.fn(),
     openLogin: vi.fn(),
     openProfileEdit: vi.fn(),

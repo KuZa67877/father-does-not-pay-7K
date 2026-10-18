@@ -30,7 +30,10 @@ export function useRegister() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: RegisterInput) => auth.register(input),
-    onSuccess: (session) => qc.setQueryData(qk.me, session.user),
+    onSuccess: (session) => {
+      qc.setQueryData(qk.me, session.user);
+      void qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== 'auth' });
+    },
   });
 }
 

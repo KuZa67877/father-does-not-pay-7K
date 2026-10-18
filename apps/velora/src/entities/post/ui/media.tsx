@@ -6,6 +6,8 @@ import { Check, FileText, MapPin, Play } from 'lucide-react';
 import { useState } from 'react';
 import { Lightbox } from '@/shared/ui/Lightbox';
 import { useVote } from '../api';
+import { useRequireAuth } from '@/entities/session';
+import { useUi } from '@/shared/model/ui-context';
 import s from './media.module.css';
 
 /* ---------- Фото: 1–4 кадра в разных раскладках ---------- */
@@ -108,6 +110,8 @@ const embedUrl = (v: PostVideo) => {
 
 export function PollBlock({ postId, poll }: { postId: string; poll: Poll }) {
   const vote = useVote(postId);
+  const gate = useRequireAuth();
+  const { toast } = useUi();
   const voted = poll.votedOptionId !== null;
   const total = Math.max(1, poll.totalVotes);
   const leader = Math.max(...poll.options.map((o) => o.votes));
@@ -137,7 +141,11 @@ export function PollBlock({ postId, poll }: { postId: string; poll: Poll }) {
                   type="button"
                   className={s.answer}
                   disabled={vote.isPending}
-                  onClick={() => vote.mutate([o.id])}
+                  onClick={gate(() =>
+                    vote.mutate([o.id], {
+                      onError: () => toast('Не удалось проголосовать. Попробуйте ещё раз.'),
+                    }),
+                  )}
                 >
                   <span className={s.answerText}>{o.text}</span>
                 </button>

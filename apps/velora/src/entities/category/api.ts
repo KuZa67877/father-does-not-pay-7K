@@ -41,13 +41,14 @@ export function useSubscribeCategory(category: Pick<Category, 'id' | 'slug'>) {
   };
   return useMutation({
     mutationFn: (value: boolean) => categories.subscribe(category.id, value),
-    onMutate: (value) => {
+    onMutate: async (value) => {
+      await qc.cancelQueries({ queryKey: qk.categories });
       const prev = qc.getQueryData<Category>(qk.category(category.slug));
       const prevList = qc.getQueryData<Category[]>(qk.categories);
       patch((c) => ({
         ...c,
         isSubscribed: value,
-        subscribersCount: Math.max(0, c.subscribersCount + (value ? 1 : -1)),
+        subscribersCount: Math.max(0, c.subscribersCount + Number(value) - Number(c.isSubscribed)),
       }));
       return { prev, prevList };
     },
@@ -67,10 +68,16 @@ export function useCategoryNotify(category: Pick<Category, 'id' | 'slug'>) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (value: boolean) => categories.setNotify(category.id, value),
-    onMutate: (value) => {
+    onMutate: async (value) => {
+      await qc.cancelQueries({ queryKey: qk.category(category.slug) });
+      const previous = qc.getQueryData<Category>(qk.category(category.slug));
       qc.setQueryData<Category>(qk.category(category.slug), (c) =>
         c ? { ...c, notify: value } : c,
       );
+      return { previous };
+    },
+    onError: (_error, _value, ctx) => {
+      if (ctx?.previous) qc.setQueryData(qk.category(category.slug), ctx.previous);
     },
   });
 }
