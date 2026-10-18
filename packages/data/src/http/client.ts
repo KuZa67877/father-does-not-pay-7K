@@ -77,15 +77,19 @@ export const buildUrl = (baseUrl: string, path: string, query?: Query): string =
 
 const sleep = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((resolve, reject) => {
-    const t = setTimeout(resolve, ms);
-    signal?.addEventListener(
-      'abort',
-      () => {
-        clearTimeout(t);
-        reject(new ApiError('aborted', 'Запрос отменён'));
-      },
-      { once: true },
-    );
+    if (signal?.aborted) {
+      reject(new ApiError('aborted', 'Запрос отменён'));
+      return;
+    }
+    const onAbort = () => {
+      clearTimeout(t);
+      reject(new ApiError('aborted', 'Запрос отменён'));
+    };
+    const t = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal?.addEventListener('abort', onAbort, { once: true });
   });
 
 async function parseError(res: Response): Promise<ApiError> {
@@ -131,6 +135,7 @@ export function createHttpClient(config: HttpClientConfig): HttpClient {
   };
 
   async function once<S extends z.ZodType>(method: Method, path: string, opts: RequestOptions<S>) {
+    if (opts.signal?.aborted) throw new ApiError('aborted', 'Запрос отменён');
     const url = buildUrl(baseUrl, path, opts.query);
     const controller = new AbortController();
     const onAbort = () => controller.abort(opts.signal?.reason);
@@ -197,23 +202,50 @@ export function createHttpClient(config: HttpClientConfig): HttpClient {
     },
   ): Promise<z.infer<S>> {
     const url = buildUrl(baseUrl, path);
+    if (opts.signal?.aborted) return Promise.reject(new ApiError('aborted', 'Загрузка отменена'));
     // В окружениях без XHR (тесты, SSR) — обычный fetch без прогресса.
     if (typeof XMLHttpRequest === 'undefined') {
       return (async () => {
-        const res = await doFetch(url, {
-          method: 'POST',
-          body: form,
-          headers: authHeaders(),
-          signal: opts.signal ?? null,
-        });
-        if (!res.ok) throw await parseError(res);
-        opts.onProgress?.(1);
-        return validate(opts.schema, await res.json(), url);
+        const controller = new AbortController();
+        let timedOut = false;
+        const onAbort = () => controller.abort();
+        opts.signal?.addEventListener('abort', onAbort, { once: true });
+        const timer = setTimeout(() => {
+          timedOut = true;
+          controller.abort();
+        }, timeoutMs);
+        try {
+          const res = await doFetch(url, {
+            method: 'POST',
+            body: form,
+            headers: authHeaders(),
+            signal: controller.signal,
+          });
+          if (!res.ok) throw await parseError(res);
+          opts.onProgress?.(1);
+          return validate(opts.schema, await res.json(), url);
+        } catch (error) {
+          if (error instanceof ApiError) throw error;
+          throw new ApiError(
+            timedOut ? 'timeout' : opts.signal?.aborted ? 'aborted' : 'network',
+            timedOut
+              ? 'Сервер не ответил вовремя'
+              : opts.signal?.aborted
+                ? 'Загрузка отменена'
+                : 'Нет соединения с сервером',
+          );
+        } finally {
+          clearTimeout(timer);
+          opts.signal?.removeEventListener('abort', onAbort);
+        }
       })();
     }
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', url);
+      xhr.timeout = timeoutMs;
+      const onAbort = () => xhr.abort();
+      xhr.onloadend = () => opts.signal?.removeEventListener('abort', onAbort);
       for (const [k, v] of Object.entries(authHeaders())) xhr.setRequestHeader(k, v);
       xhr.setRequestHeader('Accept', 'application/json');
       xhr.upload.onprogress = (ev) => {
@@ -245,7 +277,7 @@ export function createHttpClient(config: HttpClientConfig): HttpClient {
       xhr.onerror = () => reject(new ApiError('network', 'Нет соединения с сервером'));
       xhr.ontimeout = () => reject(new ApiError('timeout', 'Сервер не ответил вовремя'));
       xhr.onabort = () => reject(new ApiError('aborted', 'Загрузка отменена'));
-      opts.signal?.addEventListener('abort', () => xhr.abort(), { once: true });
+      opts.signal?.addEventListener('abort', onAbort, { once: true });
       xhr.send(form);
     });
   }

@@ -18,10 +18,19 @@ export async function createTimeRepositories(config: DataConfig): Promise<TimeRe
       await startMockWorker(createTimeHandlers(config.apiUrl), config.serviceWorkerUrl);
       break;
     }
-    case 'strapi':
-      throw new Error(
-        'Адаптер Strapi появится на этапе 5 — пока используйте VITE_DATA_SOURCE=mock или rest.',
+    case 'strapi': {
+      const { createStrapiTimeRepositories } = await import('./strapi/time');
+      const origin = config.strapiUrl ?? 'http://localhost:1337';
+      return createStrapiTimeRepositories(
+        createHttpClient({
+          baseUrl: `${origin.replace(/\/+$/, '')}/api`,
+          tokenStore: config.tokenStore,
+        }),
+        createHttpClient({ baseUrl: config.apiUrl, tokenStore: config.tokenStore }),
+        config.tokenStore,
+        origin,
       );
+    }
     case 'rest':
       break;
   }

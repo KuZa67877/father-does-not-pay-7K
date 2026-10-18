@@ -8,6 +8,7 @@ import { ArticleCard, CardSkeleton, Initials, useRelated } from '@/entities/arti
 import { SaveArticle } from '@/features/save-article';
 import { ShareArticle } from '@/features/share-article';
 import { Reactions } from '@/features/react-to-article/Reactions';
+import { ReaderSubmission } from '@/features/reader-submission/ReaderSubmission';
 import { isLongTitle } from '@/shared/lib/format';
 import { routes } from '@/shared/lib/routes';
 import { ArrowLink, Badge, Label, SectionHead } from '@/shared/ui';
@@ -273,6 +274,7 @@ export function OpinionQuote({ a }: { a: Article }) {
 export function ArticleFooter({ a }: { a: Article }) {
   return (
     <>
+      <ReaderSubmission key={a.id} articleId={a.id} />
       {a.source && (
         <p className={s.source}>
           <Link2 size={14} aria-hidden /> Источник:{' '}

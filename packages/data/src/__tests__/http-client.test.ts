@@ -15,6 +15,29 @@ describe('buildUrl', () => {
 });
 
 describe('HttpClient', () => {
+  it('не начинает запрос и загрузку с уже отменённым сигналом', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const fetchMock = vi.fn();
+    const client = createHttpClient({ baseUrl: '/api', fetch: fetchMock });
+    await expect(
+      client.get('/x', { schema: z.unknown(), signal: controller.signal }),
+    ).rejects.toMatchObject({ code: 'aborted' });
+    await expect(
+      client.upload('/media', new FormData(), { schema: z.unknown(), signal: controller.signal }),
+    ).rejects.toMatchObject({ code: 'aborted' });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('нормализует сетевой отказ multipart и не повторяет загрузку', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError('Offline'));
+    const client = createHttpClient({ baseUrl: '/api', fetch: fetchMock });
+    await expect(
+      client.upload('/media', new FormData(), { schema: z.unknown() }),
+    ).rejects.toMatchObject({ code: 'network' });
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
   it('валидирует ответ схемой и добавляет токен', async () => {
     const fetchMock = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) =>
       json({ id: '1' }),

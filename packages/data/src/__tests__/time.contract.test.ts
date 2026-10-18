@@ -1,7 +1,7 @@
 /**
  * Контрактные тесты репозиториев «Хроники».
  * Один набор проверок прогоняется против каждого адаптера: сейчас — REST поверх MSW-мока,
- * на этапе 5 сюда добавится Strapi-адаптер.
+ * и Strapi 5 с прикладным REST API.
  */
 import type { TimeRepositories } from '@dle/core/time';
 import { setupServer } from 'msw/node';
@@ -9,6 +9,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createHttpClient, createMemoryTokenStore } from '../http/client';
 import { createTimeHandlers, createTimeMockDb } from '../mock/time/handlers';
 import { createRestTimeRepositories } from '../rest/time';
+import { createStrapiTimeRepositories } from '../strapi/time';
+import { strapiContractHandlers } from './strapi-fixture';
 
 const BASE = 'http://localhost/api';
 const server = setupServer();
@@ -17,6 +19,20 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterAll(() => server.close());
 
 const adapters: Record<string, () => TimeRepositories> = {
+  'strapi 5 + REST sidecar': () => {
+    const cms = 'http://localhost/cms/api';
+    server.resetHandlers(
+      ...strapiContractHandlers(cms, BASE),
+      ...createTimeHandlers(BASE, createTimeMockDb()),
+    );
+    const tokens = createMemoryTokenStore();
+    return createStrapiTimeRepositories(
+      createHttpClient({ baseUrl: cms, retries: 0 }),
+      createHttpClient({ baseUrl: BASE, retries: 0 }),
+      tokens,
+      'http://localhost',
+    );
+  },
   'rest + mock': () => {
     server.resetHandlers(...createTimeHandlers(BASE, createTimeMockDb()));
     const tokens = createMemoryTokenStore();
@@ -81,6 +97,14 @@ describe.each(Object.entries(adapters))('TimeRepositories: %s', (_name, make) =>
     expect(created.body[0]).toMatchObject({ anchor: 'razdel' });
     const mine = await repo.articles.list({ mine: true, status: 'all' });
     expect(mine.items.map((a) => a.id)).toContain(created.id);
+    await repo.auth.logout();
+    expect(
+      (await repo.articles.list({ status: 'all', pageSize: 50 })).items.map((a) => a.id),
+    ).not.toContain(created.id);
+    await expect(repo.articles.getBySlug(created.slug)).rejects.toMatchObject({
+      code: 'not_found',
+    });
+    await repo.auth.login({ login: 'demo', password: 'secret1' });
     const updated = await repo.articles.update(created.id, {
       status: 'published',
       title: 'Новый заголовок статьи',

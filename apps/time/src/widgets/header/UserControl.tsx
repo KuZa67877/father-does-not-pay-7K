@@ -1,5 +1,5 @@
 import { Avatar, cx } from '@dle/ui';
-import { Bell, Bookmark, LogOut, Search as SearchIcon, User } from 'lucide-react';
+import { Bell, Bookmark, LogOut, PenLine, Search as SearchIcon, User } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useLogout, useMe } from '@/entities/session';
@@ -73,6 +73,10 @@ export function UserControl({ small }: { small?: boolean }) {
           </div>
           <Link role="menuitem" to={routes.feed()} className={s.menuItem} onClick={close}>
             <Bell size={16} aria-hidden /> Моя лента
+          </Link>
+          <Link role="menuitem" to={routes.editor()} className={s.menuItem} onClick={close}>
+            <PenLine size={16} aria-hidden />
+            Мои материалы
           </Link>
           <Link role="menuitem" to={routes.favorites()} className={s.menuItem} onClick={close}>
             <Bookmark size={16} aria-hidden /> Избранное

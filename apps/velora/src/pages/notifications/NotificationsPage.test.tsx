@@ -17,7 +17,8 @@ it('отмечает все прочитанными и обновляет сч�
   await user.click(all);
   await waitFor(() => expect(all).toBeDisabled());
   await waitFor(() => expect(queryClient.getQueryData(qk.unread)).toBe(0));
-  expect(await repositories.notifications.unreadCount()).toBe(0);
+  // Кэш обновляется оптимистично, подтверждение сервера приходит позже.
+  await waitFor(async () => expect(await repositories.notifications.unreadCount()).toBe(0));
   expect(screen.queryAllByRole('button', { name: /^Прочитано:/ })).toHaveLength(0);
 });
 

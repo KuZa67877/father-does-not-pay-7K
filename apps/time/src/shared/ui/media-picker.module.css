@@ -1,0 +1,70 @@
+.wrap {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.wrap legend {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.drop {
+  display: grid;
+  gap: 10px;
+  padding: 24px;
+  background: var(--surface-soft);
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  cursor: pointer;
+}
+.drop small {
+  color: var(--muted);
+}
+.drop input {
+  max-width: 100%;
+  font: inherit;
+}
+.drop input::file-selector-button,
+.list button {
+  min-height: 44px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-xs);
+  padding: 8px 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 10px;
+}
+.list li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  min-width: 0;
+}
+.list li > span {
+  overflow-wrap: anywhere;
+}
+.list img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--r-xs);
+}
+.list progress {
+  width: 100px;
+}
+.error {
+  color: var(--negative);
+  font-size: 13px;
+}

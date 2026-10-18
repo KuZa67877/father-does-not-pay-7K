@@ -1,0 +1,4310 @@
+{
+  'openapi': '3.1.0',
+  'info':
+    {
+      'title': 'Хроника / Ольха REST API',
+      'version': '1.0.0',
+      'description': 'Два независимых API с одинаковым общим контрактом. Time и Velora имеют разные base URL. GET /articles/{key} принимает slug, PATCH/DELETE — id. Схемы сгенерированы из Zod; сервер также проверяет бизнес-правила, права и ссылки на медиа.',
+    },
+  'servers': [{ 'url': '/api', 'description': 'API выбранного приложения' }],
+  'paths':
+    {
+      '/auth/me':
+        {
+          'get':
+            {
+              'operationId': 'common_get__auth_me',
+              'tags': ['common'],
+              'summary': 'GET /auth/me',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'anyOf':
+                                    [{ '$ref': '#/components/schemas/User' }, { 'type': 'null' }],
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/auth/login':
+        {
+          'post':
+            {
+              'operationId': 'common_post__auth_login',
+              'tags': ['common'],
+              'summary': 'POST /auth/login',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/AuthSession' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/LoginInput' } },
+                    },
+                },
+            },
+        },
+      '/auth/register':
+        {
+          'post':
+            {
+              'operationId': 'common_post__auth_register',
+              'tags': ['common'],
+              'summary': 'POST /auth/register',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '201':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/AuthSession' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/RegisterInput' } },
+                    },
+                },
+            },
+        },
+      '/auth/logout':
+        {
+          'post':
+            {
+              'operationId': 'common_post__auth_logout',
+              'tags': ['common'],
+              'summary': 'POST /auth/logout',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/auth/password-reset':
+        {
+          'post':
+            {
+              'operationId': 'common_post__auth_password_reset',
+              'tags': ['common'],
+              'summary': 'POST /auth/password-reset',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/EmailInput' } },
+                    },
+                },
+            },
+        },
+      '/media':
+        {
+          'post':
+            {
+              'operationId': 'common_post__media',
+              'tags': ['common'],
+              'summary': 'POST /media',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '201':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Media' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'multipart/form-data':
+                        {
+                          'schema':
+                            {
+                              'type': 'object',
+                              'required': ['file'],
+                              'properties':
+                                {
+                                  'file':
+                                    {
+                                      'type': 'string',
+                                      'format': 'binary',
+                                      'description': 'До 20 МБ; допустимые MIME проверяет сервер',
+                                    },
+                                  'type': { '$ref': '#/components/schemas/MediaType' },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      '/media/{id}':
+        {
+          'delete':
+            {
+              'operationId': 'common_delete__media_id_',
+              'tags': ['common'],
+              'summary': 'DELETE /media/{id}',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/articles':
+        {
+          'get':
+            {
+              'operationId': 'time_get__articles',
+              'tags': ['time'],
+              'summary': 'GET /articles',
+              'parameters':
+                [
+                  { 'name': 'page', 'in': 'query', 'schema': { 'type': 'integer', 'minimum': 1 } },
+                  {
+                    'name': 'pageSize',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                  { 'name': 'rubric', 'in': 'query', 'schema': { 'type': 'string' } },
+                  { 'name': 'tag', 'in': 'query', 'schema': { 'type': 'string' } },
+                  { 'name': 'author', 'in': 'query', 'schema': { 'type': 'string' } },
+                  {
+                    'name': 'format',
+                    'in': 'query',
+                    'schema':
+                      {
+                        'type': 'array',
+                        'items':
+                          {
+                            'type': 'string',
+                            'enum': ['standard', 'video', 'photoReport', 'podcast', 'opinion'],
+                          },
+                      },
+                    'style': 'form',
+                    'explode': true,
+                  },
+                  {
+                    'name': 'readingTime',
+                    'in': 'query',
+                    'schema': { 'type': 'string', 'enum': ['all', 'short', 'long'] },
+                  },
+                  { 'name': 'search', 'in': 'query', 'schema': { 'type': 'string' } },
+                  {
+                    'name': 'sort',
+                    'in': 'query',
+                    'schema': { 'type': 'string', 'enum': ['new', 'popular', 'discussed'] },
+                  },
+                  {
+                    'name': 'status',
+                    'in': 'query',
+                    'schema': { 'type': 'string', 'enum': ['draft', 'published', 'all'] },
+                  },
+                  { 'name': 'featured', 'in': 'query', 'schema': { 'type': 'boolean' } },
+                  { 'name': 'breaking', 'in': 'query', 'schema': { 'type': 'boolean' } },
+                  { 'name': 'mine', 'in': 'query', 'schema': { 'type': 'boolean' } },
+                  { 'name': 'favorites', 'in': 'query', 'schema': { 'type': 'boolean' } },
+                  { 'name': 'subscribed', 'in': 'query', 'schema': { 'type': 'boolean' } },
+                  {
+                    'name': 'since',
+                    'in': 'query',
+                    'schema': { 'type': 'string', 'format': 'date-time' },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/ArticlePage' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+          'post':
+            {
+              'operationId': 'time_post__articles',
+              'tags': ['time'],
+              'summary': 'POST /articles',
+              'parameters': [],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '201':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Article' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/ArticleInput' } },
+                    },
+                },
+            },
+        },
+      '/articles/trending':
+        {
+          'get':
+            {
+              'operationId': 'time_get__articles_trending',
+              'tags': ['time'],
+              'summary': 'GET /articles/trending',
+              'parameters':
+                [
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/ArticlePreview' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/articles/{key}':
+        {
+          'get':
+            {
+              'operationId': 'time_get__articles_key_',
+              'tags': ['time'],
+              'summary': 'GET /articles/{key}',
+              'parameters':
+                [
+                  {
+                    'name': 'key',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Article' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+          'patch':
+            {
+              'operationId': 'time_patch__articles_key_',
+              'tags': ['time'],
+              'summary': 'PATCH /articles/{key}',
+              'parameters':
+                [
+                  {
+                    'name': 'key',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Article' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/ArticlePatch' } },
+                    },
+                },
+            },
+          'delete':
+            {
+              'operationId': 'time_delete__articles_key_',
+              'tags': ['time'],
+              'summary': 'DELETE /articles/{key}',
+              'parameters':
+                [
+                  {
+                    'name': 'key',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/articles/{id}/related':
+        {
+          'get':
+            {
+              'operationId': 'time_get__articles_id_related',
+              'tags': ['time'],
+              'summary': 'GET /articles/{id}/related',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/ArticlePreview' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/articles/{id}/favorite':
+        {
+          'put':
+            {
+              'operationId': 'time_put__articles_id_favorite',
+              'tags': ['time'],
+              'summary': 'PUT /articles/{id}/favorite',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/articles/{id}/reaction':
+        {
+          'put':
+            {
+              'operationId': 'time_put__articles_id_reaction',
+              'tags': ['time'],
+              'summary': 'PUT /articles/{id}/reaction',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Reactions' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/ReactionInput' } },
+                    },
+                },
+            },
+        },
+      '/articles/{id}/comments':
+        {
+          'get':
+            {
+              'operationId': 'time_get__articles_id_comments',
+              'tags': ['time'],
+              'summary': 'GET /articles/{id}/comments',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/Comment' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+          'post':
+            {
+              'operationId': 'time_post__articles_id_comments',
+              'tags': ['time'],
+              'summary': 'POST /articles/{id}/comments',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '201':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Comment' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/CommentInput' } },
+                    },
+                },
+            },
+        },
+      '/comments/{id}/like':
+        {
+          'put':
+            {
+              'operationId': 'common_put__comments_id_like',
+              'tags': ['common'],
+              'summary': 'PUT /comments/{id}/like',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Velora: новое состояние',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/LikeState' } },
+                        },
+                    },
+                  '204': { 'description': 'Time: выполнено без тела' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/rubrics':
+        {
+          'get':
+            {
+              'operationId': 'time_get__rubrics',
+              'tags': ['time'],
+              'summary': 'GET /rubrics',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/Rubric' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/rubrics/{key}':
+        {
+          'get':
+            {
+              'operationId': 'time_get__rubrics_key_',
+              'tags': ['time'],
+              'summary': 'GET /rubrics/{key}',
+              'parameters':
+                [
+                  {
+                    'name': 'key',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Rubric' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/rubrics/{id}/stats':
+        {
+          'get':
+            {
+              'operationId': 'time_get__rubrics_id_stats',
+              'tags': ['time'],
+              'summary': 'GET /rubrics/{id}/stats',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/RubricStats' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/rubrics/{id}/authors':
+        {
+          'get':
+            {
+              'operationId': 'time_get__rubrics_id_authors',
+              'tags': ['time'],
+              'summary': 'GET /rubrics/{id}/authors',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/Author' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/rubrics/{id}/subscription':
+        {
+          'put':
+            {
+              'operationId': 'time_put__rubrics_id_subscription',
+              'tags': ['time'],
+              'summary': 'PUT /rubrics/{id}/subscription',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/SubscriptionState' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/me/subscriptions':
+        {
+          'get':
+            {
+              'operationId': 'time_get__me_subscriptions',
+              'tags': ['time'],
+              'summary': 'GET /me/subscriptions',
+              'parameters': [],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                { 'type': 'array', 'items': { '$ref': '#/components/schemas/Id' } },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/tags/{slug}':
+        {
+          'get':
+            {
+              'operationId': 'time_get__tags_slug_',
+              'tags': ['time'],
+              'summary': 'GET /tags/{slug}',
+              'parameters':
+                [
+                  {
+                    'name': 'slug',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json': { 'schema': { '$ref': '#/components/schemas/Tag' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/topics':
+        {
+          'get':
+            {
+              'operationId': 'time_get__topics',
+              'tags': ['time'],
+              'summary': 'GET /topics',
+              'parameters':
+                [
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/Tag' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/newsletter':
+        {
+          'post':
+            {
+              'operationId': 'time_post__newsletter',
+              'tags': ['time'],
+              'summary': 'POST /newsletter',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                { '$ref': '#/components/schemas/NewsletterSubscribeResult' },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/EmailInput' } },
+                    },
+                },
+            },
+        },
+      '/submissions':
+        {
+          'post':
+            {
+              'operationId': 'time_post__submissions',
+              'tags': ['time'],
+              'summary': 'POST /submissions',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '201':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Receipt' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/ReaderSubmissionInput' } },
+                    },
+                },
+            },
+        },
+      '/widgets/weather':
+        {
+          'get':
+            {
+              'operationId': 'time_get__widgets_weather',
+              'tags': ['time'],
+              'summary': 'GET /widgets/weather',
+              'parameters': [{ 'name': 'city', 'in': 'query', 'schema': { 'type': 'string' } }],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/WeatherForecast' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/widgets/currency':
+        {
+          'get':
+            {
+              'operationId': 'time_get__widgets_currency',
+              'tags': ['time'],
+              'summary': 'GET /widgets/currency',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/CurrencyRate' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/widgets/city':
+        {
+          'get':
+            {
+              'operationId': 'time_get__widgets_city',
+              'tags': ['time'],
+              'summary': 'GET /widgets/city',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/CitySummary' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/feed':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__feed',
+              'tags': ['velora'],
+              'summary': 'GET /feed',
+              'parameters':
+                [
+                  { 'name': 'cursor', 'in': 'query', 'schema': { 'type': 'string' } },
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                  {
+                    'name': 'kind',
+                    'in': 'query',
+                    'schema': { 'type': 'string', 'enum': ['all', 'following', 'circles'] },
+                  },
+                  { 'name': 'category', 'in': 'query', 'schema': { 'type': 'string' } },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/PostPage' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/posts':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__posts',
+              'tags': ['velora'],
+              'summary': 'GET /posts',
+              'parameters':
+                [
+                  { 'name': 'cursor', 'in': 'query', 'schema': { 'type': 'string' } },
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                  { 'name': 'author', 'in': 'query', 'schema': { 'type': 'string' } },
+                  { 'name': 'category', 'in': 'query', 'schema': { 'type': 'string' } },
+                  { 'name': 'tag', 'in': 'query', 'schema': { 'type': 'string' } },
+                  { 'name': 'search', 'in': 'query', 'schema': { 'type': 'string' } },
+                  {
+                    'name': 'tab',
+                    'in': 'query',
+                    'schema': { 'type': 'string', 'enum': ['posts', 'media', 'reposts', 'saved'] },
+                  },
+                  {
+                    'name': 'sort',
+                    'in': 'query',
+                    'schema': { 'type': 'string', 'enum': ['new', 'popular'] },
+                  },
+                  {
+                    'name': 'period',
+                    'in': 'query',
+                    'schema': { 'type': 'string', 'enum': ['week', 'month', 'all'] },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/PostPage' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+          'post':
+            {
+              'operationId': 'velora_post__posts',
+              'tags': ['velora'],
+              'summary': 'POST /posts',
+              'parameters': [],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '201':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json': { 'schema': { '$ref': '#/components/schemas/Post' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/PostInput' } },
+                    },
+                },
+            },
+        },
+      '/posts/{id}':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__posts_id_',
+              'tags': ['velora'],
+              'summary': 'GET /posts/{id}',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json': { 'schema': { '$ref': '#/components/schemas/Post' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+          'patch':
+            {
+              'operationId': 'velora_patch__posts_id_',
+              'tags': ['velora'],
+              'summary': 'PATCH /posts/{id}',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json': { 'schema': { '$ref': '#/components/schemas/Post' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/PostPatch' } },
+                    },
+                },
+            },
+          'delete':
+            {
+              'operationId': 'velora_delete__posts_id_',
+              'tags': ['velora'],
+              'summary': 'DELETE /posts/{id}',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/posts/{id}/like':
+        {
+          'put':
+            {
+              'operationId': 'velora_put__posts_id_like',
+              'tags': ['velora'],
+              'summary': 'PUT /posts/{id}/like',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/LikeState' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/posts/{id}/save':
+        {
+          'put':
+            {
+              'operationId': 'velora_put__posts_id_save',
+              'tags': ['velora'],
+              'summary': 'PUT /posts/{id}/save',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/posts/{id}/pin':
+        {
+          'put':
+            {
+              'operationId': 'velora_put__posts_id_pin',
+              'tags': ['velora'],
+              'summary': 'PUT /posts/{id}/pin',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/posts/{id}/report':
+        {
+          'post':
+            {
+              'operationId': 'velora_post__posts_id_report',
+              'tags': ['velora'],
+              'summary': 'POST /posts/{id}/report',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/ReportInput' } },
+                    },
+                },
+            },
+        },
+      '/posts/{id}/vote':
+        {
+          'post':
+            {
+              'operationId': 'velora_post__posts_id_vote',
+              'tags': ['velora'],
+              'summary': 'POST /posts/{id}/vote',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json': { 'schema': { '$ref': '#/components/schemas/Post' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/VoteInput' } },
+                    },
+                },
+            },
+        },
+      '/posts/{id}/comments':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__posts_id_comments',
+              'tags': ['velora'],
+              'summary': 'GET /posts/{id}/comments',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                  {
+                    'name': 'sort',
+                    'in': 'query',
+                    'schema': { 'type': 'string', 'enum': ['new', 'popular'] },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/PostComment' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+          'post':
+            {
+              'operationId': 'velora_post__posts_id_comments',
+              'tags': ['velora'],
+              'summary': 'POST /posts/{id}/comments',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '201':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/PostComment' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/CommentInput' } },
+                    },
+                },
+            },
+        },
+      '/stories':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__stories',
+              'tags': ['velora'],
+              'summary': 'GET /stories',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/StoryGroup' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+          'post':
+            {
+              'operationId': 'velora_post__stories',
+              'tags': ['velora'],
+              'summary': 'POST /stories',
+              'parameters': [],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '201':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Story' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/StoryInput' } },
+                    },
+                },
+            },
+        },
+      '/stories/{id}':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__stories_id_',
+              'tags': ['velora'],
+              'summary': 'GET /stories/{id}',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Story' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/stories/{id}/view':
+        {
+          'post':
+            {
+              'operationId': 'velora_post__stories_id_view',
+              'tags': ['velora'],
+              'summary': 'POST /stories/{id}/view',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/stories/{id}/like':
+        {
+          'put':
+            {
+              'operationId': 'velora_put__stories_id_like',
+              'tags': ['velora'],
+              'summary': 'PUT /stories/{id}/like',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/stories/{id}/reply':
+        {
+          'post':
+            {
+              'operationId': 'velora_post__stories_id_reply',
+              'tags': ['velora'],
+              'summary': 'POST /stories/{id}/reply',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/ReplyInput' } },
+                    },
+                },
+            },
+        },
+      '/stories/{id}/viewers':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__stories_id_viewers',
+              'tags': ['velora'],
+              'summary': 'GET /stories/{id}/viewers',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/UserPreview' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/users/{login}/highlights':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__users_login_highlights',
+              'tags': ['velora'],
+              'summary': 'GET /users/{login}/highlights',
+              'parameters':
+                [
+                  {
+                    'name': 'login',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/Highlight' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/notifications':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__notifications',
+              'tags': ['velora'],
+              'summary': 'GET /notifications',
+              'parameters':
+                [
+                  { 'name': 'cursor', 'in': 'query', 'schema': { 'type': 'string' } },
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/NotificationPage' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/notifications/unread-count':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__notifications_unread_count',
+              'tags': ['velora'],
+              'summary': 'GET /notifications/unread-count',
+              'parameters': [],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Count' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/notifications/read':
+        {
+          'post':
+            {
+              'operationId': 'velora_post__notifications_read',
+              'tags': ['velora'],
+              'summary': 'POST /notifications/read',
+              'parameters': [],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/ReadInput' } },
+                    },
+                },
+            },
+        },
+      '/users':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__users',
+              'tags': ['velora'],
+              'summary': 'GET /users',
+              'parameters':
+                [
+                  { 'name': 'cursor', 'in': 'query', 'schema': { 'type': 'string' } },
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                  { 'name': 'search', 'in': 'query', 'schema': { 'type': 'string' } },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/ProfilePage' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/users/suggestions':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__users_suggestions',
+              'tags': ['velora'],
+              'summary': 'GET /users/suggestions',
+              'parameters':
+                [
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/Profile' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/users/top':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__users_top',
+              'tags': ['velora'],
+              'summary': 'GET /users/top',
+              'parameters':
+                [
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/TopAuthor' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/users/{login}':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__users_login_',
+              'tags': ['velora'],
+              'summary': 'GET /users/{login}',
+              'parameters':
+                [
+                  {
+                    'name': 'login',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Profile' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/me/profile':
+        {
+          'patch':
+            {
+              'operationId': 'velora_patch__me_profile',
+              'tags': ['velora'],
+              'summary': 'PATCH /me/profile',
+              'parameters': [],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Profile' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/ProfileInput' } },
+                    },
+                },
+            },
+        },
+      '/users/{login}/follow':
+        {
+          'put':
+            {
+              'operationId': 'velora_put__users_login_follow',
+              'tags': ['velora'],
+              'summary': 'PUT /users/{login}/follow',
+              'parameters':
+                [
+                  {
+                    'name': 'login',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/FollowState' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/users/{login}/notify':
+        {
+          'put':
+            {
+              'operationId': 'velora_put__users_login_notify',
+              'tags': ['velora'],
+              'summary': 'PUT /users/{login}/notify',
+              'parameters':
+                [
+                  {
+                    'name': 'login',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/users/{login}/followers':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__users_login_followers',
+              'tags': ['velora'],
+              'summary': 'GET /users/{login}/followers',
+              'parameters':
+                [
+                  {
+                    'name': 'login',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                  { 'name': 'cursor', 'in': 'query', 'schema': { 'type': 'string' } },
+                  { 'name': 'search', 'in': 'query', 'schema': { 'type': 'string' } },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/ProfilePage' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/users/{login}/following':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__users_login_following',
+              'tags': ['velora'],
+              'summary': 'GET /users/{login}/following',
+              'parameters':
+                [
+                  {
+                    'name': 'login',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                  { 'name': 'cursor', 'in': 'query', 'schema': { 'type': 'string' } },
+                  { 'name': 'search', 'in': 'query', 'schema': { 'type': 'string' } },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/ProfilePage' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/categories':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__categories',
+              'tags': ['velora'],
+              'summary': 'GET /categories',
+              'parameters': [],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/Category' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/categories/{slug}':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__categories_slug_',
+              'tags': ['velora'],
+              'summary': 'GET /categories/{slug}',
+              'parameters':
+                [
+                  {
+                    'name': 'slug',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/Category' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/categories/{id}/subscription':
+        {
+          'put':
+            {
+              'operationId': 'velora_put__categories_id_subscription',
+              'tags': ['velora'],
+              'summary': 'PUT /categories/{id}/subscription',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/CategorySubscription' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/categories/{id}/notify':
+        {
+          'put':
+            {
+              'operationId': 'velora_put__categories_id_notify',
+              'tags': ['velora'],
+              'summary': 'PUT /categories/{id}/notify',
+              'parameters':
+                [
+                  {
+                    'name': 'id',
+                    'in': 'path',
+                    'required': true,
+                    'schema': { 'type': 'string', 'minLength': 1 },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '204': { 'description': 'Выполнено, тело отсутствует' },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+              'requestBody':
+                {
+                  'required': true,
+                  'content':
+                    {
+                      'application/json':
+                        { 'schema': { '$ref': '#/components/schemas/BooleanInput' } },
+                    },
+                },
+            },
+        },
+      '/tags/trending':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__tags_trending',
+              'tags': ['velora'],
+              'summary': 'GET /tags/trending',
+              'parameters':
+                [
+                  {
+                    'name': 'limit',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'minimum': 1, 'maximum': 50 },
+                  },
+                ],
+              'security': [{}, { 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            {
+                              'schema':
+                                {
+                                  'type': 'array',
+                                  'items': { '$ref': '#/components/schemas/TrendingTag' },
+                                },
+                            },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+      '/me/stats':
+        {
+          'get':
+            {
+              'operationId': 'velora_get__me_stats',
+              'tags': ['velora'],
+              'summary': 'GET /me/stats',
+              'parameters':
+                [
+                  {
+                    'name': 'period',
+                    'in': 'query',
+                    'schema': { 'type': 'integer', 'enum': [7, 30, 90] },
+                  },
+                ],
+              'security': [{ 'bearerAuth': [] }],
+              'responses':
+                {
+                  '200':
+                    {
+                      'description': 'Успешный результат',
+                      'content':
+                        {
+                          'application/json':
+                            { 'schema': { '$ref': '#/components/schemas/ProfileStats' } },
+                        },
+                    },
+                  'default': { '$ref': '#/components/responses/Error' },
+                },
+            },
+        },
+    },
+  'components':
+    {
+      'schemas':
+        {
+          'Id': { 'type': 'string', 'minLength': 1 },
+          'Slug': { 'type': 'string', 'minLength': 1, 'pattern': '^[a-z0-9]+(?:-[a-z0-9]+)*$' },
+          'ISODateString':
+            {
+              'type': 'string',
+              'format': 'date-time',
+              'pattern': "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+            },
+          'MediaType': { 'type': 'string', 'enum': ['image', 'video', 'audio', 'file'] },
+          'Media':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'type': { '$ref': '#/components/schemas/MediaType' },
+                  'url': { 'type': 'string', 'minLength': 1 },
+                  'width':
+                    { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'height':
+                    { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'alt': { 'default': '', 'type': 'string' },
+                  'poster': { 'type': 'string' },
+                  'duration': { 'type': 'number', 'minimum': 0 },
+                  'name': { 'type': 'string' },
+                  'size': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'mime': { 'type': 'string' },
+                },
+              'required': ['id', 'type', 'url'],
+            },
+          'UserRole': { 'type': 'string', 'enum': ['reader', 'author', 'editor', 'admin'] },
+          'User':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'name': { 'type': 'string', 'minLength': 1 },
+                  'login': { 'type': 'string', 'minLength': 1 },
+                  'avatar':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'cover':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'role': { '$ref': '#/components/schemas/UserRole' },
+                  'occupation': { 'type': 'string' },
+                  'city': { 'type': 'string' },
+                  'link': { 'type': 'string' },
+                  'bio': { 'type': 'string' },
+                  'isVerified': { 'type': 'boolean' },
+                },
+              'required': ['id', 'name', 'login', 'avatar', 'cover', 'role', 'isVerified'],
+            },
+          'UserPreview':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'name': { 'type': 'string', 'minLength': 1 },
+                  'login': { 'type': 'string', 'minLength': 1 },
+                  'avatar':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'isVerified': { 'type': 'boolean' },
+                  'occupation': { 'type': 'string' },
+                },
+              'required': ['id', 'name', 'login', 'avatar', 'isVerified'],
+            },
+          'ApiErrorCode':
+            {
+              'type': 'string',
+              'enum':
+                [
+                  'bad_request',
+                  'unauthorized',
+                  'forbidden',
+                  'not_found',
+                  'conflict',
+                  'validation',
+                  'payload_too_large',
+                  'rate_limited',
+                  'server',
+                  'network',
+                  'timeout',
+                  'aborted',
+                  'invalid_response',
+                ],
+            },
+          'ApiErrorBody':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'error':
+                    {
+                      'type': 'object',
+                      'properties':
+                        {
+                          'code': { '$ref': '#/components/schemas/ApiErrorCode' },
+                          'message': { 'type': 'string' },
+                          'details': {},
+                        },
+                      'required': ['code', 'message'],
+                    },
+                },
+              'required': ['error'],
+            },
+          'AuthSession':
+            {
+              'type': 'object',
+              'properties':
+                { 'token': { 'type': 'string' }, 'user': { '$ref': '#/components/schemas/User' } },
+              'required': ['token', 'user'],
+            },
+          'LoginInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'login': { 'type': 'string', 'minLength': 2 },
+                  'password': { 'type': 'string', 'minLength': 6 },
+                },
+              'required': ['login', 'password'],
+            },
+          'RegisterInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'name': { 'type': 'string', 'minLength': 2 },
+                  'login': { 'type': 'string', 'minLength': 3, 'pattern': '^[a-z0-9_]+$' },
+                  'email':
+                    {
+                      'type': 'string',
+                      'format': 'email',
+                      'pattern': "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                    },
+                  'password': { 'type': 'string', 'minLength': 6 },
+                },
+              'required': ['name', 'login', 'email', 'password'],
+            },
+          'Email':
+            {
+              'type': 'string',
+              'format': 'email',
+              'pattern': "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+            },
+          'Rubric':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'slug': { '$ref': '#/components/schemas/Slug' },
+                  'name': { 'type': 'string', 'minLength': 1 },
+                  'icon': { 'type': 'string' },
+                  'color': { 'type': 'string' },
+                  'parentId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'description': { 'type': 'string' },
+                  'subscribersCount':
+                    { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'articlesCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'lastArticle':
+                    {
+                      'anyOf':
+                        [
+                          {
+                            'type': 'object',
+                            'properties':
+                              {
+                                'slug': { '$ref': '#/components/schemas/Slug' },
+                                'title': { 'type': 'string' },
+                              },
+                            'required': ['slug', 'title'],
+                          },
+                          { 'type': 'null' },
+                        ],
+                    },
+                },
+              'required': ['id', 'slug', 'name', 'icon', 'color', 'parentId', 'subscribersCount'],
+            },
+          'RubricPreview':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'slug': { '$ref': '#/components/schemas/Slug' },
+                  'name': { 'type': 'string', 'minLength': 1 },
+                  'icon': { 'type': 'string' },
+                  'color': { 'type': 'string' },
+                },
+              'required': ['id', 'slug', 'name', 'icon', 'color'],
+            },
+          'RubricStats':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'rubricId': { '$ref': '#/components/schemas/Id' },
+                  'period': { 'type': 'string', 'const': 'month' },
+                  'articles': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'views': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'comments': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'newSubscribers':
+                    { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                },
+              'required': ['rubricId', 'period', 'articles', 'views', 'comments', 'newSubscribers'],
+            },
+          'Tag':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'slug': { '$ref': '#/components/schemas/Slug' },
+                  'name': { 'type': 'string', 'minLength': 1 },
+                },
+              'required': ['id', 'slug', 'name'],
+            },
+          'Author':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'name': { 'type': 'string', 'minLength': 1 },
+                  'login': { 'type': 'string', 'minLength': 1 },
+                  'avatar':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'isVerified': { 'type': 'boolean' },
+                  'occupation': { 'type': 'string' },
+                  'bio': { 'type': 'string' },
+                  'articlesCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                },
+              'required': ['id', 'name', 'login', 'avatar', 'isVerified'],
+            },
+          'ArticleBlock':
+            {
+              'oneOf':
+                [
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'type': { 'type': 'string', 'const': 'paragraph' },
+                        'text': { 'type': 'string' },
+                      },
+                    'required': ['type', 'text'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'type': { 'type': 'string', 'const': 'heading' },
+                        'level':
+                          {
+                            'anyOf':
+                              [{ 'type': 'number', 'const': 2 }, { 'type': 'number', 'const': 3 }],
+                          },
+                        'text': { 'type': 'string', 'minLength': 1 },
+                        'anchor': { 'type': 'string' },
+                      },
+                    'required': ['type', 'level', 'text', 'anchor'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'type': { 'type': 'string', 'const': 'image' },
+                        'media': { '$ref': '#/components/schemas/Media' },
+                        'caption': { 'type': 'string' },
+                      },
+                    'required': ['type', 'media'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'type': { 'type': 'string', 'const': 'quote' },
+                        'text': { 'type': 'string', 'minLength': 1 },
+                        'cite': { 'type': 'string' },
+                      },
+                    'required': ['type', 'text'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'type': { 'type': 'string', 'const': 'list' },
+                        'ordered': { 'type': 'boolean' },
+                        'items': { 'minItems': 1, 'type': 'array', 'items': { 'type': 'string' } },
+                      },
+                    'required': ['type', 'ordered', 'items'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'type': { 'type': 'string', 'const': 'embed' },
+                        'provider':
+                          {
+                            'type': 'string',
+                            'enum': ['youtube', 'rutube', 'vk', 'telegram', 'other'],
+                          },
+                        'url': { 'type': 'string', 'minLength': 1 },
+                        'title': { 'type': 'string' },
+                      },
+                    'required': ['type', 'provider', 'url'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'type': { 'type': 'string', 'const': 'summary' },
+                        'items': { 'minItems': 1, 'type': 'array', 'items': { 'type': 'string' } },
+                      },
+                    'required': ['type', 'items'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'type': { 'type': 'string', 'const': 'facts' },
+                        'items':
+                          {
+                            'minItems': 1,
+                            'type': 'array',
+                            'items':
+                              {
+                                'type': 'object',
+                                'properties':
+                                  {
+                                    'value': { 'type': 'string', 'minLength': 1 },
+                                    'label': { 'type': 'string', 'minLength': 1 },
+                                  },
+                                'required': ['value', 'label'],
+                              },
+                          },
+                      },
+                    'required': ['type', 'items'],
+                  },
+                ],
+            },
+          'VideoProvider': { 'type': 'string', 'enum': ['youtube', 'rutube', 'vk', 'mp4'] },
+          'Timecode':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'time': { 'type': 'number', 'minimum': 0 },
+                  'label': { 'type': 'string', 'minLength': 1 },
+                },
+              'required': ['time', 'label'],
+            },
+          'ArticleFormat':
+            {
+              'oneOf':
+                [
+                  {
+                    'type': 'object',
+                    'properties': { 'kind': { 'type': 'string', 'const': 'standard' } },
+                    'required': ['kind'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'kind': { 'type': 'string', 'const': 'video' },
+                        'provider': { '$ref': '#/components/schemas/VideoProvider' },
+                        'url': { 'type': 'string', 'minLength': 1 },
+                        'duration': { 'type': 'number', 'minimum': 0 },
+                        'poster': { 'type': 'string' },
+                      },
+                    'required': ['kind', 'provider', 'url'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'kind': { 'type': 'string', 'const': 'photoReport' },
+                        'gallery':
+                          {
+                            'minItems': 1,
+                            'type': 'array',
+                            'items': { '$ref': '#/components/schemas/Media' },
+                          },
+                      },
+                    'required': ['kind', 'gallery'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'kind': { 'type': 'string', 'const': 'podcast' },
+                        'audio': { '$ref': '#/components/schemas/Media' },
+                        'timecodes':
+                          { 'type': 'array', 'items': { '$ref': '#/components/schemas/Timecode' } },
+                      },
+                    'required': ['kind', 'audio', 'timecodes'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'kind': { 'type': 'string', 'const': 'opinion' },
+                        'quote': { 'type': 'string', 'minLength': 1 },
+                        'author': { '$ref': '#/components/schemas/UserPreview' },
+                      },
+                    'required': ['kind', 'quote', 'author'],
+                  },
+                ],
+            },
+          'ReactionType': { 'type': 'string', 'enum': ['useful', 'like', 'doubt', 'against'] },
+          'Reactions':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'counts':
+                    {
+                      'type': 'object',
+                      'propertyNames': { '$ref': '#/components/schemas/ReactionType' },
+                      'additionalProperties':
+                        { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                      'required': ['useful', 'like', 'doubt', 'against'],
+                    },
+                  'mine':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/ReactionType' }, { 'type': 'null' }],
+                    },
+                },
+              'required': ['counts', 'mine'],
+            },
+          'ArticleStatus': { 'type': 'string', 'enum': ['draft', 'published'] },
+          'ArticleSource':
+            {
+              'type': 'object',
+              'properties':
+                { 'name': { 'type': 'string', 'minLength': 1 }, 'url': { 'type': 'string' } },
+              'required': ['name'],
+            },
+          'Article':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'slug': { '$ref': '#/components/schemas/Slug' },
+                  'title': { 'type': 'string', 'minLength': 1 },
+                  'lead': { 'type': 'string' },
+                  'body':
+                    { 'type': 'array', 'items': { '$ref': '#/components/schemas/ArticleBlock' } },
+                  'cover':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'rubric': { '$ref': '#/components/schemas/RubricPreview' },
+                  'subrubric':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/RubricPreview' }, { 'type': 'null' }],
+                    },
+                  'tags': { 'type': 'array', 'items': { '$ref': '#/components/schemas/Tag' } },
+                  'author': { '$ref': '#/components/schemas/Author' },
+                  'status': { '$ref': '#/components/schemas/ArticleStatus' },
+                  'publishedAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'updatedAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'readingTimeMin':
+                    { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'views': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'commentsCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'reactions': { '$ref': '#/components/schemas/Reactions' },
+                  'format': { '$ref': '#/components/schemas/ArticleFormat' },
+                  'isFeatured': { 'type': 'boolean' },
+                  'isBreaking': { 'default': false, 'type': 'boolean' },
+                  'isFavorite': { 'default': false, 'type': 'boolean' },
+                  'source':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/ArticleSource' }, { 'type': 'null' }],
+                    },
+                },
+              'required':
+                [
+                  'id',
+                  'slug',
+                  'title',
+                  'lead',
+                  'body',
+                  'cover',
+                  'rubric',
+                  'subrubric',
+                  'tags',
+                  'author',
+                  'status',
+                  'publishedAt',
+                  'updatedAt',
+                  'readingTimeMin',
+                  'views',
+                  'commentsCount',
+                  'reactions',
+                  'format',
+                  'isFeatured',
+                  'source',
+                ],
+            },
+          'ArticlePreview':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'slug': { '$ref': '#/components/schemas/Slug' },
+                  'title': { 'type': 'string', 'minLength': 1 },
+                  'lead': { 'type': 'string' },
+                  'cover':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'rubric': { '$ref': '#/components/schemas/RubricPreview' },
+                  'subrubric':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/RubricPreview' }, { 'type': 'null' }],
+                    },
+                  'tags': { 'type': 'array', 'items': { '$ref': '#/components/schemas/Tag' } },
+                  'author': { '$ref': '#/components/schemas/Author' },
+                  'status': { '$ref': '#/components/schemas/ArticleStatus' },
+                  'publishedAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'updatedAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'readingTimeMin':
+                    { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'views': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'commentsCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'reactions': { '$ref': '#/components/schemas/Reactions' },
+                  'format': { '$ref': '#/components/schemas/ArticleFormat' },
+                  'isFeatured': { 'type': 'boolean' },
+                  'isBreaking': { 'default': false, 'type': 'boolean' },
+                  'isFavorite': { 'default': false, 'type': 'boolean' },
+                  'source':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/ArticleSource' }, { 'type': 'null' }],
+                    },
+                },
+              'required':
+                [
+                  'id',
+                  'slug',
+                  'title',
+                  'lead',
+                  'cover',
+                  'rubric',
+                  'subrubric',
+                  'tags',
+                  'author',
+                  'status',
+                  'publishedAt',
+                  'updatedAt',
+                  'readingTimeMin',
+                  'views',
+                  'commentsCount',
+                  'reactions',
+                  'format',
+                  'isFeatured',
+                  'source',
+                ],
+            },
+          'ArticleInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'title': { 'type': 'string', 'minLength': 5, 'maxLength': 200 },
+                  'lead': { 'type': 'string', 'maxLength': 400 },
+                  'body':
+                    { 'type': 'array', 'items': { '$ref': '#/components/schemas/ArticleBlock' } },
+                  'coverId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'rubricId': { '$ref': '#/components/schemas/Id' },
+                  'subrubricId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'tags':
+                    {
+                      'maxItems': 10,
+                      'type': 'array',
+                      'items': { 'type': 'string', 'minLength': 1 },
+                    },
+                  'format': { '$ref': '#/components/schemas/ArticleFormat' },
+                  'status': { '$ref': '#/components/schemas/ArticleStatus' },
+                  'isFeatured': { 'default': false, 'type': 'boolean' },
+                  'source':
+                    {
+                      'default': null,
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/ArticleSource' }, { 'type': 'null' }],
+                    },
+                },
+              'required':
+                [
+                  'title',
+                  'lead',
+                  'body',
+                  'coverId',
+                  'rubricId',
+                  'subrubricId',
+                  'tags',
+                  'format',
+                  'status',
+                ],
+            },
+          'ArticleSort': { 'type': 'string', 'enum': ['new', 'popular', 'discussed'] },
+          'ReadingTimeFilter': { 'type': 'string', 'enum': ['all', 'short', 'long'] },
+          'Comment':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'articleId': { '$ref': '#/components/schemas/Id' },
+                  'parentId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'author': { '$ref': '#/components/schemas/UserPreview' },
+                  'text': { 'type': 'string', 'minLength': 1 },
+                  'createdAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'likesCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'isLiked': { 'type': 'boolean' },
+                  'replies':
+                    { 'type': 'array', 'items': { '$ref': '#/components/schemas/Comment' } },
+                },
+              'required':
+                [
+                  'id',
+                  'articleId',
+                  'parentId',
+                  'author',
+                  'text',
+                  'createdAt',
+                  'likesCount',
+                  'isLiked',
+                  'replies',
+                ],
+            },
+          'CommentInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'text': { 'type': 'string', 'minLength': 2, 'maxLength': 2000 },
+                  'parentId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                },
+              'required': ['text', 'parentId'],
+            },
+          'WeatherCondition':
+            {
+              'type': 'string',
+              'enum': ['clear', 'partly-cloudy', 'cloudy', 'rain', 'snow', 'storm', 'fog'],
+            },
+          'WeatherDay':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'date':
+                    {
+                      'type': 'string',
+                      'format': 'date',
+                      'pattern': "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                    },
+                  'condition': { '$ref': '#/components/schemas/WeatherCondition' },
+                  'tempMin': { 'type': 'number' },
+                  'tempMax': { 'type': 'number' },
+                },
+              'required': ['date', 'condition', 'tempMin', 'tempMax'],
+            },
+          'WeatherForecast':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'city': { 'type': 'string' },
+                  'updatedAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'current':
+                    {
+                      'type': 'object',
+                      'properties':
+                        {
+                          'temp': { 'type': 'number' },
+                          'feelsLike': { 'type': 'number' },
+                          'condition': { '$ref': '#/components/schemas/WeatherCondition' },
+                          'wind': { 'type': 'number', 'minimum': 0 },
+                          'windDirection': { 'type': 'string' },
+                          'humidity': { 'type': 'number', 'minimum': 0, 'maximum': 100 },
+                          'pressure': { 'type': 'number', 'exclusiveMinimum': 0 },
+                          'sunrise': { 'type': 'string' },
+                          'sunset': { 'type': 'string' },
+                        },
+                      'required':
+                        [
+                          'temp',
+                          'feelsLike',
+                          'condition',
+                          'wind',
+                          'windDirection',
+                          'humidity',
+                          'pressure',
+                          'sunrise',
+                          'sunset',
+                        ],
+                    },
+                  'days':
+                    { 'type': 'array', 'items': { '$ref': '#/components/schemas/WeatherDay' } },
+                },
+              'required': ['city', 'updatedAt', 'current', 'days'],
+            },
+          'CurrencyRate':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'code': { 'type': 'string', 'minLength': 3, 'maxLength': 3 },
+                  'name': { 'type': 'string' },
+                  'value': { 'type': 'number', 'exclusiveMinimum': 0 },
+                  'change': { 'type': 'number' },
+                },
+              'required': ['code', 'name', 'value', 'change'],
+            },
+          'CitySummary':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'city': { 'type': 'string' },
+                  'date':
+                    {
+                      'type': 'string',
+                      'format': 'date',
+                      'pattern': "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                    },
+                  'items':
+                    {
+                      'type': 'array',
+                      'items':
+                        {
+                          'type': 'object',
+                          'properties':
+                            {
+                              'id': { '$ref': '#/components/schemas/Id' },
+                              'icon': { 'type': 'string' },
+                              'label': { 'type': 'string' },
+                              'value': { 'type': 'string' },
+                              'note': { 'type': 'string' },
+                            },
+                          'required': ['id', 'icon', 'label', 'value'],
+                        },
+                    },
+                },
+              'required': ['city', 'date', 'items'],
+            },
+          'SubscriptionState':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'rubricId': { '$ref': '#/components/schemas/Id' },
+                  'isSubscribed': { 'type': 'boolean' },
+                  'subscribersCount':
+                    { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                },
+              'required': ['rubricId', 'isSubscribed', 'subscribersCount'],
+            },
+          'NewsletterSubscribeResult':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'status':
+                    { 'type': 'string', 'enum': ['pending_confirmation', 'already_subscribed'] },
+                  'email': { 'type': 'string' },
+                },
+              'required': ['status', 'email'],
+            },
+          'ReaderSubmissionInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'articleId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'name': { 'type': 'string', 'minLength': 2 },
+                  'contact': { 'type': 'string', 'minLength': 3 },
+                  'message': { 'default': '', 'type': 'string', 'maxLength': 1000 },
+                  'mediaIds':
+                    {
+                      'minItems': 1,
+                      'maxItems': 10,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Id' },
+                    },
+                  'consent': { 'type': 'boolean', 'const': true },
+                },
+              'required': ['articleId', 'name', 'contact', 'mediaIds', 'consent'],
+            },
+          'Category':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'slug': { '$ref': '#/components/schemas/Slug' },
+                  'name': { 'type': 'string', 'minLength': 1 },
+                  'description': { 'type': 'string' },
+                  'icon': { 'type': 'string' },
+                  'color': { 'type': 'string' },
+                  'cover':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'postsCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'subscribersCount':
+                    { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'isSubscribed': { 'type': 'boolean' },
+                  'notify': { 'type': 'boolean' },
+                },
+              'required':
+                [
+                  'id',
+                  'slug',
+                  'name',
+                  'icon',
+                  'color',
+                  'cover',
+                  'postsCount',
+                  'subscribersCount',
+                  'isSubscribed',
+                  'notify',
+                ],
+            },
+          'CategoryPreview':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'slug': { '$ref': '#/components/schemas/Slug' },
+                  'name': { 'type': 'string', 'minLength': 1 },
+                  'icon': { 'type': 'string' },
+                  'color': { 'type': 'string' },
+                },
+              'required': ['id', 'slug', 'name', 'icon', 'color'],
+            },
+          'Poll':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'question': { 'type': 'string', 'minLength': 1 },
+                  'options':
+                    {
+                      'minItems': 2,
+                      'maxItems': 10,
+                      'type': 'array',
+                      'items':
+                        {
+                          'type': 'object',
+                          'properties':
+                            {
+                              'id': { '$ref': '#/components/schemas/Id' },
+                              'text': { 'type': 'string', 'minLength': 1 },
+                              'votes':
+                                { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                            },
+                          'required': ['id', 'text', 'votes'],
+                        },
+                    },
+                  'totalVotes': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'votedOptionId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'multiple': { 'default': false, 'type': 'boolean' },
+                  'closesAt':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/ISODateString' }, { 'type': 'null' }],
+                    },
+                },
+              'required': ['id', 'question', 'options', 'totalVotes', 'votedOptionId', 'closesAt'],
+            },
+          'PostLocation':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'name': { 'type': 'string', 'minLength': 1 },
+                  'lat': { 'type': 'number' },
+                  'lng': { 'type': 'number' },
+                },
+              'required': ['name'],
+            },
+          'PostVideo':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'provider': { 'type': 'string', 'enum': ['youtube', 'rutube', 'vk', 'mp4'] },
+                  'url': { 'type': 'string', 'minLength': 1 },
+                  'poster': { 'type': 'string' },
+                },
+              'required': ['provider', 'url'],
+            },
+          'Post':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'author': { '$ref': '#/components/schemas/UserPreview' },
+                  'title': { 'type': ['string', 'null'] },
+                  'text': { 'type': 'string' },
+                  'photos':
+                    {
+                      'maxItems': 4,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Media' },
+                    },
+                  'video':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/PostVideo' }, { 'type': 'null' }] },
+                  'audio':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'files':
+                    {
+                      'maxItems': 5,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Media' },
+                    },
+                  'poll':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Poll' }, { 'type': 'null' }] },
+                  'location':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/PostLocation' }, { 'type': 'null' }],
+                    },
+                  'categories':
+                    {
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/CategoryPreview' },
+                    },
+                  'likesCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'likedByPreview':
+                    {
+                      'maxItems': 3,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/UserPreview' },
+                    },
+                  'commentsCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'repostsCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'viewsCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'isLiked': { 'type': 'boolean' },
+                  'isSaved': { 'type': 'boolean' },
+                  'isPinned': { 'type': 'boolean' },
+                  'createdAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'repostOf':
+                    {
+                      'anyOf':
+                        [
+                          {
+                            'type': 'object',
+                            'properties':
+                              {
+                                'id': { '$ref': '#/components/schemas/Id' },
+                                'author': { '$ref': '#/components/schemas/UserPreview' },
+                                'title': { 'type': ['string', 'null'] },
+                                'text': { 'type': 'string' },
+                                'photos':
+                                  {
+                                    'maxItems': 4,
+                                    'type': 'array',
+                                    'items': { '$ref': '#/components/schemas/Media' },
+                                  },
+                                'video':
+                                  {
+                                    'anyOf':
+                                      [
+                                        { '$ref': '#/components/schemas/PostVideo' },
+                                        { 'type': 'null' },
+                                      ],
+                                  },
+                                'audio':
+                                  {
+                                    'anyOf':
+                                      [
+                                        { '$ref': '#/components/schemas/Media' },
+                                        { 'type': 'null' },
+                                      ],
+                                  },
+                                'files':
+                                  {
+                                    'maxItems': 5,
+                                    'type': 'array',
+                                    'items': { '$ref': '#/components/schemas/Media' },
+                                  },
+                                'poll':
+                                  {
+                                    'anyOf':
+                                      [{ '$ref': '#/components/schemas/Poll' }, { 'type': 'null' }],
+                                  },
+                                'location':
+                                  {
+                                    'anyOf':
+                                      [
+                                        { '$ref': '#/components/schemas/PostLocation' },
+                                        { 'type': 'null' },
+                                      ],
+                                  },
+                                'categories':
+                                  {
+                                    'type': 'array',
+                                    'items': { '$ref': '#/components/schemas/CategoryPreview' },
+                                  },
+                                'likesCount':
+                                  { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                                'likedByPreview':
+                                  {
+                                    'maxItems': 3,
+                                    'type': 'array',
+                                    'items': { '$ref': '#/components/schemas/UserPreview' },
+                                  },
+                                'commentsCount':
+                                  { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                                'repostsCount':
+                                  { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                                'viewsCount':
+                                  { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                                'isLiked': { 'type': 'boolean' },
+                                'isSaved': { 'type': 'boolean' },
+                                'isPinned': { 'type': 'boolean' },
+                                'createdAt': { '$ref': '#/components/schemas/ISODateString' },
+                              },
+                            'required':
+                              [
+                                'id',
+                                'author',
+                                'title',
+                                'text',
+                                'photos',
+                                'video',
+                                'audio',
+                                'files',
+                                'poll',
+                                'location',
+                                'categories',
+                                'likesCount',
+                                'likedByPreview',
+                                'commentsCount',
+                                'repostsCount',
+                                'viewsCount',
+                                'isLiked',
+                                'isSaved',
+                                'isPinned',
+                                'createdAt',
+                              ],
+                          },
+                          { 'type': 'null' },
+                        ],
+                    },
+                },
+              'required':
+                [
+                  'id',
+                  'author',
+                  'title',
+                  'text',
+                  'photos',
+                  'video',
+                  'audio',
+                  'files',
+                  'poll',
+                  'location',
+                  'categories',
+                  'likesCount',
+                  'likedByPreview',
+                  'commentsCount',
+                  'repostsCount',
+                  'viewsCount',
+                  'isLiked',
+                  'isSaved',
+                  'isPinned',
+                  'createdAt',
+                  'repostOf',
+                ],
+            },
+          'PostInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'title':
+                    { 'anyOf': [{ 'type': 'string', 'maxLength': 140 }, { 'type': 'null' }] },
+                  'text': { 'type': 'string', 'maxLength': 5000 },
+                  'photoIds':
+                    {
+                      'maxItems': 4,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Id' },
+                    },
+                  'video':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/PostVideo' }, { 'type': 'null' }] },
+                  'fileIds':
+                    {
+                      'maxItems': 5,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Id' },
+                    },
+                  'poll':
+                    {
+                      'anyOf':
+                        [
+                          {
+                            'type': 'object',
+                            'properties':
+                              {
+                                'question': { 'type': 'string', 'minLength': 1 },
+                                'options':
+                                  {
+                                    'minItems': 2,
+                                    'maxItems': 10,
+                                    'type': 'array',
+                                    'items': { 'type': 'string', 'minLength': 1 },
+                                  },
+                                'multiple': { 'type': 'boolean' },
+                              },
+                            'required': ['question', 'options', 'multiple'],
+                          },
+                          { 'type': 'null' },
+                        ],
+                    },
+                  'location':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/PostLocation' }, { 'type': 'null' }],
+                    },
+                  'categoryIds':
+                    {
+                      'minItems': 1,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Id' },
+                    },
+                  'repostOfId':
+                    {
+                      'default': null,
+                      'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }],
+                    },
+                },
+              'required':
+                [
+                  'title',
+                  'text',
+                  'photoIds',
+                  'video',
+                  'fileIds',
+                  'poll',
+                  'location',
+                  'categoryIds',
+                ],
+            },
+          'FeedKind': { 'type': 'string', 'enum': ['all', 'following', 'circles'] },
+          'PostComment':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'postId': { '$ref': '#/components/schemas/Id' },
+                  'parentId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'author': { '$ref': '#/components/schemas/UserPreview' },
+                  'text': { 'type': 'string', 'minLength': 1 },
+                  'createdAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'likesCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'isLiked': { 'type': 'boolean' },
+                  'replies':
+                    { 'type': 'array', 'items': { '$ref': '#/components/schemas/PostComment' } },
+                },
+              'required':
+                [
+                  'id',
+                  'postId',
+                  'parentId',
+                  'author',
+                  'text',
+                  'createdAt',
+                  'likesCount',
+                  'isLiked',
+                  'replies',
+                ],
+            },
+          'CommentSort': { 'type': 'string', 'enum': ['popular', 'new'] },
+          'StoryFont': { 'type': 'string', 'enum': ['serif', 'sans', 'mono'] },
+          'StoryAudience': { 'type': 'string', 'enum': ['all', 'close'] },
+          'StoryContent':
+            {
+              'oneOf':
+                [
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'kind': { 'type': 'string', 'const': 'photo' },
+                        'media': { '$ref': '#/components/schemas/Media' },
+                        'caption': { 'type': 'string' },
+                      },
+                    'required': ['kind', 'media'],
+                  },
+                  {
+                    'type': 'object',
+                    'properties':
+                      {
+                        'kind': { 'type': 'string', 'const': 'text' },
+                        'text': { 'type': 'string', 'minLength': 1, 'maxLength': 280 },
+                        'background': { 'type': 'string' },
+                        'font': { '$ref': '#/components/schemas/StoryFont' },
+                      },
+                    'required': ['kind', 'text', 'background', 'font'],
+                  },
+                ],
+            },
+          'Story':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'author': { '$ref': '#/components/schemas/UserPreview' },
+                  'content': { '$ref': '#/components/schemas/StoryContent' },
+                  'audience': { '$ref': '#/components/schemas/StoryAudience' },
+                  'createdAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'expiresAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'isViewed': { 'type': 'boolean' },
+                  'isLiked': { 'type': 'boolean' },
+                  'viewsCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'viewers':
+                    { 'type': 'array', 'items': { '$ref': '#/components/schemas/UserPreview' } },
+                },
+              'required':
+                [
+                  'id',
+                  'author',
+                  'content',
+                  'audience',
+                  'createdAt',
+                  'expiresAt',
+                  'isViewed',
+                  'isLiked',
+                  'viewsCount',
+                ],
+            },
+          'StoryGroup':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'author': { '$ref': '#/components/schemas/UserPreview' },
+                  'stories':
+                    {
+                      'minItems': 1,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Story' },
+                    },
+                  'hasUnviewed': { 'type': 'boolean' },
+                },
+              'required': ['author', 'stories', 'hasUnviewed'],
+            },
+          'StoryInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'content':
+                    {
+                      'oneOf':
+                        [
+                          {
+                            'type': 'object',
+                            'properties':
+                              {
+                                'kind': { 'type': 'string', 'const': 'photo' },
+                                'mediaId': { '$ref': '#/components/schemas/Id' },
+                                'caption': { 'type': 'string', 'maxLength': 200 },
+                              },
+                            'required': ['kind', 'mediaId'],
+                          },
+                          {
+                            'type': 'object',
+                            'properties':
+                              {
+                                'kind': { 'type': 'string', 'const': 'text' },
+                                'text': { 'type': 'string', 'minLength': 1, 'maxLength': 280 },
+                                'background': { 'type': 'string' },
+                                'font': { '$ref': '#/components/schemas/StoryFont' },
+                              },
+                            'required': ['kind', 'text', 'background', 'font'],
+                          },
+                        ],
+                    },
+                  'audience': { '$ref': '#/components/schemas/StoryAudience' },
+                },
+              'required': ['content', 'audience'],
+            },
+          'Highlight':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'title': { 'type': 'string', 'minLength': 1, 'maxLength': 24 },
+                  'cover':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'storyIds': { 'type': 'array', 'items': { '$ref': '#/components/schemas/Id' } },
+                },
+              'required': ['id', 'title', 'cover', 'storyIds'],
+            },
+          'NotificationType':
+            {
+              'type': 'string',
+              'enum': ['follow', 'like', 'comment', 'reply', 'mention', 'repost', 'new_post'],
+            },
+          'Notification':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'type': { '$ref': '#/components/schemas/NotificationType' },
+                  'actor': { '$ref': '#/components/schemas/UserPreview' },
+                  'othersCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'post':
+                    {
+                      'anyOf':
+                        [
+                          {
+                            'type': 'object',
+                            'properties':
+                              {
+                                'id': { '$ref': '#/components/schemas/Id' },
+                                'excerpt': { 'type': 'string' },
+                                'thumb': { 'type': ['string', 'null'] },
+                              },
+                            'required': ['id', 'excerpt', 'thumb'],
+                          },
+                          { 'type': 'null' },
+                        ],
+                    },
+                  'commentExcerpt': { 'type': ['string', 'null'] },
+                  'createdAt': { '$ref': '#/components/schemas/ISODateString' },
+                  'isRead': { 'type': 'boolean' },
+                },
+              'required':
+                [
+                  'id',
+                  'type',
+                  'actor',
+                  'othersCount',
+                  'post',
+                  'commentExcerpt',
+                  'createdAt',
+                  'isRead',
+                ],
+            },
+          'Profile':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'id': { '$ref': '#/components/schemas/Id' },
+                  'name': { 'type': 'string', 'minLength': 1 },
+                  'login': { 'type': 'string', 'minLength': 1 },
+                  'avatar':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'cover':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Media' }, { 'type': 'null' }] },
+                  'role': { '$ref': '#/components/schemas/UserRole' },
+                  'occupation': { 'type': 'string' },
+                  'city': { 'type': 'string' },
+                  'link': { 'type': 'string' },
+                  'bio': { 'type': 'string' },
+                  'isVerified': { 'type': 'boolean' },
+                  'followersCount':
+                    { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'followingCount':
+                    { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'postsCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'followedByPreview':
+                    {
+                      'maxItems': 3,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/UserPreview' },
+                    },
+                  'isFollowing': { 'type': 'boolean' },
+                  'isFollower': { 'type': 'boolean' },
+                  'notify': { 'type': 'boolean' },
+                  'pinnedPostId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'mainTopic': { 'type': 'string' },
+                },
+              'required':
+                [
+                  'id',
+                  'name',
+                  'login',
+                  'avatar',
+                  'cover',
+                  'role',
+                  'isVerified',
+                  'followersCount',
+                  'followingCount',
+                  'postsCount',
+                  'followedByPreview',
+                  'isFollowing',
+                  'isFollower',
+                  'notify',
+                  'pinnedPostId',
+                ],
+            },
+          'ProfileInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'name': { 'type': 'string', 'minLength': 2, 'maxLength': 60 },
+                  'occupation': { 'type': 'string', 'maxLength': 80 },
+                  'city': { 'type': 'string', 'maxLength': 60 },
+                  'link':
+                    {
+                      'anyOf':
+                        [{ 'type': 'string', 'const': '' }, { 'type': 'string', 'format': 'uri' }],
+                    },
+                  'bio': { 'type': 'string', 'maxLength': 300 },
+                  'avatarId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'coverId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                },
+              'required': ['name', 'avatarId', 'coverId'],
+            },
+          'TopAuthor':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'user': { '$ref': '#/components/schemas/UserPreview' },
+                  'followersCount':
+                    { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'mainTopic': { 'type': 'string' },
+                  'growthPct': { 'type': 'number' },
+                },
+              'required': ['user', 'followersCount', 'mainTopic', 'growthPct'],
+            },
+          'TrendingTag':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'tag': { 'type': 'string', 'minLength': 1 },
+                  'postsCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                },
+              'required': ['tag', 'postsCount'],
+            },
+          'StatsPeriod':
+            {
+              'anyOf':
+                [
+                  { 'type': 'number', 'const': 7 },
+                  { 'type': 'number', 'const': 30 },
+                  { 'type': 'number', 'const': 90 },
+                ],
+            },
+          'StatsMetric':
+            {
+              'type': 'string',
+              'enum':
+                [
+                  'postViews',
+                  'likes',
+                  'comments',
+                  'reposts',
+                  'newFollowers',
+                  'profileViews',
+                  'storyViews',
+                ],
+            },
+          'ProfileStats':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'period': { '$ref': '#/components/schemas/StatsPeriod' },
+                  'totals':
+                    {
+                      'type': 'object',
+                      'propertyNames': { '$ref': '#/components/schemas/StatsMetric' },
+                      'additionalProperties':
+                        { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                      'required':
+                        [
+                          'postViews',
+                          'likes',
+                          'comments',
+                          'reposts',
+                          'newFollowers',
+                          'profileViews',
+                          'storyViews',
+                        ],
+                    },
+                  'previousTotals':
+                    {
+                      'type': 'object',
+                      'propertyNames': { '$ref': '#/components/schemas/StatsMetric' },
+                      'additionalProperties':
+                        { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                      'required':
+                        [
+                          'postViews',
+                          'likes',
+                          'comments',
+                          'reposts',
+                          'newFollowers',
+                          'profileViews',
+                          'storyViews',
+                        ],
+                    },
+                  'series':
+                    {
+                      'type': 'array',
+                      'items':
+                        {
+                          'type': 'object',
+                          'properties':
+                            {
+                              'date':
+                                {
+                                  'type': 'string',
+                                  'format': 'date',
+                                  'pattern': "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                                },
+                              'values':
+                                {
+                                  'type': 'object',
+                                  'propertyNames': { '$ref': '#/components/schemas/StatsMetric' },
+                                  'additionalProperties':
+                                    {
+                                      'type': 'integer',
+                                      'minimum': 0,
+                                      'maximum': 9007199254740991,
+                                    },
+                                  'required':
+                                    [
+                                      'postViews',
+                                      'likes',
+                                      'comments',
+                                      'reposts',
+                                      'newFollowers',
+                                      'profileViews',
+                                      'storyViews',
+                                    ],
+                                },
+                            },
+                          'required': ['date', 'values'],
+                        },
+                    },
+                  'topPosts':
+                    {
+                      'type': 'array',
+                      'items':
+                        {
+                          'type': 'object',
+                          'properties':
+                            {
+                              'id': { '$ref': '#/components/schemas/Id' },
+                              'excerpt': { 'type': 'string' },
+                              'thumb': { 'type': ['string', 'null'] },
+                              'views':
+                                { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                              'likes':
+                                { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                            },
+                          'required': ['id', 'excerpt', 'thumb', 'views', 'likes'],
+                        },
+                    },
+                },
+              'required': ['period', 'totals', 'previousTotals', 'series', 'topPosts'],
+            },
+          'ArticlePatch':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'title': { 'type': 'string', 'minLength': 5, 'maxLength': 200 },
+                  'lead': { 'type': 'string', 'maxLength': 400 },
+                  'body':
+                    { 'type': 'array', 'items': { '$ref': '#/components/schemas/ArticleBlock' } },
+                  'coverId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'rubricId': { '$ref': '#/components/schemas/Id' },
+                  'subrubricId':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }] },
+                  'tags':
+                    {
+                      'maxItems': 10,
+                      'type': 'array',
+                      'items': { 'type': 'string', 'minLength': 1 },
+                    },
+                  'format': { '$ref': '#/components/schemas/ArticleFormat' },
+                  'status': { '$ref': '#/components/schemas/ArticleStatus' },
+                  'isFeatured': { 'default': false, 'type': 'boolean' },
+                  'source':
+                    {
+                      'default': null,
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/ArticleSource' }, { 'type': 'null' }],
+                    },
+                },
+            },
+          'PostPatch':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'title':
+                    { 'anyOf': [{ 'type': 'string', 'maxLength': 140 }, { 'type': 'null' }] },
+                  'text': { 'type': 'string', 'maxLength': 5000 },
+                  'photoIds':
+                    {
+                      'maxItems': 4,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Id' },
+                    },
+                  'video':
+                    { 'anyOf': [{ '$ref': '#/components/schemas/PostVideo' }, { 'type': 'null' }] },
+                  'fileIds':
+                    {
+                      'maxItems': 5,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Id' },
+                    },
+                  'poll':
+                    {
+                      'anyOf':
+                        [
+                          {
+                            'type': 'object',
+                            'properties':
+                              {
+                                'question': { 'type': 'string', 'minLength': 1 },
+                                'options':
+                                  {
+                                    'minItems': 2,
+                                    'maxItems': 10,
+                                    'type': 'array',
+                                    'items': { 'type': 'string', 'minLength': 1 },
+                                  },
+                                'multiple': { 'type': 'boolean' },
+                              },
+                            'required': ['question', 'options', 'multiple'],
+                          },
+                          { 'type': 'null' },
+                        ],
+                    },
+                  'location':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/PostLocation' }, { 'type': 'null' }],
+                    },
+                  'categoryIds':
+                    {
+                      'minItems': 1,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Id' },
+                    },
+                  'repostOfId':
+                    {
+                      'default': null,
+                      'anyOf': [{ '$ref': '#/components/schemas/Id' }, { 'type': 'null' }],
+                    },
+                },
+            },
+          'ArticlePage':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'items':
+                    { 'type': 'array', 'items': { '$ref': '#/components/schemas/ArticlePreview' } },
+                  'total': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'page': { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'pageSize':
+                    { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'nextCursor': { 'type': ['string', 'null'] },
+                },
+              'required': ['items', 'total'],
+            },
+          'PostPage':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'items': { 'type': 'array', 'items': { '$ref': '#/components/schemas/Post' } },
+                  'total': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'page': { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'pageSize':
+                    { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'nextCursor': { 'type': ['string', 'null'] },
+                },
+              'required': ['items', 'total'],
+            },
+          'ProfilePage':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'items': { 'type': 'array', 'items': { '$ref': '#/components/schemas/Profile' } },
+                  'total': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'page': { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'pageSize':
+                    { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'nextCursor': { 'type': ['string', 'null'] },
+                },
+              'required': ['items', 'total'],
+            },
+          'NotificationPage':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'items':
+                    { 'type': 'array', 'items': { '$ref': '#/components/schemas/Notification' } },
+                  'total': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'page': { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'pageSize':
+                    { 'type': 'integer', 'exclusiveMinimum': 0, 'maximum': 9007199254740991 },
+                  'nextCursor': { 'type': ['string', 'null'] },
+                },
+              'required': ['items', 'total'],
+            },
+          'BooleanInput':
+            {
+              'type': 'object',
+              'properties': { 'value': { 'type': 'boolean' } },
+              'required': ['value'],
+            },
+          'EmailInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'email':
+                    {
+                      'type': 'string',
+                      'format': 'email',
+                      'pattern': "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                    },
+                },
+              'required': ['email'],
+            },
+          'LikeState':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'likesCount': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                  'isLiked': { 'type': 'boolean' },
+                },
+              'required': ['likesCount', 'isLiked'],
+            },
+          'FollowState':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'isFollowing': { 'type': 'boolean' },
+                  'followersCount':
+                    { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                },
+              'required': ['isFollowing', 'followersCount'],
+            },
+          'CategorySubscription':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'isSubscribed': { 'type': 'boolean' },
+                  'subscribersCount':
+                    { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 },
+                },
+              'required': ['isSubscribed', 'subscribersCount'],
+            },
+          'Count':
+            {
+              'type': 'object',
+              'properties':
+                { 'count': { 'type': 'integer', 'minimum': 0, 'maximum': 9007199254740991 } },
+              'required': ['count'],
+            },
+          'Receipt':
+            {
+              'type': 'object',
+              'properties': { 'id': { '$ref': '#/components/schemas/Id' } },
+              'required': ['id'],
+            },
+          'ReactionInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'type':
+                    {
+                      'anyOf':
+                        [{ '$ref': '#/components/schemas/ReactionType' }, { 'type': 'null' }],
+                    },
+                },
+              'required': ['type'],
+            },
+          'ReadInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'ids':
+                    {
+                      'anyOf':
+                        [
+                          { 'type': 'array', 'items': { '$ref': '#/components/schemas/Id' } },
+                          { 'type': 'string', 'const': 'all' },
+                        ],
+                    },
+                },
+              'required': ['ids'],
+            },
+          'ReplyInput':
+            {
+              'type': 'object',
+              'properties': { 'text': { 'type': 'string', 'minLength': 1, 'maxLength': 2000 } },
+              'required': ['text'],
+            },
+          'ReportInput':
+            {
+              'type': 'object',
+              'properties': { 'reason': { 'type': 'string', 'minLength': 1 } },
+              'required': ['reason'],
+            },
+          'VoteInput':
+            {
+              'type': 'object',
+              'properties':
+                {
+                  'optionIds':
+                    {
+                      'minItems': 1,
+                      'type': 'array',
+                      'items': { '$ref': '#/components/schemas/Id' },
+                    },
+                },
+              'required': ['optionIds'],
+            },
+        },
+      'securitySchemes': { 'bearerAuth': { 'type': 'http', 'scheme': 'bearer' } },
+      'responses':
+        {
+          'Error':
+            {
+              'description': 'Ошибка (400/401/403/404/409/413/422/429/5xx)',
+              'content':
+                {
+                  'application/json': { 'schema': { '$ref': '#/components/schemas/ApiErrorBody' } },
+                },
+            },
+        },
+    },
+}

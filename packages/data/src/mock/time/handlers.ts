@@ -108,7 +108,15 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
     const user = requireUser(db.session);
     const body = ensureHeadingAnchors(input.body);
     const now = toIsoOffset(new Date());
-    const cover = input.coverId ? (db.media.get(input.coverId) ?? prev?.cover ?? null) : null;
+    const cover = input.coverId
+      ? (db.media.get(input.coverId) ?? (prev?.cover?.id === input.coverId ? prev.cover : null))
+      : null;
+    if (input.coverId && !cover) throw new ApiError('validation', 'Обложка не найдена', 422);
+    if (
+      input.subrubricId &&
+      !db.fx.rubrics.some((r) => r.id === input.subrubricId && r.parentId === input.rubricId)
+    )
+      throw new ApiError('validation', 'Подрубрика не принадлежит рубрике', 422);
     const base: Article = prev ?? {
       id: nextArticleId(),
       slug: '',
@@ -178,7 +186,12 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
         const pageSize = intParam(p.get('pageSize'), 12, 50);
         const status = p.get('status') ?? 'published';
         const mine = p.get('mine') === 'true';
-        let list = [...db.articles.values()];
+        let list = [...db.articles.values()].filter(
+          (a) =>
+            a.status === 'published' ||
+            a.author.id === db.session.user?.id ||
+            db.session.user?.role === 'admin',
+        );
 
         if (mine) {
           const user = requireUser(db.session);
@@ -250,8 +263,14 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
       `${base}/articles/:slug`,
       handle(({ params }) => {
         const a = findBySlugOrId(String(params['slug']));
-        if (!a) return notFound('Материал');
-        a.views += 1;
+        if (
+          !a ||
+          (a.status === 'draft' &&
+            a.author.id !== db.session.user?.id &&
+            db.session.user?.role !== 'admin')
+        )
+          return notFound('Материал');
+        if (a.status === 'published') a.views += 1;
         return HttpResponse.json(withUserState(a));
       }),
     ),
@@ -564,6 +583,10 @@ export function createTimeHandlers(base: string, db: TimeMockDb = createTimeMock
         const parsed = ReaderSubmissionInputSchema.safeParse(await readJson(request));
         if (!parsed.success)
           throw new ApiError('validation', parsed.error.issues[0]?.message ?? 'Ошибка', 422);
+        if (parsed.data.mediaIds.some((id) => !db.media.has(id)))
+          throw new ApiError('validation', 'Загрузите файлы перед отправкой', 422);
+        if (parsed.data.articleId && !db.articles.has(parsed.data.articleId))
+          return notFound('Материал');
         return HttpResponse.json({ id: `sub-${Date.now().toString(36)}` }, { status: 201 });
       }),
     ),

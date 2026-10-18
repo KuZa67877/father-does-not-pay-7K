@@ -19,6 +19,7 @@ import {
 import { z } from 'zod';
 import type { HttpClient, Query } from '../http/client';
 import { createRestAuthRepository, createRestMediaRepository, Void } from './common';
+import type { components } from '../generated/api.gen';
 
 const PaginatedArticles = paginatedSchema(ArticlePreviewSchema);
 const enc = encodeURIComponent;
@@ -49,9 +50,16 @@ export function createRestTimeRepositories(http: HttpClient, tokens: TokenStore)
           schema: z.array(ArticlePreviewSchema),
           signal: opts?.signal,
         }),
-      create: (input) => http.post('/articles', { body: input, schema: ArticleSchema }),
+      create: (input) =>
+        http.post('/articles', {
+          body: input satisfies components['schemas']['ArticleInput'],
+          schema: ArticleSchema,
+        }),
       update: (id, input) =>
-        http.patch(`/articles/${enc(id)}`, { body: input, schema: ArticleSchema }),
+        http.patch(`/articles/${enc(id)}`, {
+          body: input satisfies components['schemas']['ArticlePatch'],
+          schema: ArticleSchema,
+        }),
       remove: (id) => http.delete(`/articles/${enc(id)}`, { schema: Void }),
       setFavorite: (id, value) =>
         http.put(`/articles/${enc(id)}/favorite`, { body: { value }, schema: Void }),
@@ -106,7 +114,10 @@ export function createRestTimeRepositories(http: HttpClient, tokens: TokenStore)
     },
     submissions: {
       send: (input) =>
-        http.post('/submissions', { body: input, schema: z.object({ id: z.string() }) }),
+        http.post('/submissions', {
+          body: input satisfies components['schemas']['ReaderSubmissionInput'],
+          schema: z.object({ id: z.string() }),
+        }),
     },
     weather: {
       forecast: (city, opts) =>

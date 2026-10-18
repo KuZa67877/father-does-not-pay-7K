@@ -19,3 +19,8 @@ export { ThemeProvider } from './theme/ThemeProvider';
 export { useTheme, type ThemeContextValue } from './theme/context';
 export { applyTheme, isTheme, readStoredTheme, systemTheme, type Theme } from './theme/theme';
 export * from './hooks';
+export {
+  useUploadQueue,
+  type QueuedUpload,
+  type UploadQueueOptions,
+} from './hooks/use-upload-queue';

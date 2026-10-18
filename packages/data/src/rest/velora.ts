@@ -16,6 +16,7 @@ import {
 import { z } from 'zod';
 import type { HttpClient } from '../http/client';
 import { createRestAuthRepository, createRestMediaRepository, Void } from './common';
+import type { components } from '../generated/api.gen';
 
 const enc = encodeURIComponent;
 const PaginatedPosts = paginatedSchema(PostSchema);
@@ -38,8 +39,16 @@ export function createRestVeloraRepositories(
         http.get('/posts', { query: { ...q }, schema: PaginatedPosts, signal: opts?.signal }),
       get: (id, opts) =>
         http.get(`/posts/${enc(id)}`, { schema: PostSchema, signal: opts?.signal }),
-      create: (input) => http.post('/posts', { body: input, schema: PostSchema }),
-      update: (id, input) => http.patch(`/posts/${enc(id)}`, { body: input, schema: PostSchema }),
+      create: (input) =>
+        http.post('/posts', {
+          body: input satisfies components['schemas']['PostInput'],
+          schema: PostSchema,
+        }),
+      update: (id, input) =>
+        http.patch(`/posts/${enc(id)}`, {
+          body: input satisfies components['schemas']['PostPatch'],
+          schema: PostSchema,
+        }),
       remove: (id) => http.delete(`/posts/${enc(id)}`, { schema: Void }),
       like: (id, value) =>
         http.put(`/posts/${enc(id)}/like`, { body: { value }, schema: LikeState }),

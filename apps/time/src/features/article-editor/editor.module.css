@@ -1,0 +1,143 @@
+.form {
+  display: grid;
+  gap: 32px;
+}
+.fields {
+  display: grid;
+  gap: 40px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.section {
+  display: grid;
+  gap: 18px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.section h2 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 28px;
+}
+.field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.field textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+.field [aria-invalid='true'] {
+  border-color: var(--negative);
+}
+.row {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.row > .field {
+  flex: 1;
+  min-width: 180px;
+}
+.block {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  margin: 0;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  min-width: 0;
+  background: var(--surface-soft);
+}
+.block legend {
+  font-size: 14px;
+  font-weight: 600;
+  padding-inline: 6px;
+}
+.blockActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.blockActions button,
+.secondary {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.blockActions button:disabled,
+.secondary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 14px;
+}
+.error {
+  color: var(--negative);
+  font-size: 14px;
+}
+.success {
+  color: var(--positive);
+}
+.saveBar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  z-index: 2;
+}
+.saveBar span {
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 13px;
+}
+@media (max-width: 600px) {
+  .block {
+    padding: 12px;
+  }
+  .saveBar {
+    position: static;
+    padding: 12px;
+  }
+  .saveBar button {
+    flex: 1;
+  }
+}

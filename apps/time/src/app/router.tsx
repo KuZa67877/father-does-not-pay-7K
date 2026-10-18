@@ -11,6 +11,21 @@ export const router = createBrowserRouter([
     children: [
       { index: true, lazy: () => import('@/pages/home').then((m) => ({ Component: m.HomePage })) },
       {
+        path: 'editor',
+        lazy: () =>
+          import('@/pages/editor/EditorPages').then((m) => ({ Component: m.EditorListPage })),
+      },
+      {
+        path: 'editor/new',
+        lazy: () =>
+          import('@/pages/editor/EditorPages').then((m) => ({ Component: m.EditorArticlePage })),
+      },
+      {
+        path: 'editor/:slug',
+        lazy: () =>
+          import('@/pages/editor/EditorPages').then((m) => ({ Component: m.EditorArticlePage })),
+      },
+      {
         path: 'search',
         lazy: () => import('@/pages/search').then((m) => ({ Component: m.SearchPage })),
       },

@@ -18,7 +18,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "pnpm typecheck && pnpm lint && pnpm test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "api:generate": "UPDATE_API=1 vitest run --project data src/__tests__/openapi.test.ts && node scripts/generate-api.mjs --write",
+    "api:check": "vitest run --project data src/__tests__/openapi.test.ts && node scripts/generate-api.mjs"
   },
   "devDependencies": {
     "@dle/config": "workspace:*",
@@ -35,6 +37,7 @@
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "lint-staged": "^16.1.2",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.6.2",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.38.0",
@@ -42,7 +45,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --fix --max-warnings=0",
+      "eslint --fix --max-warnings=0 --no-warn-ignored",
       "prettier --write"
     ],
     "*.{css,json,md,yaml,yml}": "prettier --write"
