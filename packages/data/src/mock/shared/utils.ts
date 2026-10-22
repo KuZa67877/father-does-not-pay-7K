@@ -6,6 +6,9 @@ import {
   type HttpResponseResolver,
   type PathParams,
 } from 'msw';
+import { localMedia } from './local-media';
+
+const mockMediaUrl = (url: string) => localMedia[url] ?? url;
 
 /* ---------- Медиа-заглушки ---------- */
 
@@ -13,7 +16,7 @@ import {
 export const photo = (seed: string, width = 1200, height = 800, alt = ''): Media => ({
   id: `img-${seed}-${width}x${height}`,
   type: 'image',
-  url: `https://picsum.photos/seed/${encodeURIComponent(seed)}/${width}/${height}`,
+  url: mockMediaUrl(`https://picsum.photos/seed/${encodeURIComponent(seed)}/${width}/${height}`),
   width,
   height,
   alt,
@@ -23,7 +26,7 @@ export const photo = (seed: string, width = 1200, height = 800, alt = ''): Media
 export const avatar = (n: number, alt = ''): Media => ({
   id: `avatar-${n}`,
   type: 'image',
-  url: `https://i.pravatar.cc/240?img=${((n - 1) % 70) + 1}`,
+  url: mockMediaUrl(`https://i.pravatar.cc/240?img=${((n - 1) % 70) + 1}`),
   width: 240,
   height: 240,
   alt,
@@ -74,7 +77,7 @@ export const notFound = (what = 'Ресурс') => errorResponse('not_found', `$
 
 type ResolverInfo<P extends PathParams> = Parameters<HttpResponseResolver<P, DefaultBodyType>>[0];
 
-/** Оборачивает обработчик: ApiError → JSON-ответ с кодом, плюс реалистичная задержка. */
+/** Оборачивает обработчик: ApiError → JSON-ответ с кодом, плюс настраиваемая задержка. */
 export const handle =
   <P extends PathParams = PathParams>(
     fn: (info: ResolverInfo<P>) => Promise<Response> | Response,
@@ -90,8 +93,8 @@ export const handle =
     }
   };
 
-let latency: [number, number] = [120, 420];
-/** Задержка ответа мок-сервера; в тестах — 0. */
+let latency: [number, number] = [0, 0];
+/** Искусственная задержка для отладки загрузки; обычный mock отвечает сразу. */
 export const setMockLatency = (min: number, max = min) => {
   latency = [min, max];
 };

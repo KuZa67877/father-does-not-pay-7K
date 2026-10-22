@@ -19,6 +19,7 @@ export { ThemeProvider } from './theme/ThemeProvider';
 export { useTheme, type ThemeContextValue } from './theme/context';
 export { applyTheme, isTheme, readStoredTheme, systemTheme, type Theme } from './theme/theme';
 export * from './hooks';
+export { useRouteFocus } from './hooks/use-route-focus';
 export {
   useUploadQueue,
   type QueuedUpload,

@@ -21,7 +21,7 @@ export function VideoEmbed({
   const src = embedUrl(format);
   if (!src) return null;
   return (
-    <div className={s.video}>
+    <div className={s.video} data-no-print>
       {started ? (
         format.provider === 'mp4' ? (
           // eslint-disable-next-line jsx-a11y/media-has-caption -- субтитров у демо-роликов нет

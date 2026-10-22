@@ -73,3 +73,56 @@ mark {
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+  :root,
+  [data-theme] {
+    color-scheme: light;
+    --bg: #fff;
+    --surface: #fff;
+    --surface-soft: #fff;
+    --ink: #000;
+    --muted: #444;
+    --line: #ccc;
+    --accent: #000;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  #root > header,
+  #root > footer,
+  .skip-link,
+  [data-no-print],
+  dialog,
+  [data-print-article] aside,
+  [data-print-article] button,
+  [data-print-article] iframe,
+  [data-print-article] audio,
+  [data-print-article] video {
+    display: none !important;
+  }
+  .container {
+    max-width: none !important;
+    width: 100% !important;
+    padding-inline: 0 !important;
+  }
+  [data-print-article] {
+    font-size: 12pt;
+    overflow-wrap: anywhere;
+  }
+  [data-print-article] img {
+    max-width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  * {
+    box-shadow: none !important;
+    animation: none !important;
+  }
+}

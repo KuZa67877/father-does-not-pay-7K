@@ -46,7 +46,7 @@ export function PostActions({ post, commentsHref }: { post: Post; commentsHref?:
         type="button"
         className={cx(s.act, post.isLiked && s.liked)}
         aria-pressed={post.isLiked}
-        aria-label={post.isLiked ? 'Убрать отметку «нравится»' : 'Нравится'}
+        aria-label={`${post.isLiked ? 'Убрать отметку «нравится»' : 'Нравится'}: ${compactNumber(post.likesCount)}`}
         title={likeLabel || undefined}
         disabled={like.isPending}
         onClick={gate(() =>
@@ -61,7 +61,7 @@ export function PostActions({ post, commentsHref }: { post: Post; commentsHref?:
       <Link
         to={commentsHref ?? `${routes.post(post.id)}#comments`}
         className={s.act}
-        aria-label={`Комментарии: ${post.commentsCount}`}
+        aria-label={`Комментарии: ${compactNumber(post.commentsCount)}`}
       >
         <MessageCircle size={19} aria-hidden />
         <span className={s.n}>{compactNumber(post.commentsCount)}</span>
@@ -69,7 +69,7 @@ export function PostActions({ post, commentsHref }: { post: Post; commentsHref?:
       <button
         type="button"
         className={s.act}
-        aria-label={`Сделать репост. Репостов: ${post.repostsCount}`}
+        aria-label={`Сделать репост. Репостов: ${compactNumber(post.repostsCount)}`}
         onClick={gate(() =>
           openCompose({ repostOf: post.repostOf ? { ...post.repostOf, repostOf: null } : post }),
         )}

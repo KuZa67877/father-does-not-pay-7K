@@ -1,0 +1,5 @@
+/* Отложенная отрисовка длинной главной; содержимое остаётся в DOM и доступно поиску. */
+.home > section:nth-of-type(n + 2) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}

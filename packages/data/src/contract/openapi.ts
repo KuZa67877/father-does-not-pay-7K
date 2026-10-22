@@ -1,38 +1,39 @@
 import * as common from '@dle/core';
 import * as time from '@dle/core/time';
 import * as velora from '@dle/core/velora';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 /** Единственное описание транспортных операций; модели берутся из доменных Zod-схем. */
 export function buildOpenApi() {
-  const models: Record<string, z.ZodType> = {};
+  const models: Record<string, z.ZodMiniType> = {};
   for (const module of [common, time, velora]) {
     for (const [name, value] of Object.entries(module)) {
-      if (name.endsWith('Schema') && value instanceof z.ZodType) models[name.slice(0, -6)] = value;
+      if (name.endsWith('Schema') && value instanceof z.ZodMiniType)
+        models[name.slice(0, -6)] = value;
     }
   }
   Object.assign(models, {
-    ArticlePatch: time.ArticleInputSchema.partial(),
-    PostPatch: z.object(velora.PostInputSchema.shape).partial(),
+    ArticlePatch: z.partial(time.ArticleInputSchema),
+    PostPatch: z.partial(z.object(velora.PostInputSchema.shape)),
     ArticlePage: common.paginatedSchema(time.ArticlePreviewSchema),
     PostPage: common.paginatedSchema(velora.PostSchema),
     ProfilePage: common.paginatedSchema(velora.ProfileSchema),
     NotificationPage: common.paginatedSchema(velora.NotificationSchema),
     BooleanInput: z.object({ value: z.boolean() }),
     EmailInput: z.object({ email: z.email() }),
-    LikeState: z.object({ likesCount: z.number().int().nonnegative(), isLiked: z.boolean() }),
-    FollowState: velora.ProfileSchema.pick({ isFollowing: true, followersCount: true }),
-    CategorySubscription: velora.CategorySchema.pick({
+    LikeState: z.object({ likesCount: z.int().check(z.nonnegative()), isLiked: z.boolean() }),
+    FollowState: z.pick(velora.ProfileSchema, { isFollowing: true, followersCount: true }),
+    CategorySubscription: z.pick(velora.CategorySchema, {
       isSubscribed: true,
       subscribersCount: true,
     }),
-    Count: z.object({ count: z.number().int().nonnegative() }),
+    Count: z.object({ count: z.int().check(z.nonnegative()) }),
     Receipt: z.object({ id: common.IdSchema }),
-    ReactionInput: z.object({ type: time.ReactionTypeSchema.nullable() }),
+    ReactionInput: z.object({ type: z.nullable(time.ReactionTypeSchema) }),
     ReadInput: z.object({ ids: z.union([z.array(common.IdSchema), z.literal('all')]) }),
-    ReplyInput: z.object({ text: z.string().min(1).max(2000) }),
-    ReportInput: z.object({ reason: z.string().min(1) }),
-    VoteInput: z.object({ optionIds: z.array(common.IdSchema).min(1) }),
+    ReplyInput: z.object({ text: z.string().check(z.minLength(1)).check(z.maxLength(2000)) }),
+    ReportInput: z.object({ reason: z.string().check(z.minLength(1)) }),
+    VoteInput: z.object({ optionIds: z.array(common.IdSchema).check(z.minLength(1)) }),
   });
   const registry = z.registry<{ id: string }>();
   for (const [name, schema] of Object.entries(models)) registry.add(schema, { id: name });

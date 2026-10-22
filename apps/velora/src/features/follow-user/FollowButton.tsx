@@ -24,7 +24,7 @@ export function FollowButton({
   bell?: boolean;
   block?: boolean;
 }) {
-  const { data: me } = useMe();
+  const { data: me, isPending: sessionPending } = useMe();
   const follow = useFollow(profile.login);
   const gate = useRequireAuth();
   const { toast } = useUi();
@@ -55,7 +55,7 @@ export function FollowButton({
           type="button"
           className={cx(s.bell, profile.notify && s.bellOn)}
           aria-pressed={profile.notify}
-          disabled={notify.isPending}
+          disabled={notify.isPending || sessionPending}
           aria-label={profile.notify ? 'Не сообщать о новых постах' : 'Сообщать о новых постах'}
           title={profile.notify ? 'Уведомления включены' : 'Уведомлять о новых постах'}
           onClick={gate(() => notify.mutate(!profile.notify))}
@@ -71,7 +71,7 @@ export function FollowButton({
         type="button"
         className={cx(s.btn, size === 'sm' && s.sm, on ? s.on : s.off)}
         aria-pressed={on}
-        disabled={follow.isPending}
+        disabled={follow.isPending || sessionPending}
         aria-label={`${on ? 'Вы подписаны' : 'Подписаться'}: ${profile.name}`}
         onClick={gate(() =>
           follow.mutate(!on, {

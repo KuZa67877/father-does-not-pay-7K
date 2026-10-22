@@ -38,6 +38,17 @@
 .main:focus {
   outline: none;
 }
+.wide .main {
+  grid-column: 2 / -1;
+}
+.wide .right {
+  display: none;
+}
+@media (max-width: 900px) {
+  .wide .main {
+    grid-column: 1;
+  }
+}
 
 /* Без правой колонки: лента шире, виджеты — внутри ленты. */
 @media (max-width: 1200px) {

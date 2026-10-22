@@ -1,10 +1,10 @@
-import { base, Faker } from '@faker-js/faker';
+import { SimpleFaker } from '@faker-js/faker';
 
 /**
- * Faker без полной русской локали: она весит ~500 КБ и тормозила бы старт mock-режима.
- * Нужны только числа и выборки (локаль base) плюс русские имена — их держим сами.
+ * Только seed, числа и выборки: SimpleFaker не подтягивает языковые генераторы.
+ * Русские имена держим сами; полный Faker не нужен в браузерном mock-режиме.
  */
-export const faker = new Faker({ locale: [base] });
+export const faker = new SimpleFaker();
 
 const FIRST = [
   'Анна',

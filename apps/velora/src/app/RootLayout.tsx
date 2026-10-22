@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { useRouteFocus } from '@dle/ui';
 import { MessageCircle } from 'lucide-react';
 import type { AuthModal as AuthModalType } from '@/features/auth';
 import type { ComposeModal as ComposeModalType } from '@/features/compose';
@@ -34,6 +35,7 @@ type Lazy<T> = { C: T } | null;
 
 export function RootLayout() {
   const { pathname } = useLocation();
+  useRouteFocus(pathname);
 
   /* ---------- Модалки ---------- */
   const [auth, setAuth] = useState<{ open: boolean; mode: AuthMode }>({
@@ -128,7 +130,7 @@ export function RootLayout() {
         <a className="skip-link" href="#main">
           К содержанию
         </a>
-        <div className={s.app}>
+        <div className={`${s.app} ${pathname === '/mystats' ? s.wide : ''}`}>
           <MobileTop />
           <aside className={s.left} aria-label="Меню">
             <LeftNav />

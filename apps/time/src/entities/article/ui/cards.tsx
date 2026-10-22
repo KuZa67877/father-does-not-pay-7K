@@ -33,7 +33,15 @@ export function PlayDot({ large, icon }: { large?: boolean; icon?: ReactNode }) 
 }
 
 /** Рубрика или формат — первая часть мета-строки. */
-export function CardKicker({ a, byFormat }: { a: ArticlePreview; byFormat?: boolean }) {
+export function CardKicker({
+  a,
+  byFormat,
+  linked = true,
+}: {
+  a: ArticlePreview;
+  byFormat?: boolean;
+  linked?: boolean;
+}) {
   if (byFormat && a.format.kind !== 'standard') {
     const Icon = FORMAT_ICON[a.format.kind];
     return (
@@ -46,9 +54,13 @@ export function CardKicker({ a, byFormat }: { a: ArticlePreview; byFormat?: bool
   return (
     <>
       <NamedIcon name={a.rubric.icon} size={13} />
-      <Link to={routes.rubric(a.rubric)} className={s.metaLink}>
-        {a.subrubric?.name ?? a.rubric.name}
-      </Link>
+      {linked ? (
+        <Link to={routes.rubric(a.rubric)} className={s.metaLink}>
+          {a.subrubric?.name ?? a.rubric.name}
+        </Link>
+      ) : (
+        <span>{a.subrubric?.name ?? a.rubric.name}</span>
+      )}
     </>
   );
 }

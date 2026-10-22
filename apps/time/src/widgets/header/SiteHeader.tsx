@@ -63,6 +63,7 @@ export function StickyHeader({ float, shown }: { float?: boolean; shown?: boolea
   return (
     <div
       className={cx(s.sticky, float && s.float, shown && s.shown)}
+      data-no-print
       // На главной до прокрутки компактная шапка скрыта от клавиатуры и скринридеров
       inert={float && !shown ? true : undefined}
     >

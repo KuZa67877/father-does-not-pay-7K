@@ -1,15 +1,21 @@
 import { createBrowserRouter } from 'react-router';
+import { HomePage } from '@/pages/home';
 import { RootLayout } from './RootLayout';
 import { RouteError } from './RouteError';
 
-/** Страницы грузятся лениво — отдельные чанки. Статические пути — раньше параметрических. */
+/** Главная нужна при старте; остальные страницы ленивые. Статические пути — раньше параметрических. */
 export const router = createBrowserRouter([
   {
     path: '/',
     Component: RootLayout,
     ErrorBoundary: RouteError,
     children: [
-      { index: true, lazy: () => import('@/pages/home').then((m) => ({ Component: m.HomePage })) },
+      {
+        path: 'profile',
+        lazy: () =>
+          import('@/pages/profile/ProfilePage').then((m) => ({ Component: m.ProfilePage })),
+      },
+      { index: true, Component: HomePage },
       {
         path: 'editor',
         lazy: () =>

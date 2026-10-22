@@ -83,7 +83,7 @@ export function ArticleCover({ a }: { a: Article }) {
 export function VideoTop({ a }: { a: Article }) {
   if (a.format.kind !== 'video') return null;
   return (
-    <div className={cx('container', s.media)}>
+    <div className={cx('container', s.media)} data-no-print>
       <VideoEmbed format={a.format} title={a.title} poster={a.format.poster ?? a.cover?.url} />
       <div className={s.caption}>
         <span>{a.title}</span>
@@ -320,7 +320,7 @@ export function Related({ a }: { a: Article }) {
   const { data, isPending } = useRelated(a.id, 3);
   if (data?.length === 0) return null;
   return (
-    <section className={s.related} aria-labelledby="h-related">
+    <section className={s.related} aria-labelledby="h-related" data-no-print>
       <div className={cx('container', s.relatedIn)}>
         <SectionHead
           variant="flat"

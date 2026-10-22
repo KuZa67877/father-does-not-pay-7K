@@ -7,10 +7,13 @@ import {
   type MediaType,
   type TokenStore,
 } from '@dle/core';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import type { HttpClient } from '../http/client';
 
-export const Void = z.unknown().transform(() => undefined);
+export const Void = z.pipe(
+  z.unknown(),
+  z.transform(() => undefined),
+);
 
 export const mediaTypeFromMime = (mime: string): MediaType => {
   if (mime.startsWith('image/')) return 'image';
@@ -34,7 +37,7 @@ export const createRestMediaRepository = (http: HttpClient): MediaRepository => 
 });
 
 export const createRestAuthRepository = (http: HttpClient, tokens: TokenStore): AuthRepository => ({
-  me: (opts) => http.get('/auth/me', { schema: UserSchema.nullable(), signal: opts?.signal }),
+  me: (opts) => http.get('/auth/me', { schema: z.nullable(UserSchema), signal: opts?.signal }),
   async login(input) {
     const session = await http.post('/auth/login', { body: input, schema: AuthSessionSchema });
     tokens.set(session.token);

@@ -8,6 +8,9 @@
     "./tsconfig.react.json": "./tsconfig.react.json",
     "./eslint": "./eslint.config.js",
     "./prettier": "./prettier.json",
-    "./test-fetch": "./test-fetch.ts"
+    "./test-fetch": "./test-fetch.ts",
+    "./compressed-assets": "./compressed-assets.mjs",
+    "./mock-preload": "./mock-preload.mjs",
+    "./inline-styles": "./inline-styles.mjs"
   }
 }

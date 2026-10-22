@@ -86,7 +86,7 @@ export function StoriesBar() {
           onClick={() =>
             me ? (mine ? openStory({ login: me.login }) : openStoryComposer()) : openLogin('login')
           }
-          aria-label={mine ? 'Ваши истории' : 'Добавить историю'}
+          aria-label={mine ? 'Вы: ваши истории' : 'Вы: добавить историю'}
         >
           <span className={cx(s.ring, mine?.hasUnviewed && s.ringNew, !mine && s.ringNone)}>
             <Avatar name={me?.name ?? 'Вы'} src={me?.avatar?.url} size={57} />
@@ -216,7 +216,13 @@ export function CategoryChips({ active }: { active?: string }) {
 /* ---------- «Авторы недели» лентой (планшет и телефон) ---------- */
 
 export function AuthorsStrip() {
-  const { data } = useTopAuthors(8);
+  const { data, isPending } = useTopAuthors(8);
+  if (isPending)
+    return (
+      <section className={cx('card', s.authors)} aria-busy="true" aria-label="Авторы недели">
+        <Skeleton height={148} />
+      </section>
+    );
   if (!data?.length) return null;
   return (
     <section className={cx('card', s.authors)} aria-labelledby="au-strip">

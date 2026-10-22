@@ -143,7 +143,7 @@ export function DayTimeline() {
                 {i === items.length - 1 && <span className={s.tlNow}>· сейчас</span>}
               </span>
               <span className={s.tlCat}>
-                <CardKicker a={a} byFormat />
+                <CardKicker a={a} byFormat linked={false} />
               </span>
               <span className={s.tlTitle}>{a.title}</span>
             </Link>

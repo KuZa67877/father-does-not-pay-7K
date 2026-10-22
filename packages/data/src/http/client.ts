@@ -1,10 +1,10 @@
 import { ApiError, ApiErrorBodySchema, type ApiErrorCode, type TokenStore } from '@dle/core';
-import type { z } from 'zod';
+import * as z from 'zod/v4/core';
 
 export type QueryValue = string | number | boolean | null | undefined;
 export type Query = Record<string, QueryValue | readonly QueryValue[]>;
 
-export interface RequestOptions<S extends z.ZodType> {
+export interface RequestOptions<S extends z.$ZodType> {
   query?: Query;
   body?: unknown;
   /** Схема ответа: каждый ответ проходит валидацию, UI получает доменный тип. */
@@ -25,13 +25,13 @@ export interface HttpClientConfig {
 }
 
 export interface HttpClient {
-  get<S extends z.ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
-  post<S extends z.ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
-  put<S extends z.ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
-  patch<S extends z.ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
-  delete<S extends z.ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
+  get<S extends z.$ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
+  post<S extends z.$ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
+  put<S extends z.$ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
+  patch<S extends z.$ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
+  delete<S extends z.$ZodType>(path: string, opts: RequestOptions<S>): Promise<z.infer<S>>;
   /** multipart/form-data с прогрессом (XHR — у fetch нет прогресса отправки). */
-  upload<S extends z.ZodType>(
+  upload<S extends z.$ZodType>(
     path: string,
     form: FormData,
     opts: {
@@ -111,8 +111,8 @@ async function parseError(res: Response): Promise<ApiError> {
   );
 }
 
-function validate<S extends z.ZodType>(schema: S, data: unknown, url: string): z.infer<S> {
-  const r = schema.safeParse(data);
+function validate<S extends z.$ZodType>(schema: S, data: unknown, url: string): z.infer<S> {
+  const r = z.safeParse(schema, data);
   if (!r.success) {
     console.error(`[api] ответ ${url} не прошёл валидацию`, r.error.issues);
     throw new ApiError(
@@ -134,7 +134,7 @@ export function createHttpClient(config: HttpClientConfig): HttpClient {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-  async function once<S extends z.ZodType>(method: Method, path: string, opts: RequestOptions<S>) {
+  async function once<S extends z.$ZodType>(method: Method, path: string, opts: RequestOptions<S>) {
     if (opts.signal?.aborted) throw new ApiError('aborted', 'Запрос отменён');
     const url = buildUrl(baseUrl, path, opts.query);
     const controller = new AbortController();
@@ -172,7 +172,7 @@ export function createHttpClient(config: HttpClientConfig): HttpClient {
     }
   }
 
-  async function request<S extends z.ZodType>(
+  async function request<S extends z.$ZodType>(
     method: Method,
     path: string,
     opts: RequestOptions<S>,
@@ -192,7 +192,7 @@ export function createHttpClient(config: HttpClientConfig): HttpClient {
     throw lastError;
   }
 
-  function upload<S extends z.ZodType>(
+  function upload<S extends z.$ZodType>(
     path: string,
     form: FormData,
     opts: {

@@ -505,3 +505,64 @@
 .authorBtn:hover {
   border-color: var(--ink);
 }
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+@media print {
+  .hero {
+    max-width: none;
+    padding: 0 0 20pt;
+    gap: 12pt;
+    align-items: stretch;
+    text-align: left;
+  }
+  .crumbs {
+    display: none;
+  }
+  .h1,
+  .h1.long,
+  .compact .h1 {
+    font-size: 28pt;
+    line-height: 1.15;
+  }
+  .lede {
+    max-width: 100%;
+    color: inherit;
+    font-size: 14pt;
+  }
+  .layout {
+    display: block;
+    padding: 20pt 0;
+  }
+  .body {
+    display: block;
+  }
+  .prose {
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+  .prose h2,
+  .prose h3 {
+    break-after: avoid;
+  }
+  .figure,
+  .quote,
+  .summary,
+  .facts,
+  .opQuote {
+    break-inside: avoid;
+  }
+  .cover .frame,
+  .figure .frame {
+    border-radius: 0;
+  }
+  .cover img {
+    max-height: 150mm;
+    object-fit: contain;
+  }
+  .opQuote {
+    padding: 16pt;
+  }
+}

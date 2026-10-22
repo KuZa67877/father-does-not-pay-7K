@@ -14,6 +14,7 @@ export function UserControl({ small }: { small?: boolean }) {
   const logout = useLogout();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   const menuId = useId();
 
   useEffect(() => {
@@ -22,8 +23,29 @@ export function UserControl({ small }: { small?: boolean }) {
       if (!wrap.current?.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setOpen(false);
+        trigger.current?.focus();
+      }
+      if (e.key === 'Tab') {
+        setOpen(false);
+        trigger.current?.focus();
+      }
+      if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+      const items = [...(wrap.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
+      if (!items.length) return;
+      e.preventDefault();
+      const index = items.indexOf(document.activeElement as HTMLElement);
+      const next =
+        e.key === 'Home'
+          ? 0
+          : e.key === 'End'
+            ? items.length - 1
+            : (index + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+      items[next]?.focus();
     };
+    wrap.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
     document.addEventListener('pointerdown', onDown);
     document.addEventListener('keydown', onKey);
     return () => {
@@ -53,11 +75,18 @@ export function UserControl({ small }: { small?: boolean }) {
     <div ref={wrap} className={s.menuWrap}>
       <button
         type="button"
+        ref={trigger}
         className={cx(s.userBtn, small && s.small)}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => {
+          if (!open && ['ArrowDown', 'ArrowUp'].includes(e.key)) {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
       >
         <Avatar name={me.name} src={me.avatar?.url} size={small ? 24 : 32} />
         <span className={s.userName}>{me.login}</span>
@@ -71,18 +100,41 @@ export function UserControl({ small }: { small?: boolean }) {
               <small>@{me.login}</small>
             </span>
           </div>
-          <Link role="menuitem" to={routes.feed()} className={s.menuItem} onClick={close}>
+          <Link
+            role="menuitem"
+            tabIndex={-1}
+            to={routes.feed()}
+            className={s.menuItem}
+            onClick={close}
+          >
             <Bell size={16} aria-hidden /> Моя лента
           </Link>
-          <Link role="menuitem" to={routes.editor()} className={s.menuItem} onClick={close}>
+          <Link role="menuitem" tabIndex={-1} to="/profile" className={s.menuItem} onClick={close}>
+            <User size={16} aria-hidden />
+            Мой профиль
+          </Link>
+          <Link
+            role="menuitem"
+            tabIndex={-1}
+            to={routes.editor()}
+            className={s.menuItem}
+            onClick={close}
+          >
             <PenLine size={16} aria-hidden />
             Мои материалы
           </Link>
-          <Link role="menuitem" to={routes.favorites()} className={s.menuItem} onClick={close}>
+          <Link
+            role="menuitem"
+            tabIndex={-1}
+            to={routes.favorites()}
+            className={s.menuItem}
+            onClick={close}
+          >
             <Bookmark size={16} aria-hidden /> Избранное
           </Link>
           <button
             role="menuitem"
+            tabIndex={-1}
             type="button"
             className={s.menuItem}
             onClick={() => {
@@ -95,6 +147,7 @@ export function UserControl({ small }: { small?: boolean }) {
           <div className={s.menuSep} />
           <button
             role="menuitem"
+            tabIndex={-1}
             type="button"
             className={s.menuItem}
             onClick={() => {

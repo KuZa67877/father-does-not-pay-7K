@@ -1,0 +1,222 @@
+.head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 22px;
+  flex-wrap: wrap;
+}
+.head h1 {
+  font: 650 26px/1.2 var(--font-head);
+  margin: 0 0 5px;
+}
+.head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.head > :last-child {
+  margin-left: auto;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+}
+.metric {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  color: var(--ink);
+  min-width: 0;
+}
+.metric > svg {
+  color: var(--acc-text);
+}
+.metric > span {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+  flex: 1;
+}
+.metric > b {
+  font: 650 25px/1.2 var(--font-head);
+  font-variant-numeric: tabular-nums;
+}
+.metric > small {
+  color: var(--green);
+  font-size: 12px;
+}
+.metric > small[data-negative='true'] {
+  color: var(--negative);
+}
+.metric:hover {
+  border-color: var(--ring);
+}
+.selected {
+  border-color: var(--acc);
+  outline: 2px solid var(--acc-soft);
+}
+.plot,
+.best {
+  padding: 24px;
+  min-width: 0;
+}
+.plotHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.plotHead h2,
+.best h2 {
+  font-size: 17px;
+  margin: 0;
+}
+.plotHead p,
+.best h2 span {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 180px;
+  touch-action: pan-y;
+}
+.axis line {
+  stroke: var(--line);
+}
+.axis text,
+.axisLabel {
+  fill: var(--muted);
+  font-size: 12px;
+}
+.line {
+  stroke: var(--acc);
+  stroke-width: 2.5;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+.area {
+  fill: var(--acc-soft);
+}
+.guide {
+  stroke: var(--ring);
+}
+.point {
+  fill: var(--card);
+  stroke: var(--acc);
+  stroke-width: 2;
+}
+.chartControl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.chartControl input {
+  flex: 1;
+  min-width: 100px;
+  accent-color: var(--acc);
+}
+.chartControl output {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.data {
+  margin-top: 20px;
+  font-size: 13px;
+}
+.data summary {
+  cursor: pointer;
+  min-height: 32px;
+}
+.data table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data caption {
+  text-align: left;
+  padding: 10px 0;
+  font-weight: 600;
+}
+.data td,
+.data th {
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  padding: 8px;
+}
+.best h2 {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.best ol {
+  margin: 16px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.best li {
+  display: flex;
+  gap: 16px;
+  min-width: 0;
+}
+.best li a {
+  font-weight: 550;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.best li p {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+.rank {
+  color: var(--muted);
+  font-size: 13px;
+}
+@media (max-width: 1200px) {
+  .metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .head,
+  .plot,
+  .best {
+    padding: 16px;
+  }
+  .head > :last-child {
+    margin-left: 0;
+  }
+  .best ol {
+    grid-template-columns: 1fr;
+  }
+  .metric {
+    padding: 14px;
+  }
+  .chart {
+    min-height: 130px;
+  }
+  .axis text,
+  .axisLabel {
+    font-size: 30px;
+  }
+  .head h1 {
+    font-size: 22px;
+  }
+}

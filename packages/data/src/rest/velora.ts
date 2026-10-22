@@ -13,7 +13,7 @@ import {
   TrendingTagSchema,
   type VeloraRepositories,
 } from '@dle/core/velora';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import type { HttpClient } from '../http/client';
 import { createRestAuthRepository, createRestMediaRepository, Void } from './common';
 import type { components } from '../generated/api.gen';
@@ -22,7 +22,7 @@ const enc = encodeURIComponent;
 const PaginatedPosts = paginatedSchema(PostSchema);
 const PaginatedProfiles = paginatedSchema(ProfileSchema);
 const PaginatedNotifications = paginatedSchema(NotificationSchema);
-const LikeState = z.object({ likesCount: z.number().int(), isLiked: z.boolean() });
+const LikeState = z.object({ likesCount: z.int(), isLiked: z.boolean() });
 
 /** REST-адаптер Velora по контракту openapi.yaml. */
 export function createRestVeloraRepositories(
@@ -98,7 +98,10 @@ export function createRestVeloraRepositories(
         }),
       unreadCount: (opts) =>
         http.get('/notifications/unread-count', {
-          schema: z.object({ count: z.number().int() }).transform((r) => r.count),
+          schema: z.pipe(
+            z.object({ count: z.int() }),
+            z.transform((r) => r.count),
+          ),
           signal: opts?.signal,
         }),
       markRead: (ids) => http.post('/notifications/read', { body: { ids }, schema: Void }),
@@ -110,7 +113,7 @@ export function createRestVeloraRepositories(
       follow: (login, value) =>
         http.put(`/users/${enc(login)}/follow`, {
           body: { value },
-          schema: ProfileSchema.pick({ isFollowing: true, followersCount: true }),
+          schema: z.pick(ProfileSchema, { isFollowing: true, followersCount: true }),
         }),
       setNotify: (login, value) =>
         http.put(`/users/${enc(login)}/notify`, { body: { value }, schema: Void }),
@@ -149,7 +152,7 @@ export function createRestVeloraRepositories(
       subscribe: (id, value) =>
         http.put(`/categories/${enc(id)}/subscription`, {
           body: { value },
-          schema: CategorySchema.pick({ isSubscribed: true, subscribersCount: true }),
+          schema: z.pick(CategorySchema, { isSubscribed: true, subscribersCount: true }),
         }),
       setNotify: (id, value) =>
         http.put(`/categories/${enc(id)}/notify`, { body: { value }, schema: Void }),

@@ -1,0 +1,45 @@
+.box {
+  padding: 24px;
+  display: grid;
+  gap: 20px;
+}
+.box h1 {
+  font: 650 28px/1.2 var(--font-head);
+}
+.box h2 {
+  font-size: 18px;
+}
+.box p {
+  margin: 0;
+  color: var(--muted);
+}
+.box > a {
+  color: var(--acc-text);
+}
+.box form {
+  display: grid;
+  gap: 8px;
+}
+.box form > div {
+  display: flex;
+  gap: 12px;
+}
+.box input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid var(--ring);
+  border-radius: var(--r-sm);
+  padding: 10px;
+  background: var(--card);
+  color: var(--ink);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+@media (max-width: 480px) {
+  .box {
+    padding: 18px;
+  }
+}

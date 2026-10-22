@@ -20,7 +20,9 @@
     "check": "pnpm typecheck && pnpm lint && pnpm test",
     "prepare": "husky",
     "api:generate": "UPDATE_API=1 vitest run --project data src/__tests__/openapi.test.ts && node scripts/generate-api.mjs --write",
-    "api:check": "vitest run --project data src/__tests__/openapi.test.ts && node scripts/generate-api.mjs"
+    "api:check": "vitest run --project data src/__tests__/openapi.test.ts && node scripts/generate-api.mjs",
+    "qa:ui": "node scripts/verify-compression.mjs && node scripts/verify-ui.mjs",
+    "audit:home": "node scripts/audit-home.mjs"
   },
   "devDependencies": {
     "@dle/config": "workspace:*",
@@ -36,6 +38,7 @@
     "globals": "^16.3.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lighthouse": "^13.5.0",
     "lint-staged": "^16.1.2",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.6.2",

@@ -16,7 +16,7 @@ import {
   type ArticleQuery,
   type TimeRepositories,
 } from '@dle/core/time';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import type { HttpClient, Query } from '../http/client';
 import { createRestAuthRepository, createRestMediaRepository, Void } from './common';
 import type { components } from '../generated/api.gen';

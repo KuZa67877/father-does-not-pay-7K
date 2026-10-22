@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { useRouteFocus } from '@dle/ui';
 import type { AuthMode, AuthModal as AuthModalType } from '@/features/auth';
 import type { QuickSearch as QuickSearchType } from '@/features/search';
 import { UiContext, type UiContextValue } from '@/shared/model/ui-context';
@@ -15,6 +16,7 @@ const loadAuth = () => import('@/features/auth').then((m) => m.AuthModal);
 
 export function RootLayout() {
   const { pathname } = useLocation();
+  useRouteFocus(pathname);
   const [search, setSearch] = useState<{ open: boolean; q: string }>({ open: false, q: '' });
   const [auth, setAuth] = useState<{ open: boolean; mode: AuthMode }>({
     open: false,

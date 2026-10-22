@@ -1,5 +1,5 @@
 import type { ProfileInput } from '@dle/core/velora';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRepositories } from '@/shared/api/di';
 import { qk } from '@/shared/api/query-keys';
 import { patchProfile, profileQueries } from './cache';
@@ -41,6 +41,24 @@ export function usePeopleSearch(search: string, enabled = true) {
   });
 }
 
+/** Каталог людей и списки связей с курсорной пагинацией. */
+export function usePeopleDirectory(
+  kind: 'all' | 'followers' | 'following',
+  search: string,
+  login = '',
+) {
+  const { users } = useRepositories();
+  return useInfiniteQuery({
+    queryKey: ['people-pages', kind, login, search],
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam, signal }) =>
+      kind === 'all'
+        ? users.search({ search, cursor: pageParam, limit: 12 }, { signal })
+        : users[kind](login, { search, cursor: pageParam }, { signal }),
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+}
+
 /** Подписка на автора — оптимистично в кэше профиля. */
 export function useFollow(login: string) {
   const { users } = useRepositories();
@@ -62,6 +80,9 @@ export function useFollow(login: string) {
     },
     onSuccess: (res) => {
       patchProfile(qc, login, (p) => ({ ...p, ...res }));
+      // Меняется также число подписок в собственном профиле.
+      void qc.invalidateQueries({ queryKey: ['profile'] });
+      void qc.invalidateQueries({ queryKey: ['people-pages'] });
       void qc.invalidateQueries({ queryKey: qk.suggestions });
       void qc.invalidateQueries({ queryKey: qk.stories });
       void qc.invalidateQueries({ queryKey: ['feed', 'following'] });

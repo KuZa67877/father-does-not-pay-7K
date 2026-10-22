@@ -1,0 +1,66 @@
+.page {
+  padding-block: 64px;
+  display: grid;
+  gap: 32px;
+}
+.head {
+  max-width: 680px;
+  display: grid;
+  gap: 16px;
+}
+.code {
+  font: 500 48px/1 var(--font-head);
+  color: var(--muted);
+}
+.head h1 {
+  font: 600 clamp(32px, 5vw, 56px)/1.1 var(--font-head);
+}
+.head p {
+  color: var(--muted);
+}
+.head a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.search {
+  display: grid;
+  gap: 10px;
+  max-width: 680px;
+}
+.search > div {
+  display: flex;
+  gap: 12px;
+}
+.search input {
+  min-width: 0;
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+.search button {
+  padding: 12px 20px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--surface);
+}
+.rubrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
+@media (max-width: 760px) {
+  .page {
+    padding-block: 32px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

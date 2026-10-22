@@ -28,6 +28,49 @@ describe.each(Object.entries(adapters))('VeloraRepositories: %s', (_name, make) 
     repo = make();
   });
 
+  it.each([7, 30, 90] as const)(
+    'статистика за %s дней: суммы, история и доступ',
+    async (period) => {
+      const stats = await repo.stats.get(period);
+      expect(stats.series).toHaveLength(period);
+      for (const metric of Object.keys(stats.totals) as (keyof typeof stats.totals)[]) {
+        expect(stats.totals[metric]).toBe(
+          stats.series.reduce((sum, d) => sum + d.values[metric], 0),
+        );
+      }
+      for (const top of stats.topPosts) {
+        const post = await repo.posts.get(top.id);
+        expect(Date.parse(post.createdAt)).toBeGreaterThanOrEqual(
+          Date.now() - period * 86400000 - 1000,
+        );
+      }
+      await repo.auth.logout();
+      await expect(repo.stats.get(period)).rejects.toMatchObject({ code: 'unauthorized' });
+    },
+  );
+
+  it('медиа-фильтр работает вне профиля, поиск в связях не возвращает посторонних', async () => {
+    const media = await repo.posts.list({
+      tab: 'media',
+      sort: 'popular',
+      period: 'week',
+      limit: 50,
+    });
+    expect(media.items.length).toBeGreaterThan(0);
+    expect(media.items.every((p) => p.photos.length > 0 || p.video)).toBe(true);
+    const me = await repo.auth.me();
+    if (!me) throw new Error('Нет пользователя');
+    const list = await repo.users.following(me.login, {});
+    const first = list.items[0];
+    if (!first) throw new Error('Нет подписок');
+    const found = await repo.users.following(me.login, { search: first.login });
+    expect(found.items.map((p) => p.id)).toEqual([first.id]);
+    expect((await repo.users.followers(me.login, { search: 'net-takogo' })).total).toBe(0);
+    await expect(repo.users.followers('net-takogo', {})).rejects.toMatchObject({
+      code: 'not_found',
+    });
+  });
+
   it('лента: закреплённый пост первым и курсорная пагинация без дублей', async () => {
     const p1 = await repo.feed.list({ kind: 'all', limit: 5 });
     expect(p1.items[0]?.isPinned).toBe(true);

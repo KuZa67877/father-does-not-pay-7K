@@ -1,0 +1,110 @@
+{
+  "description": "Копии уже использовавшихся Picsum/Pravatar изображений первого экрана. Одинаковый набор в public обоих приложений позволяет независимо разворачивать сборки и переиспользовать портреты. Для передачи локальные копии перекодированы в WebP (качество 80%, размеры и содержимое сохранены).",
+  "files": [
+    {
+      "source": "https://picsum.photos/seed/v-tsentre-goroda-na-vykhodnye-perekroyut-naberezhnuyu-radi/480/300",
+      "path": "/demo-media/ae3c7c6d3425/480/300.webp",
+      "bytes": 20670
+    },
+    {
+      "source": "https://picsum.photos/seed/v-tsentre-goroda-na-vykhodnye-perekroyut-naberezhnuyu-radi/800/500",
+      "path": "/demo-media/ae3c7c6d3425/800/500.webp",
+      "bytes": 53584
+    },
+    {
+      "source": "https://picsum.photos/seed/v-tsentre-goroda-na-vykhodnye-perekroyut-naberezhnuyu-radi/1200/750",
+      "path": "/demo-media/ae3c7c6d3425/1200/750.webp",
+      "bytes": 111470
+    },
+    {
+      "source": "https://picsum.photos/seed/v-tsentre-goroda-na-vykhodnye-perekroyut-naberezhnuyu-radi/1600/1000",
+      "path": "/demo-media/ae3c7c6d3425/1600/1000.webp",
+      "bytes": 182390
+    },
+    {
+      "source": "https://picsum.photos/seed/banki-nachali-snizhat-stavki-po-vkladam-chto-delat-s/480/300",
+      "path": "/demo-media/85b4700641c0/480/300.webp",
+      "bytes": 15010
+    },
+    {
+      "source": "https://picsum.photos/seed/banki-nachali-snizhat-stavki-po-vkladam-chto-delat-s/800/500",
+      "path": "/demo-media/85b4700641c0/800/500.webp",
+      "bytes": 30578
+    },
+    {
+      "source": "https://picsum.photos/seed/banki-nachali-snizhat-stavki-po-vkladam-chto-delat-s/1200/750",
+      "path": "/demo-media/85b4700641c0/1200/750.webp",
+      "bytes": 53318
+    },
+    {
+      "source": "https://picsum.photos/seed/banki-nachali-snizhat-stavki-po-vkladam-chto-delat-s/1600/1000",
+      "path": "/demo-media/85b4700641c0/1600/1000.webp",
+      "bytes": 81920
+    },
+    {
+      "source": "https://i.pravatar.cc/240?img=5",
+      "path": "/demo-media/174f19857682/240/240.webp",
+      "bytes": 7080
+    },
+    {
+      "source": "https://i.pravatar.cc/240?img=44",
+      "path": "/demo-media/d3b53ac89366/240/240.webp",
+      "bytes": 5836
+    },
+    {
+      "source": "https://i.pravatar.cc/240?img=47",
+      "path": "/demo-media/02c13c370ef5/240/240.webp",
+      "bytes": 8920
+    },
+    {
+      "source": "https://i.pravatar.cc/240?img=45",
+      "path": "/demo-media/a8040c9f7859/240/240.webp",
+      "bytes": 9222
+    },
+    {
+      "source": "https://i.pravatar.cc/240?img=15",
+      "path": "/demo-media/0da72a69d34b/240/240.webp",
+      "bytes": 6554
+    },
+    {
+      "source": "https://i.pravatar.cc/240?img=13",
+      "path": "/demo-media/b804d868283f/240/240.webp",
+      "bytes": 8126
+    },
+    {
+      "source": "https://i.pravatar.cc/240?img=32",
+      "path": "/demo-media/adf740efb80e/240/240.webp",
+      "bytes": 5422
+    },
+    {
+      "source": "https://i.pravatar.cc/240?img=12",
+      "path": "/demo-media/366df54d969e/240/240.webp",
+      "bytes": 6666
+    },
+    {
+      "source": "https://i.pravatar.cc/240?img=49",
+      "path": "/demo-media/c737589183dd/240/240.webp",
+      "bytes": 7534
+    },
+    {
+      "source": "https://picsum.photos/seed/olkha-team/240/240",
+      "path": "/demo-media/bacbd8a05fd0/240/240.webp",
+      "bytes": 12660
+    },
+    {
+      "source": "https://picsum.photos/seed/p-1-0/480/360",
+      "path": "/demo-media/84955027d0c2/480/360.webp",
+      "bytes": 16670
+    },
+    {
+      "source": "https://picsum.photos/seed/p-1-0/800/600",
+      "path": "/demo-media/84955027d0c2/800/600.webp",
+      "bytes": 41568
+    },
+    {
+      "source": "https://picsum.photos/seed/p-1-0/1200/900",
+      "path": "/demo-media/84955027d0c2/1200/900.webp",
+      "bytes": 82462
+    }
+  ]
+}

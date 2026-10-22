@@ -1,14 +1,14 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 
 /* ---------- Примитивы ---------- */
 
-export const IdSchema = z.string().min(1);
+export const IdSchema = z.string().check(z.minLength(1));
 export type Id = z.infer<typeof IdSchema>;
 
 export const SlugSchema = z
   .string()
-  .min(1)
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'slug: латиница, цифры и дефисы');
+  .check(z.minLength(1))
+  .check(z.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'slug: латиница, цифры и дефисы'));
 export type Slug = z.infer<typeof SlugSchema>;
 
 /** Дата-время в ISO 8601 (с часовым поясом). */
@@ -23,32 +23,32 @@ export type MediaType = z.infer<typeof MediaTypeSchema>;
 export const MediaSchema = z.object({
   id: IdSchema,
   type: MediaTypeSchema,
-  url: z.string().min(1),
-  width: z.number().int().positive().optional(),
-  height: z.number().int().positive().optional(),
-  alt: z.string().default(''),
+  url: z.string().check(z.minLength(1)),
+  width: z.optional(z.int().check(z.positive())),
+  height: z.optional(z.int().check(z.positive())),
+  alt: z._default(z.string(), ''),
   /** Превью для видео/аудио. */
-  poster: z.string().optional(),
+  poster: z.optional(z.string()),
   /** Длительность, секунды. */
-  duration: z.number().nonnegative().optional(),
+  duration: z.optional(z.number().check(z.nonnegative())),
   /** Имя и размер — для файлов-вложений. */
-  name: z.string().optional(),
-  size: z.number().int().nonnegative().optional(),
-  mime: z.string().optional(),
+  name: z.optional(z.string()),
+  size: z.optional(z.int().check(z.nonnegative())),
+  mime: z.optional(z.string()),
 });
 export type Media = z.infer<typeof MediaSchema>;
 
 /* ---------- Пагинация ---------- */
 
 /** Страничная (page/pageSize) или курсорная (cursor) пагинация. */
-export const paginatedSchema = <T extends z.ZodType>(item: T) =>
+export const paginatedSchema = <T extends z.ZodMiniType>(item: T) =>
   z.object({
     items: z.array(item),
-    total: z.number().int().nonnegative(),
-    page: z.number().int().positive().optional(),
-    pageSize: z.number().int().positive().optional(),
+    total: z.int().check(z.nonnegative()),
+    page: z.optional(z.int().check(z.positive())),
+    pageSize: z.optional(z.int().check(z.positive())),
     /** Курсор следующей страницы; null — данных больше нет. */
-    nextCursor: z.string().nullable().optional(),
+    nextCursor: z.optional(z.nullable(z.string())),
   });
 
 export interface Paginated<T> {
@@ -76,22 +76,22 @@ export type UserRole = z.infer<typeof UserRoleSchema>;
 
 export const UserSchema = z.object({
   id: IdSchema,
-  name: z.string().min(1),
-  login: z.string().min(1),
-  avatar: MediaSchema.nullable(),
-  cover: MediaSchema.nullable(),
+  name: z.string().check(z.minLength(1)),
+  login: z.string().check(z.minLength(1)),
+  avatar: z.nullable(MediaSchema),
+  cover: z.nullable(MediaSchema),
   role: UserRoleSchema,
   /** Род занятий — «Фотограф», «Редактор отдела культуры». */
-  occupation: z.string().optional(),
-  city: z.string().optional(),
-  link: z.string().optional(),
-  bio: z.string().optional(),
+  occupation: z.optional(z.string()),
+  city: z.optional(z.string()),
+  link: z.optional(z.string()),
+  bio: z.optional(z.string()),
   isVerified: z.boolean(),
 });
 export type User = z.infer<typeof UserSchema>;
 
 /** Краткая карточка пользователя для вложения в посты/комментарии. */
-export const UserPreviewSchema = UserSchema.pick({
+export const UserPreviewSchema = z.pick(UserSchema, {
   id: true,
   name: true,
   login: true,
@@ -145,7 +145,7 @@ export const ApiErrorBodySchema = z.object({
   error: z.object({
     code: ApiErrorCodeSchema,
     message: z.string(),
-    details: z.unknown().optional(),
+    details: z.optional(z.unknown()),
   }),
 });
 export type ApiErrorBody = z.infer<typeof ApiErrorBodySchema>;
@@ -159,20 +159,20 @@ export const AuthSessionSchema = z.object({
 export type AuthSession = z.infer<typeof AuthSessionSchema>;
 
 export const LoginInputSchema = z.object({
-  login: z.string().trim().min(2, 'Введите логин или email'),
-  password: z.string().min(6, 'Минимум 6 символов'),
+  login: z.string().check(z.trim()).check(z.minLength(2, 'Введите логин или email')),
+  password: z.string().check(z.minLength(6, 'Минимум 6 символов')),
 });
 export type LoginInput = z.infer<typeof LoginInputSchema>;
 
 export const RegisterInputSchema = z.object({
-  name: z.string().trim().min(2, 'Как вас зовут?'),
+  name: z.string().check(z.trim()).check(z.minLength(2, 'Как вас зовут?')),
   login: z
     .string()
-    .trim()
-    .min(3, 'Минимум 3 символа')
-    .regex(/^[a-z0-9_]+$/i, 'Латиница, цифры и _'),
+    .check(z.trim())
+    .check(z.minLength(3, 'Минимум 3 символа'))
+    .check(z.regex(/^[a-z0-9_]+$/i, 'Латиница, цифры и _')),
   email: z.email('Похоже, в адресе опечатка'),
-  password: z.string().min(6, 'Минимум 6 символов'),
+  password: z.string().check(z.minLength(6, 'Минимум 6 символов')),
 });
 export type RegisterInput = z.infer<typeof RegisterInputSchema>;
 

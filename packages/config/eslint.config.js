@@ -16,6 +16,7 @@ export default tseslint.config(
       '**/*.gen.ts',
       'docs/**',
       '.claude/**',
+      '.cache/**',
       '_to_delete/**',
     ],
   },

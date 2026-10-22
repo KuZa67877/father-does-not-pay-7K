@@ -6,4 +6,5 @@ PROMPT.md
 CLAUDE.md
 .claude
 _to_delete
+.cache
 **/mockServiceWorker.js

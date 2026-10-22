@@ -12,4 +12,9 @@ describe('buildSrcSet', () => {
   it('для чужих URL — undefined', () => {
     expect(buildSrcSet({ url: 'blob:abc', width: 10, height: 10 })).toBeUndefined();
   });
+  it('строит размеры локальной копии с теми же пропорциями', () => {
+    expect(buildSrcSet({ url: '/demo-media/hero/1200/750.webp', width: 1200, height: 750 })).toBe(
+      '/demo-media/hero/480/300.webp 480w, /demo-media/hero/800/500.webp 800w, /demo-media/hero/1200/750.webp 1200w',
+    );
+  });
 });

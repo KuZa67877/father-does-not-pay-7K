@@ -1,20 +1,34 @@
 import { EmailSchema, isApiError } from '@dle/core';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { MailCheck, Mail } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { useForm, type Resolver } from 'react-hook-form';
+import * as z from 'zod/mini';
 import { useRepositories } from '@/shared/api/di';
 import s from './Newsletter.module.css';
 
 const Schema = z.object({ email: EmailSchema });
+type Input = z.infer<typeof Schema>;
+// Валидатор нужен при отправке формы внизу страницы, а не при показе главного фото.
+const resolver: Resolver<Input> = async (values, context, options) => {
+  try {
+    const { zodResolver } = await import('@hookform/resolvers/zod');
+    return await zodResolver(Schema)(values, context, options);
+  } catch {
+    return {
+      values: {},
+      errors: {
+        email: { type: 'validate', message: 'Не удалось проверить адрес. Повторите отправку.' },
+      },
+    };
+  }
+};
 
 /** Подписка на утреннюю рассылку «08:00. Пять новостей». */
 export function Newsletter() {
   const { newsletter } = useRepositories();
   const sub = useMutation({ mutationFn: (email: string) => newsletter.subscribe(email) });
   const { register, handleSubmit, formState } = useForm({
-    resolver: zodResolver(Schema),
+    resolver,
     defaultValues: { email: '' },
   });
   const fieldError = formState.errors.email?.message;
@@ -66,7 +80,11 @@ export function Newsletter() {
               aria-describedby={fieldError || serverError ? 'news-msg' : undefined}
               {...register('email')}
             />
-            <button type="submit" className={s.submit} disabled={sub.isPending}>
+            <button
+              type="submit"
+              className={s.submit}
+              disabled={sub.isPending || formState.isSubmitting}
+            >
               {sub.isPending ? 'Подписываем…' : 'Подписаться'}
             </button>
             {(fieldError || serverError) && (

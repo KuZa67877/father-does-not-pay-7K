@@ -1,15 +1,16 @@
 import { createBrowserRouter } from 'react-router';
+import { HomePage } from '@/pages/home';
 import { RootLayout } from './RootLayout';
 import { RouteError } from './RouteError';
 
-/** Страницы грузятся лениво — отдельные чанки. */
+/** Главная входит в стартовый чанк, остальные страницы грузятся лениво. */
 export const router = createBrowserRouter([
   {
     path: '/',
     Component: RootLayout,
     ErrorBoundary: RouteError,
     children: [
-      { index: true, lazy: () => import('@/pages/home').then((m) => ({ Component: m.HomePage })) },
+      { index: true, Component: HomePage },
       {
         path: 'feed',
         lazy: () => import('@/pages/home').then((m) => ({ Component: m.FollowingPage })),
@@ -28,11 +29,13 @@ export const router = createBrowserRouter([
       },
       {
         path: 'u/:login/followers',
-        lazy: () => import('@/pages/soon').then((m) => ({ Component: m.FollowersPage })),
+        lazy: () =>
+          import('@/pages/people/PeoplePages').then((m) => ({ Component: m.FollowersPage })),
       },
       {
         path: 'u/:login/following',
-        lazy: () => import('@/pages/soon').then((m) => ({ Component: m.FollowingPage })),
+        lazy: () =>
+          import('@/pages/people/PeoplePages').then((m) => ({ Component: m.FollowingPage })),
       },
       {
         path: 'c/:slug',
@@ -60,11 +63,12 @@ export const router = createBrowserRouter([
       },
       {
         path: 'explore',
-        lazy: () => import('@/pages/soon').then((m) => ({ Component: m.ExplorePage })),
+        lazy: () =>
+          import('@/pages/explore/ExplorePage').then((m) => ({ Component: m.ExplorePage })),
       },
       {
         path: 'people',
-        lazy: () => import('@/pages/soon').then((m) => ({ Component: m.PeoplePage })),
+        lazy: () => import('@/pages/people/PeoplePages').then((m) => ({ Component: m.PeoplePage })),
       },
       {
         path: 'notifications',
@@ -75,7 +79,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'mystats',
-        lazy: () => import('@/pages/soon').then((m) => ({ Component: m.StatsPage })),
+        lazy: () => import('@/pages/stats/StatsPage').then((m) => ({ Component: m.StatsPage })),
       },
       {
         path: 'messages',

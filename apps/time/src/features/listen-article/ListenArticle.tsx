@@ -6,9 +6,13 @@ import s from './listen.module.css';
 export function ListenArticle({ target }: { target: RefObject<HTMLElement | null> }) {
   const speech = useArticleSpeech(target);
   if (!speech.supported)
-    return <p className={s.unavailable}>Озвучка недоступна в этом браузере.</p>;
+    return (
+      <p className={s.unavailable} data-no-print>
+        Озвучка недоступна в этом браузере.
+      </p>
+    );
   return (
-    <section className={s.player} aria-label="Озвучка статьи">
+    <section className={s.player} aria-label="Озвучка статьи" data-no-print>
       <div className={s.controls}>
         <button
           type="button"

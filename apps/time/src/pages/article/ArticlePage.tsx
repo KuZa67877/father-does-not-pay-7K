@@ -102,7 +102,7 @@ export function ArticlePage() {
   const mediaFirst = kind === 'video' || kind === 'photoReport';
 
   return (
-    <article>
+    <article data-print-article>
       {kind === 'video' && <VideoTop a={a} />}
       {kind === 'photoReport' && (
         <div className={cx('container', s.media)}>
@@ -120,8 +120,10 @@ export function ArticlePage() {
             {kind === 'podcast' && <PodcastPlayer format={a.format} title={a.title} />}
             <Prose blocks={a.body} />
           </div>
-          <ArticleFooter a={a} />
-          <ArticleComments key={a.id} articleId={a.id} />
+          <div className={s.footer} data-no-print>
+            <ArticleFooter a={a} />
+            <ArticleComments key={a.id} articleId={a.id} />
+          </div>
         </div>
       </div>
       <Related a={a} />

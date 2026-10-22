@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { useLogin, usePasswordReset, useRegister } from '@/entities/session';
 import { routes } from '@/shared/lib/routes';
 import type { AuthMode } from '@/shared/model/ui-context';

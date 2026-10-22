@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import {
   IdSchema,
   ISODateStringSchema,
@@ -12,21 +12,21 @@ import {
 export const RubricSchema = z.object({
   id: IdSchema,
   slug: SlugSchema,
-  name: z.string().min(1),
+  name: z.string().check(z.minLength(1)),
   /** Имя иконки из открытого набора (Lucide), напр. "landmark". */
   icon: z.string(),
   /** Акцентный цвет рубрики (hex). */
   color: z.string(),
-  parentId: IdSchema.nullable(),
-  description: z.string().optional(),
-  subscribersCount: z.number().int().nonnegative(),
-  articlesCount: z.number().int().nonnegative().optional(),
+  parentId: z.nullable(IdSchema),
+  description: z.optional(z.string()),
+  subscribersCount: z.int().check(z.nonnegative()),
+  articlesCount: z.optional(z.int().check(z.nonnegative())),
   /** Последний материал — для плиток рубрик на главной. */
-  lastArticle: z.object({ slug: SlugSchema, title: z.string() }).nullable().optional(),
+  lastArticle: z.optional(z.nullable(z.object({ slug: SlugSchema, title: z.string() }))),
 });
 export type Rubric = z.infer<typeof RubricSchema>;
 
-export const RubricPreviewSchema = RubricSchema.pick({
+export const RubricPreviewSchema = z.pick(RubricSchema, {
   id: true,
   slug: true,
   name: true,
@@ -38,23 +38,23 @@ export type RubricPreview = z.infer<typeof RubricPreviewSchema>;
 export const RubricStatsSchema = z.object({
   rubricId: IdSchema,
   period: z.literal('month'),
-  articles: z.number().int().nonnegative(),
-  views: z.number().int().nonnegative(),
-  comments: z.number().int().nonnegative(),
-  newSubscribers: z.number().int().nonnegative(),
+  articles: z.int().check(z.nonnegative()),
+  views: z.int().check(z.nonnegative()),
+  comments: z.int().check(z.nonnegative()),
+  newSubscribers: z.int().check(z.nonnegative()),
 });
 export type RubricStats = z.infer<typeof RubricStatsSchema>;
 
 export const TagSchema = z.object({
   id: IdSchema,
   slug: SlugSchema,
-  name: z.string().min(1),
+  name: z.string().check(z.minLength(1)),
 });
 export type Tag = z.infer<typeof TagSchema>;
 
-export const AuthorSchema = UserPreviewSchema.extend({
-  bio: z.string().optional(),
-  articlesCount: z.number().int().nonnegative().optional(),
+export const AuthorSchema = z.extend(UserPreviewSchema, {
+  bio: z.optional(z.string()),
+  articlesCount: z.optional(z.int().check(z.nonnegative())),
 });
 export type Author = z.infer<typeof AuthorSchema>;
 
@@ -67,35 +67,42 @@ export const ArticleBlockSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('heading'),
     level: z.union([z.literal(2), z.literal(3)]),
-    text: z.string().min(1),
+    text: z.string().check(z.minLength(1)),
     /** Якорь для оглавления. Пустой во вводе — сервер проставит из текста. */
     anchor: z.string(),
   }),
-  z.object({ type: z.literal('image'), media: MediaSchema, caption: z.string().optional() }),
+  z.object({ type: z.literal('image'), media: MediaSchema, caption: z.optional(z.string()) }),
   z.object({
     type: z.literal('quote'),
-    text: z.string().min(1),
-    cite: z.string().optional(),
+    text: z.string().check(z.minLength(1)),
+    cite: z.optional(z.string()),
   }),
   z.object({
     type: z.literal('list'),
     ordered: z.boolean(),
-    items: z.array(z.string()).min(1),
+    items: z.array(z.string()).check(z.minLength(1)),
   }),
   z.object({
     type: z.literal('embed'),
     provider: z.enum(['youtube', 'rutube', 'vk', 'telegram', 'other']),
-    url: z.string().min(1),
-    title: z.string().optional(),
+    url: z.string().check(z.minLength(1)),
+    title: z.optional(z.string()),
   }),
   z.object({
     type: z.literal('summary'),
     /** «Коротко» — 2–5 тезисов. */
-    items: z.array(z.string()).min(1),
+    items: z.array(z.string()).check(z.minLength(1)),
   }),
   z.object({
     type: z.literal('facts'),
-    items: z.array(z.object({ value: z.string().min(1), label: z.string().min(1) })).min(1),
+    items: z
+      .array(
+        z.object({
+          value: z.string().check(z.minLength(1)),
+          label: z.string().check(z.minLength(1)),
+        }),
+      )
+      .check(z.minLength(1)),
   }),
 ]);
 export type ArticleBlock = z.infer<typeof ArticleBlockSchema>;
@@ -108,8 +115,8 @@ export type VideoProvider = z.infer<typeof VideoProviderSchema>;
 
 export const TimecodeSchema = z.object({
   /** Секунды от начала. */
-  time: z.number().nonnegative(),
-  label: z.string().min(1),
+  time: z.number().check(z.nonnegative()),
+  label: z.string().check(z.minLength(1)),
 });
 export type Timecode = z.infer<typeof TimecodeSchema>;
 
@@ -118,12 +125,12 @@ export const ArticleFormatSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('video'),
     provider: VideoProviderSchema,
-    url: z.string().min(1),
+    url: z.string().check(z.minLength(1)),
     /** Длительность, секунды — для бейджа «Видео · 1:39». */
-    duration: z.number().nonnegative().optional(),
-    poster: z.string().optional(),
+    duration: z.optional(z.number().check(z.nonnegative())),
+    poster: z.optional(z.string()),
   }),
-  z.object({ kind: z.literal('photoReport'), gallery: z.array(MediaSchema).min(1) }),
+  z.object({ kind: z.literal('photoReport'), gallery: z.array(MediaSchema).check(z.minLength(1)) }),
   z.object({
     kind: z.literal('podcast'),
     audio: MediaSchema,
@@ -131,7 +138,7 @@ export const ArticleFormatSchema = z.discriminatedUnion('kind', [
   }),
   z.object({
     kind: z.literal('opinion'),
-    quote: z.string().min(1),
+    quote: z.string().check(z.minLength(1)),
     author: UserPreviewSchema,
   }),
 ]);
@@ -144,9 +151,9 @@ export const ReactionTypeSchema = z.enum(['useful', 'like', 'doubt', 'against'])
 export type ReactionType = z.infer<typeof ReactionTypeSchema>;
 
 export const ReactionsSchema = z.object({
-  counts: z.record(ReactionTypeSchema, z.number().int().nonnegative()),
+  counts: z.record(ReactionTypeSchema, z.int().check(z.nonnegative())),
   /** Реакция текущего пользователя (одна на материал). */
-  mine: ReactionTypeSchema.nullable(),
+  mine: z.nullable(ReactionTypeSchema),
 });
 export type Reactions = z.infer<typeof ReactionsSchema>;
 
@@ -156,55 +163,59 @@ export const ArticleStatusSchema = z.enum(['draft', 'published']);
 export type ArticleStatus = z.infer<typeof ArticleStatusSchema>;
 
 export const ArticleSourceSchema = z.object({
-  name: z.string().min(1),
-  url: z.string().optional(),
+  name: z.string().check(z.minLength(1)),
+  url: z.optional(z.string()),
 });
 
 export const ArticleSchema = z.object({
   id: IdSchema,
   slug: SlugSchema,
-  title: z.string().min(1),
+  title: z.string().check(z.minLength(1)),
   lead: z.string(),
   body: z.array(ArticleBlockSchema),
-  cover: MediaSchema.nullable(),
+  cover: z.nullable(MediaSchema),
   rubric: RubricPreviewSchema,
-  subrubric: RubricPreviewSchema.nullable(),
+  subrubric: z.nullable(RubricPreviewSchema),
   tags: z.array(TagSchema),
   author: AuthorSchema,
   status: ArticleStatusSchema,
   publishedAt: ISODateStringSchema,
   updatedAt: ISODateStringSchema,
-  readingTimeMin: z.number().int().positive(),
-  views: z.number().int().nonnegative(),
-  commentsCount: z.number().int().nonnegative(),
+  readingTimeMin: z.int().check(z.positive()),
+  views: z.int().check(z.nonnegative()),
+  commentsCount: z.int().check(z.nonnegative()),
   reactions: ReactionsSchema,
   format: ArticleFormatSchema,
   isFeatured: z.boolean(),
   /** Отметка «срочно» — для бегущей строки «Сейчас». */
-  isBreaking: z.boolean().default(false),
-  isFavorite: z.boolean().default(false),
-  source: ArticleSourceSchema.nullable(),
+  isBreaking: z._default(z.boolean(), false),
+  isFavorite: z._default(z.boolean(), false),
+  source: z.nullable(ArticleSourceSchema),
 });
 export type Article = z.infer<typeof ArticleSchema>;
 
 /** Облегчённая версия для лент и карточек: без тела. */
-export const ArticlePreviewSchema = ArticleSchema.omit({ body: true });
+export const ArticlePreviewSchema = z.omit(ArticleSchema, { body: true });
 export type ArticlePreview = z.infer<typeof ArticlePreviewSchema>;
 
 /* ---------- Ввод (создание / редактирование) ---------- */
 
 export const ArticleInputSchema = z.object({
-  title: z.string().trim().min(5, 'Заголовок — минимум 5 символов').max(200),
-  lead: z.string().trim().max(400, 'Анонс — до 400 символов'),
+  title: z
+    .string()
+    .check(z.trim())
+    .check(z.minLength(5, 'Заголовок — минимум 5 символов'))
+    .check(z.maxLength(200)),
+  lead: z.string().check(z.trim()).check(z.maxLength(400, 'Анонс — до 400 символов')),
   body: z.array(ArticleBlockSchema),
-  coverId: IdSchema.nullable(),
+  coverId: z.nullable(IdSchema),
   rubricId: IdSchema,
-  subrubricId: IdSchema.nullable(),
-  tags: z.array(z.string().trim().min(1)).max(10),
+  subrubricId: z.nullable(IdSchema),
+  tags: z.array(z.string().check(z.trim()).check(z.minLength(1))).check(z.maxLength(10)),
   format: ArticleFormatSchema,
   status: ArticleStatusSchema,
-  isFeatured: z.boolean().default(false),
-  source: ArticleSourceSchema.nullable().default(null),
+  isFeatured: z._default(z.boolean(), false),
+  source: z._default(z.nullable(ArticleSourceSchema), null),
 });
 export type ArticleInput = z.infer<typeof ArticleInputSchema>;
 
@@ -255,14 +266,14 @@ export interface Comment {
   replies: Comment[];
 }
 
-export const CommentSchema: z.ZodType<Comment> = z.object({
+export const CommentSchema: z.ZodMiniType<Comment> = z.object({
   id: IdSchema,
   articleId: IdSchema,
-  parentId: IdSchema.nullable(),
+  parentId: z.nullable(IdSchema),
   author: UserPreviewSchema,
-  text: z.string().min(1),
+  text: z.string().check(z.minLength(1)),
   createdAt: ISODateStringSchema,
-  likesCount: z.number().int().nonnegative(),
+  likesCount: z.int().check(z.nonnegative()),
   isLiked: z.boolean(),
   get replies() {
     return z.array(CommentSchema);
@@ -270,8 +281,12 @@ export const CommentSchema: z.ZodType<Comment> = z.object({
 });
 
 export const CommentInputSchema = z.object({
-  text: z.string().trim().min(2, 'Слишком коротко').max(2000, 'До 2000 символов'),
-  parentId: IdSchema.nullable(),
+  text: z
+    .string()
+    .check(z.trim())
+    .check(z.minLength(2, 'Слишком коротко'))
+    .check(z.maxLength(2000, 'До 2000 символов')),
+  parentId: z.nullable(IdSchema),
 });
 export type CommentInput = z.infer<typeof CommentInputSchema>;
 
@@ -303,12 +318,12 @@ export const WeatherForecastSchema = z.object({
     feelsLike: z.number(),
     condition: WeatherConditionSchema,
     /** м/с */
-    wind: z.number().nonnegative(),
+    wind: z.number().check(z.nonnegative()),
     windDirection: z.string(),
     /** % */
-    humidity: z.number().min(0).max(100),
+    humidity: z.number().check(z.minimum(0)).check(z.maximum(100)),
     /** мм рт. ст. */
-    pressure: z.number().positive(),
+    pressure: z.number().check(z.positive()),
     sunrise: z.string(),
     sunset: z.string(),
   }),
@@ -317,9 +332,9 @@ export const WeatherForecastSchema = z.object({
 export type WeatherForecast = z.infer<typeof WeatherForecastSchema>;
 
 export const CurrencyRateSchema = z.object({
-  code: z.string().length(3),
+  code: z.string().check(z.length(3)),
   name: z.string(),
-  value: z.number().positive(),
+  value: z.number().check(z.positive()),
   /** Изменение к предыдущему дню, абсолютное. */
   change: z.number(),
 });
@@ -334,7 +349,7 @@ export const CitySummarySchema = z.object({
       icon: z.string(),
       label: z.string(),
       value: z.string(),
-      note: z.string().optional(),
+      note: z.optional(z.string()),
     }),
   ),
 });
@@ -345,7 +360,7 @@ export type CitySummary = z.infer<typeof CitySummarySchema>;
 export const SubscriptionStateSchema = z.object({
   rubricId: IdSchema,
   isSubscribed: z.boolean(),
-  subscribersCount: z.number().int().nonnegative(),
+  subscribersCount: z.int().check(z.nonnegative()),
 });
 export type SubscriptionState = z.infer<typeof SubscriptionStateSchema>;
 
@@ -358,11 +373,14 @@ export type NewsletterSubscribeResult = z.infer<typeof NewsletterSubscribeResult
 /* ---------- Присланные читателями материалы ---------- */
 
 export const ReaderSubmissionInputSchema = z.object({
-  articleId: IdSchema.nullable(),
-  name: z.string().trim().min(2, 'Как к вам обращаться?'),
-  contact: z.string().trim().min(3, 'Email или телефон для связи'),
-  message: z.string().trim().max(1000).default(''),
-  mediaIds: z.array(IdSchema).min(1, 'Прикрепите хотя бы один файл').max(10),
+  articleId: z.nullable(IdSchema),
+  name: z.string().check(z.trim()).check(z.minLength(2, 'Как к вам обращаться?')),
+  contact: z.string().check(z.trim()).check(z.minLength(3, 'Email или телефон для связи')),
+  message: z._default(z.string().check(z.trim()).check(z.maxLength(1000)), ''),
+  mediaIds: z
+    .array(IdSchema)
+    .check(z.minLength(1, 'Прикрепите хотя бы один файл'))
+    .check(z.maxLength(10)),
   consent: z.literal(true, { error: 'Нужно согласие на публикацию' }),
 });
 export type ReaderSubmissionInput = z.infer<typeof ReaderSubmissionInputSchema>;

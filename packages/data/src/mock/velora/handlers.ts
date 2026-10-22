@@ -170,10 +170,10 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
           list = list.filter((x) => db.saved.has(x.id));
         } else if (author) {
           list = list.filter((x) => x.author.login === author);
-          if (tab === 'media') list = list.filter((x) => x.photos.length > 0 || x.video);
-          if (tab === 'reposts') list = list.filter((x) => x.repostOf);
-          if (tab === 'posts') list = list.filter((x) => !x.repostOf);
         }
+        if (tab === 'media') list = list.filter((x) => x.photos.length > 0 || x.video);
+        if (tab === 'reposts') list = list.filter((x) => x.repostOf);
+        if (tab === 'posts' && author) list = list.filter((x) => !x.repostOf);
         const category = p.get('category');
         if (category) list = list.filter((x) => x.categories.some((c) => c.slug === category));
         const tag = p.get('tag')?.toLowerCase();
@@ -676,17 +676,34 @@ export function createVeloraHandlers(base: string, db: VeloraMockDb = createVelo
       `${base}/users/:login/followers`,
       handle(({ params, request }) => {
         const login = String(params['login']);
+        if (!findUser(login)) return notFound('Пользователь');
         const p = new URL(request.url).searchParams;
-        const list = db.fx.users.filter((u) => followsOf(u.login).has(login)).map(profileView);
+        const search = p.get('search')?.trim().toLowerCase();
+        const list = db.fx.users
+          .filter(
+            (u) =>
+              followsOf(u.login).has(login) &&
+              (!search || `${u.name} ${u.login}`.toLowerCase().includes(search)),
+          )
+          .map(profileView);
         return HttpResponse.json(paginateCursor(list, p.get('cursor'), 20));
       }),
     ),
     http.get(
       `${base}/users/:login/following`,
       handle(({ params, request }) => {
-        const set = followsOf(String(params['login']));
+        const login = String(params['login']);
+        if (!findUser(login)) return notFound('Пользователь');
+        const set = followsOf(login);
         const p = new URL(request.url).searchParams;
-        const list = db.fx.users.filter((u) => set.has(u.login)).map(profileView);
+        const search = p.get('search')?.trim().toLowerCase();
+        const list = db.fx.users
+          .filter(
+            (u) =>
+              set.has(u.login) &&
+              (!search || `${u.name} ${u.login}`.toLowerCase().includes(search)),
+          )
+          .map(profileView);
         return HttpResponse.json(paginateCursor(list, p.get('cursor'), 20));
       }),
     ),
@@ -802,7 +819,8 @@ function buildStats(period: 7 | 30 | 90, login: string, posts: Post[]) {
         return [m, total];
       }),
     ) as Record<StatsMetric, number>;
-  const mine = posts.filter((p) => p.author.login === login);
+  const since = new Date(Date.now() - period * 86_400_000).toISOString();
+  const mine = posts.filter((p) => p.author.login === login && p.createdAt >= since);
   return {
     period,
     totals: sum(0, period),

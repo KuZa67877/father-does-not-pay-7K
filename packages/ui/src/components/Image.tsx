@@ -42,7 +42,7 @@ export function Image({
           fetchPriority={priority ? 'high' : 'auto'}
           onLoad={() => setState('loaded')}
           onError={() => setState('error')}
-          className={cx(s.img, state === 'loaded' && s.loaded, className)}
+          className={cx(s.img, priority && s.priority, state === 'loaded' && s.loaded, className)}
           {...rest}
         />
       )}

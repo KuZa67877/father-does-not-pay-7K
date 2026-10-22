@@ -3,6 +3,10 @@
   flex-direction: column;
   gap: 16px;
 }
+.list > article:nth-of-type(n + 2) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
 .more {
   display: flex;
   justify-content: center;

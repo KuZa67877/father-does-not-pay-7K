@@ -7,39 +7,44 @@ import {
   type ArticleQuery,
   type TimeRepositories,
 } from '@dle/core/time';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import type { HttpClient, Query } from '../http/client';
 import { createRestTimeRepositories } from '../rest/time';
 import { mediaTypeFromMime, Void } from '../rest/common';
 
 const enc = encodeURIComponent;
-const RubricDto = RubricSchema.omit({ id: true }).extend({ documentId: z.string().min(1) });
+const RubricDto = z.extend(z.omit(RubricSchema, { id: true }), {
+  documentId: z.string().check(z.minLength(1)),
+});
 const TagDto = z.object({ documentId: z.string(), slug: z.string(), name: z.string() });
 const UploadDto = z.object({
-  id: z.number().int(),
+  id: z.int(),
   url: z.string(),
   mime: z.string(),
   name: z.string(),
   size: z.number(),
-  alternativeText: z.string().nullable().optional(),
-  width: z.number().nullable().optional(),
-  height: z.number().nullable().optional(),
+  alternativeText: z.optional(z.nullable(z.string())),
+  width: z.optional(z.nullable(z.number())),
+  height: z.optional(z.nullable(z.number())),
 });
-const ArticleDto = ArticleSchema.omit({
-  id: true,
-  status: true,
-  cover: true,
-  rubric: true,
-  subrubric: true,
-  tags: true,
-}).extend({
-  documentId: z.string().min(1),
-  publicationState: z.enum(['draft', 'published']),
-  cover: UploadDto.nullable(),
-  rubric: RubricDto,
-  subrubric: RubricDto.nullable(),
-  tags: z.array(TagDto),
-});
+const ArticleDto = z.extend(
+  z.omit(ArticleSchema, {
+    id: true,
+    status: true,
+    cover: true,
+    rubric: true,
+    subrubric: true,
+    tags: true,
+  }),
+  {
+    documentId: z.string().check(z.minLength(1)),
+    publicationState: z.enum(['draft', 'published']),
+    cover: z.nullable(UploadDto),
+    rubric: RubricDto,
+    subrubric: z.nullable(RubricDto),
+    tags: z.array(TagDto),
+  },
+);
 const Single = z.object({ data: ArticleDto });
 const List = z.object({
   data: z.array(ArticleDto),
@@ -246,7 +251,7 @@ export function createStrapiTimeRepositories(
         const form = new FormData();
         form.append('files', file);
         const files = await cms.upload('/upload', form, {
-          schema: z.array(UploadDto).min(1),
+          schema: z.array(UploadDto).check(z.minLength(1)),
           signal: opts?.signal,
           onProgress: opts?.onProgress,
         });

@@ -15,6 +15,10 @@
 .loaded {
   opacity: 1;
 }
+.priority {
+  opacity: 1;
+  transition: none;
+}
 .broken {
   position: absolute;
   inset: 0;

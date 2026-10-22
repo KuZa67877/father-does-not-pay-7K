@@ -3,7 +3,7 @@ import { Button, Modal } from '@dle/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useId, useState, type ComponentProps } from 'react';
 import { useForm, type FieldError } from 'react-hook-form';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { useLogin, usePasswordReset, useRegister } from '@/entities/session';
 import { SITE_NAME } from '@/shared/config/env';
 import s from './AuthModal.module.css';

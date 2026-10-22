@@ -1,0 +1,33 @@
+.page {
+  display: grid;
+  gap: 32px;
+  padding-block: 64px;
+}
+.head {
+  display: grid;
+  gap: 16px;
+  max-width: 700px;
+}
+.head h1 {
+  font: 600 clamp(32px, 5vw, 56px)/1.1 var(--font-head);
+}
+.head p {
+  color: var(--muted);
+}
+.head a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
+@media (max-width: 760px) {
+  .page {
+    padding-block: 32px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

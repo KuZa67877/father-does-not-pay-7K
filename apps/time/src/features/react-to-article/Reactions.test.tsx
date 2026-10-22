@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import type { Article } from '@dle/core/time';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterAll, beforeAll, expect, it } from 'vitest';
@@ -33,7 +34,8 @@ it('переключает и снимает реакцию, при ошибке
   await user.click(like);
   await waitFor(() => expect(like).toHaveAttribute('aria-pressed', 'false'));
   await waitFor(() => expect(like).toBeEnabled());
-  const before = queryClient.getQueryData(qk.articles.detail(article.slug));
+  const before = queryClient.getQueryData<Article>(qk.articles.detail(article.slug))?.reactions;
+  expect(before).toBeDefined();
   server.use(
     http.put(
       'http://localhost/api/articles/:id/reaction',
@@ -43,7 +45,9 @@ it('переключает и снимает реакцию, при ошибке
   await user.click(like);
   expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось сохранить');
   await waitFor(() =>
-    expect(queryClient.getQueryData(qk.articles.detail(article.slug))).toEqual(before),
+    expect(queryClient.getQueryData<Article>(qk.articles.detail(article.slug))?.reactions).toEqual(
+      before,
+    ),
   );
 });
 
